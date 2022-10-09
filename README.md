@@ -40,6 +40,7 @@ $ python3 -m node_monitor
 - discord bot
 - slack bot
 - easy config options (filters, intervals)
+- better & more tests
 
 ### Notes
 fetch api data with curl

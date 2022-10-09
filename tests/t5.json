@@ -46,7 +46,7 @@
       "owner": "Digital Realty", 
       "region": "Europe,BE,Brussels Capital", 
       "status": "UP", 
-      "subnet_id": "o3ow2-2ipam-6fcjo-3j5vt-fzbge-2g7my-5fz2m-p4o2t-dwlc4-gt2q7-5ae"
+      "subnet_id": "nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe"
     }, 
     {
       "dc_id": "br1", 
@@ -159,18 +159,6 @@
     {
       "dc_id": "an1", 
       "dc_name": "Antwerp", 
-      "node_id": "7ip7l-crn4t-bmbgn-yqmaa-3igqp-a444k-ozelm-dd7cp-p7rmm-3zwrx-wqe", 
-      "node_operator_id": "pgunx-7pdft-jwvuo-j65kd-2mdxl-bi3r7-znv4c-vw2q3-2gno4-2uoeg-wqe", 
-      "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
-      "node_provider_name": "Allusion", 
-      "owner": "Datacenter United", 
-      "region": "Europe,BE,Flanders", 
-      "status": "UNASSIGNED", 
-      "subnet_id": null
-    }, 
-    {
-      "dc_id": "an1", 
-      "dc_name": "Antwerp", 
       "node_id": "7rkml-6hpmp-t2e4r-v6rab-iqugz-surqq-vcqxh-h7fld-rnts2-osixh-yqe", 
       "node_operator_id": "pgunx-7pdft-jwvuo-j65kd-2mdxl-bi3r7-znv4c-vw2q3-2gno4-2uoeg-wqe", 
       "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
@@ -179,6 +167,18 @@
       "region": "Europe,BE,Flanders", 
       "status": "UP", 
       "subnet_id": "uzr34-akd3s-xrdag-3ql62-ocgoh-ld2ao-tamcv-54e7j-krwgb-2gm4z-oqe"
+    }, 
+    {
+      "dc_id": "an1", 
+      "dc_name": "Antwerp", 
+      "node_id": "7ip7l-crn4t-bmbgn-yqmaa-3igqp-a444k-ozelm-dd7cp-p7rmm-3zwrx-wqe", 
+      "node_operator_id": "pgunx-7pdft-jwvuo-j65kd-2mdxl-bi3r7-znv4c-vw2q3-2gno4-2uoeg-wqe", 
+      "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
+      "node_provider_name": "Allusion", 
+      "owner": "Datacenter United", 
+      "region": "Europe,BE,Flanders", 
+      "status": "UNASSIGNED", 
+      "subnet_id": null
     }, 
     {
       "dc_id": "br1", 

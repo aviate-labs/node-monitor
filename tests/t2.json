@@ -46,7 +46,7 @@
       "owner": "Digital Realty", 
       "region": "Europe,BE,Brussels Capital", 
       "status": "UP", 
-      "subnet_id": "o3ow2-2ipam-6fcjo-3j5vt-fzbge-2g7my-5fz2m-p4o2t-dwlc4-gt2q7-5ae"
+      "subnet_id": "nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe"
     }, 
     {
       "dc_id": "br1", 
@@ -141,7 +141,7 @@
       "node_provider_name": "Allusion", 
       "owner": "Datacenter United", 
       "region": "Europe,BE,Flanders", 
-      "status": "UP", 
+      "status": "DOWN", 
       "subnet_id": "k44fs-gm4pv-afozh-rs7zw-cg32n-u7xov-xqyx3-2pw5q-eucnu-cosd4-uqe"
     }, 
     {
@@ -213,7 +213,7 @@
       "node_provider_name": "Allusion", 
       "owner": "Datacenter United", 
       "region": "Europe,BE,Flanders", 
-      "status": "UP", 
+      "status": "DOWN", 
       "subnet_id": "nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe"
     }, 
     {

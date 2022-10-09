@@ -15,18 +15,6 @@
     {
       "dc_id": "br1", 
       "dc_name": "Brussels", 
-      "node_id": "2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe", 
-      "node_operator_id": "mjeqs-wxqp7-tecvn-77uxe-eowch-4l4gy-6lc6f-ys6je-qnybm-5fxya-qqe", 
-      "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
-      "node_provider_name": "Allusion", 
-      "owner": "Digital Realty", 
-      "region": "Europe,BE,Brussels Capital", 
-      "status": "UP", 
-      "subnet_id": "w4rem-dv5e3-widiz-wbpea-kbttk-mnzfm-tzrc7-svcj3-kbxyb-zamch-hqe"
-    }, 
-    {
-      "dc_id": "br1", 
-      "dc_name": "Brussels", 
       "node_id": "2iak4-nkigs-mhmuo-eobu3-uxfqe-zsvsb-ncusv-z4qw4-fxa5j-mx3hq-tae", 
       "node_operator_id": "mjeqs-wxqp7-tecvn-77uxe-eowch-4l4gy-6lc6f-ys6je-qnybm-5fxya-qqe", 
       "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
@@ -46,7 +34,7 @@
       "owner": "Digital Realty", 
       "region": "Europe,BE,Brussels Capital", 
       "status": "UP", 
-      "subnet_id": "o3ow2-2ipam-6fcjo-3j5vt-fzbge-2g7my-5fz2m-p4o2t-dwlc4-gt2q7-5ae"
+      "subnet_id": "nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe"
     }, 
     {
       "dc_id": "br1", 
