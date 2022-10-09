@@ -47,13 +47,13 @@ class TestNodeMonitor(unittest.TestCase):
         self.assertNotEqual(diff.t1, diff.t2)
 
 
-    def test_get_changed(self):
+    def test_extract_from_diff(self):
         """one node goes down"""
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)
         nodemonitor.snapshots.append(self.t1)
         diff    = nodemonitor.get_diff()
-        changed = nodemonitor.get_changed(diff)
+        changed = nodemonitor.extract_from_diff(diff)
         self.assertEqual(len(changed), 1)
         self.assertGreaterEqual(
             changed[0].items(),
@@ -79,6 +79,7 @@ class TestNodeMonitor(unittest.TestCase):
 
 
 
+
 class TestOneNodeDownEmail(unittest.TestCase):
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t1 = NodesSnapshot.from_file("tests/t1.json")
@@ -94,18 +95,18 @@ class TestOneNodeDownEmail(unittest.TestCase):
 
 
 
+
 class TestTwoNodesDown(unittest.TestCase):
     """Test two nodes going down"""
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t2 = NodesSnapshot.from_file("tests/t2.json")
 
-    def test_get_changed(self):
-        """one node goes down"""
+    def test_extract_from_diff(self):
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)
         nodemonitor.snapshots.append(self.t2)
         diff    = nodemonitor.get_diff()
-        changed = nodemonitor.get_changed(diff)
+        changed = nodemonitor.extract_from_diff(diff)
         self.assertEqual(len(changed), 2)
         self.assertGreaterEqual(
             changed[0].items(),
@@ -133,13 +134,12 @@ class TestOneNodeChangeSubnetId(unittest.TestCase):
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t3 = NodesSnapshot.from_file("tests/t3.json")
 
-    def test_get_changed(self):
-        """one node goes down"""
+    def test_extract_from_diff(self):
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)
         nodemonitor.snapshots.append(self.t3)
         diff    = nodemonitor.get_diff()
-        changed = nodemonitor.get_changed(diff)
+        changed = nodemonitor.extract_from_diff(diff)
         self.assertEqual(len(changed), 1)
         self.assertGreaterEqual(
             changed[0].items(),
@@ -156,15 +156,39 @@ class TestOneNodeRemoved(unittest.TestCase):
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t4 = NodesSnapshot.from_file("tests/t4.json")
 
-    @unittest.skip("not implemented yet: 'dictionary_item_removed'")
-    def test_get_changed(self):
-        """one node goes down"""
+    def test_extract_from_diff(self):
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)
         nodemonitor.snapshots.append(self.t4)
         diff    = nodemonitor.get_diff()
-        changed = nodemonitor.get_changed(diff)
-        self.assertEqual(0, 1)
+        changed = nodemonitor.extract_from_diff(diff)
+        self.assertGreaterEqual(
+            changed[0].items(),
+            {
+                "node_id": "2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
+                "parameter": "removed_node",
+            }.items())
+
+
+
+class TestOneNodeAddded(unittest.TestCase):
+    """test one complete new entry being added to list"""
+    t0 = NodesSnapshot.from_file("tests/t0.json")
+    t4 = NodesSnapshot.from_file("tests/t4.json")
+
+    def test_extract_from_diff(self):
+        nodemonitor = NodeMonitor()
+        nodemonitor.snapshots.append(self.t4)
+        nodemonitor.snapshots.append(self.t0)
+        diff    = nodemonitor.get_diff()
+        changed = nodemonitor.extract_from_diff(diff)
+        self.assertGreaterEqual(
+            changed[0].items(),
+            {
+                'node_id': '2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe',
+                "parameter": "added_node",
+            }.items()
+        )
 
 
 class TestNodePositionsSwapped(unittest.TestCase):
@@ -173,8 +197,7 @@ class TestNodePositionsSwapped(unittest.TestCase):
     t5 = NodesSnapshot.from_file("tests/t5.json")
 
     # @unittest.skip("not implemented yet: 'dictionary_item_removed'")
-    def test_get_changed(self):
-        """one node goes down"""
+    def test_extract_from_diff(self):
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)
         nodemonitor.snapshots.append(self.t5)

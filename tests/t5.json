@@ -265,18 +265,6 @@
       "subnet_id": "io67a-2jmkw-zup3h-snbwi-g6a5n-rm5dn-b6png-lvdpl-nqnto-yih6l-gqe"
     }, 
     {
-      "dc_id": "an1", 
-      "dc_name": "Antwerp", 
-      "node_id": "egsow-rg26x-j3sml-kkjym-kswtc-sbrdy-zgbrj-uxuhg-3pw5k-oknue-xqe", 
-      "node_operator_id": "pgunx-7pdft-jwvuo-j65kd-2mdxl-bi3r7-znv4c-vw2q3-2gno4-2uoeg-wqe", 
-      "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
-      "node_provider_name": "Allusion", 
-      "owner": "Datacenter United", 
-      "region": "Europe,BE,Flanders", 
-      "status": "UP", 
-      "subnet_id": "qdvhd-os4o2-zzrdw-xrcv4-gljou-eztdp-bj326-e6jgr-tkhuc-ql6v2-yqe"
-    }, 
-    {
       "dc_id": "br1", 
       "dc_name": "Brussels", 
       "node_id": "ek3yy-o3qk4-xivlj-qik4h-tgbwt-kmyyv-po3lm-hhwll-o7p3w-qrc4s-hqe", 
@@ -383,6 +371,18 @@
       "region": "Europe,BE,Brussels Capital", 
       "status": "UP", 
       "subnet_id": "pae4o-o6dxf-xki7q-ezclx-znyd6-fnk6w-vkv5z-5lfwh-xym2i-otrrw-fqe"
+    }, 
+    {
+      "dc_id": "an1", 
+      "dc_name": "Antwerp", 
+      "node_id": "egsow-rg26x-j3sml-kkjym-kswtc-sbrdy-zgbrj-uxuhg-3pw5k-oknue-xqe", 
+      "node_operator_id": "pgunx-7pdft-jwvuo-j65kd-2mdxl-bi3r7-znv4c-vw2q3-2gno4-2uoeg-wqe", 
+      "node_provider_id": "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae", 
+      "node_provider_name": "Allusion", 
+      "owner": "Datacenter United", 
+      "region": "Europe,BE,Flanders", 
+      "status": "UP", 
+      "subnet_id": "qdvhd-os4o2-zzrdw-xrcv4-gljou-eztdp-bj326-e6jgr-tkhuc-ql6v2-yqe"
     }, 
     {
       "dc_id": "an1", 

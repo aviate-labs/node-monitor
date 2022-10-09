@@ -31,8 +31,19 @@ class NodeMonitor:
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
         print(f'[{datetime.utcnow()}]: -- Fetched New Data')
 
-    def get_diff(self):
+    def get_diff(self) -> dict:
         """runs a diff on prev and new snapshot"""
+        # possible diff keys (scraped from source):
+        # 'set_item_added'
+        # 'set_item_removed'
+        # 'iterable_item_removed'
+        # 'iterable_item_added'
+        # 'iterable_item_moved'
+        # 'values_changed'
+        # 'repetition_change'
+        # 'type_changes'
+        # 'dictionary_item_added'
+        # 'dictionary_item_removed'
         return DeepDiff(self.snapshots[0], self.snapshots[1],
                         view='tree', group_by='node_id')
 
@@ -41,7 +52,7 @@ class NodeMonitor:
         diff = self.get_diff()
         if diff:
             print(f'[{datetime.utcnow()}]: !! Change Detected, Sending Email')
-            changed = self.get_changed(diff)
+            changed = self.extract_from_diff(diff)
             msg_content = self.pretty_string(changed)
             self.send_email(msg_content)
             print(f'[{datetime.utcnow()}]: -- Email Sent')
@@ -63,22 +74,41 @@ class NodeMonitor:
 
 
     @staticmethod
-    def get_changed(diff):
+    def extract_from_diff(diff):
         """extracts relevant data from a diff into a list of dictionaries,
         one dictionary for each relevant change"""
         utcdate = datetime.utcnow()
         changed = []
-        for change in diff['values_changed']:
-            # relevant info, even if unused, keep for reference
-            path = change.path()
-            path_list = change.path(output_format='list')
-            changed.append({"eventtime": utcdate,
-                            "node_id":   path_list[0],
-                            "parameter": path_list[1],
-                            "t1":        change.t1,
-                            "t2":        change.t2,
-                            "parent_t2": change.up.t1,
-                            "parent_t2": change.up.t2})
+        if 'values_changed' in diff.keys():
+            for change in diff['values_changed']:
+                # relevant info, even if unused, keep for reference
+                path = change.path()
+                path_list = change.path(output_format='list')
+                changed.append({"eventtime": utcdate,
+                                "node_id":   path_list[0],
+                                "parameter": path_list[1],
+                                "t1":        change.t1,
+                                "t2":        change.t2,
+                                "parent_t2": change.up.t1,
+                                "parent_t2": change.up.t2})
+        if 'dictionary_item_removed' in diff.keys():
+            for change in diff['dictionary_item_removed']:
+                path_list = change.path(output_format='list')
+                changed.append({"eventtime": utcdate,
+                                "node_id": path_list[0],
+                                "t1": change.t1,
+                                "t2": None,
+                                "parameter": 'removed_node'
+                                })
+        if 'dictionary_item_added' in diff.keys():
+            for change in diff['dictionary_item_added']:
+                path_list = change.path(output_format='list')
+                changed.append({"eventtime": utcdate,
+                                "node_id": path_list[0],
+                                "t1": None,
+                                "t2": change.t2,
+                                "parameter": 'added_node'
+                                })
         return changed
 
     @staticmethod
