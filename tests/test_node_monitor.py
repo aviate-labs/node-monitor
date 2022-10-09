@@ -169,6 +169,13 @@ class TestOneNodeRemoved(unittest.TestCase):
                 "parameter": "removed_node",
             }.items())
 
+    @unittest.skip("sends an email")
+    def test_run_once(self):
+        nodemonitor = NodeMonitor()
+        nodemonitor.snapshots.append(self.t0)
+        nodemonitor.snapshots.append(self.t4)
+        nodemonitor.run_once()
+
 
 
 class TestOneNodeAddded(unittest.TestCase):
@@ -189,6 +196,15 @@ class TestOneNodeAddded(unittest.TestCase):
                 "parameter": "added_node",
             }.items()
         )
+    
+    @unittest.skip("sends an email")
+    def test_run_once(self):
+        nodemonitor = NodeMonitor()
+        nodemonitor.snapshots.append(self.t4)
+        nodemonitor.snapshots.append(self.t0)
+        nodemonitor.run_once()
+
+
 
 
 class TestNodePositionsSwapped(unittest.TestCase):
@@ -196,7 +212,6 @@ class TestNodePositionsSwapped(unittest.TestCase):
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t5 = NodesSnapshot.from_file("tests/t5.json")
 
-    # @unittest.skip("not implemented yet: 'dictionary_item_removed'")
     def test_extract_from_diff(self):
         nodemonitor = NodeMonitor()
         nodemonitor.snapshots.append(self.t0)

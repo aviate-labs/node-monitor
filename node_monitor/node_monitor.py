@@ -8,7 +8,7 @@ from email.message import EmailMessage
 from collections import deque
 from deepdiff import DeepDiff
 from datetime import datetime
-from pprint import pprint
+from pprint import pprint, pformat
 
 
 load_dotenv()
@@ -124,8 +124,14 @@ class NodeMonitor:
     def pretty_string(changed):
         """prettify string of dict of change objects"""
         def make_string(d):
-            return (f'node {d["node_id"]}:\n'
-                    + f'-- {d["parameter"]}: {d["t1"]} -> {d["t2"]}\n\n')
+            return (
+                f'For NODE with ID: {d["node_id"]}:\n'
+                f'-- Change Type: {d["parameter"].upper()}\n\n'
+                f'Details: old-->new\n'
+                f'old: \n{pformat(d["t1"])}\n'
+                f'new: \n{pformat(d["t2"])}\n'
+                f'-----------------------------------------------\n'
+            )
         return "".join(map(make_string, changed))
     
     @staticmethod
