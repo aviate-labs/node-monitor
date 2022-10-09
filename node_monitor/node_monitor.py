@@ -138,8 +138,3 @@ class NodesSnapshot(list):
         response = requests.get(NodesSnapshot.endpoint, params=payload)
         return NodesSnapshot(response.json()["nodes"])
 
-
-
-if __name__ == '__main__':
-    nodemonitor = NodeMonitor()
-    nodemonitor.runloop()

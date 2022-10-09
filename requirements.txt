@@ -1,0 +1,5 @@
+deepdiff
+deepdiff6
+discord.py
+python-dotenv
+requests

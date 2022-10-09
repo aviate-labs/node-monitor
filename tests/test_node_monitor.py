@@ -1,7 +1,7 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from node_monitor import NodeMonitor, NodesSnapshot
+from node_monitor.node_monitor import NodeMonitor, NodesSnapshot
 import json
 from pprint import pprint
 
@@ -101,14 +101,5 @@ class TestTwoNodesGoingDown:
 
 class TestOneDownNodeGoingUp:
     pass
-
-
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
-
 
 
