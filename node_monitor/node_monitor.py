@@ -11,12 +11,18 @@ from datetime import datetime
 from pprint import pprint, pformat
 
 
+### Secrets
 load_dotenv()
-gmailUsername          = os.environ.get('gmailUsername')
-gmailPassword          = os.environ.get('gmailPassword')
-discordBotToken        = os.environ.get('discordBotToken')
-emailRecipient         = os.environ.get('emailRecipient')
-nodeProviderId         = os.environ.get('nodeProviderIdAllusion')
+gmailUsername       = os.environ.get('gmailUsername')
+gmailPassword       = os.environ.get('gmailPassword')
+discordBotToken     = os.environ.get('discordBotToken')
+
+
+### Config File
+with open("config.json") as f:
+    config = json.load(f)
+    emailRecipients = config['emailRecipients']
+    nodeProviderId  = config['nodeProviderId']
 
 
 
@@ -54,7 +60,8 @@ class NodeMonitor:
             print(f'[{datetime.utcnow()}]: !! Change Detected, Sending Email')
             changed = self.extract_from_diff(diff)
             msg_content = self.pretty_string(changed)
-            self.send_email(msg_content)
+            for email_recipient in emailRecipients:
+                self.send_email(email_recipient, "Node Alert", msg_content)
             print(f'[{datetime.utcnow()}]: -- Email Sent')
         else:
             print(f'[{datetime.utcnow()}]: -- No Change (5 min)')
@@ -135,10 +142,10 @@ class NodeMonitor:
         return "".join(map(make_string, changed))
     
     @staticmethod
-    def send_email(msg_content):
+    def send_email(msg_to, msg_subject, msg_content):
         msg = EmailMessage()
-        msg['Subject'] = "Node Alert"
-        msg['To']      = emailRecipient
+        msg['Subject'] = msg_subject
+        msg['To']      = msg_to
         msg['From']    = "Node Monitor by Aviate Labs"
         msg.set_content(msg_content)
 
@@ -148,7 +155,7 @@ class NodeMonitor:
             server.ehlo()
             server.login(gmailUsername, gmailPassword)
             server.send_message(msg)
-            print("Email Sent")
+            print(f"Email Sent to {msg_to}")
 
 
 

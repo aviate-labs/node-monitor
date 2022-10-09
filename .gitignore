@@ -13,3 +13,4 @@ logs/
 *.pyc
 **/__pycache__/
 .env
+config.json

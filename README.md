@@ -12,8 +12,14 @@ Create a .env file in this directory like so
 gmailUsername   = "email.sender@gmail.com"
 gmailPassword   = "mypassword"
 discordBotToken = "xxxxxxxxxxxxxx"
-emailRecipient  = "email.receiver@gmail.com"
-nodeProviderId  = "abc2d-48fgj-32ab3-2a..."
+```
+
+Create a config.json file in this directory like so
+```js
+{
+    "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
+    "nodeProviderId": "abc2d-48fgj-32ab3-2a..."
+}
 ```
 
 Install dependencies
