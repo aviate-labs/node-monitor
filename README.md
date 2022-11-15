@@ -61,23 +61,16 @@ fetch api data with curl
 ```
 
 ### Settings Explained
-intervalMinutes
-: The interval in which to wait to query the dashboard API
+- intervalMinutes: The interval in which to wait to query the dashboard API
 
-NotifyOnNodeMonitorStartup
-: Send a notification email each time Node Monitor is started
+- NotifyOnNodeMonitorStartup: Send a notification email each time Node Monitor is started
 
-NotifyOnNodeChangeStatus
-: Sends an email if node changes to 'UP', 'DOWN', or 'UNASSIGNED'
+- NotifyOnNodeChangeStatus: Sends an email if node changes to 'UP', 'DOWN', or 'UNASSIGNED'
 
-NotifyOnAllNodeChanges
-: Sends an email for any kind of node change (subnet, owner, etc)
-: Basically verbose mode
+- NotifyOnAllNodeChanges: Sends an email for any kind of node change (subnet, owner, etc), basically verbose mode
 
-NotifyOnNodeAdded
-: Send an email when a new node is discovered on the dashboard API
+- NotifyOnNodeAdded: Send an email when a new node is discovered on the dashboard API
 
-NotifyOnNodeRemoved
-: Send an email when a node is removed from the dashboard API
+- NotifyOnNodeRemoved: Send an email when a node is removed from the dashboard API
 
 
