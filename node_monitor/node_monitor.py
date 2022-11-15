@@ -66,7 +66,7 @@ class NodeMonitor:
                 actionables.extend([event for event in events if (event.change_type == "value_change" and event.changed_parameter == "status")])
 
             for event in actionables:
-                email = NodeMonitorEmail(str(event))
+                email = NodeMonitorEmail(str(event) + self.stats_message())
                 email.send_recipients(emailRecipients)
             plog("Emails Sent")
         else:
@@ -78,7 +78,7 @@ class NodeMonitor:
         plog("Starting Node Monitor...")
         self.update_state()
         if config['NotifyOnNodeMonitorStartup']:
-            welcome_email = NodeMonitorEmail(self.welcome_message())
+            welcome_email = NodeMonitorEmail(self.welcome_message() + self.stats_message())
             welcome_email.send_recipients(emailRecipients)
         signal.signal( signal.SIGINT, lambda s, f : sys.exit(0))
         while True:
@@ -89,18 +89,21 @@ class NodeMonitor:
 
     def welcome_message(self):
         return (
-f"""Thank you for subscribing to Node Monitor by Aviate Labs!
-Your Node Monitor Settings:
--- Dfinity API query update interval: {config['intervalMinutes']} minutes
--- Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}
--- Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}
--- Send Email if new node appears on network: {config['NotifyOnNodeAdded']}
--- Send Email if node gets removed from network {config['NotifyOnNodeRemoved']}
+            f"Thank you for subscribing to Node Monitor by Aviate Labs!\n"
+            f"Your Node Monitor Settings:\n"
+            f"\t ► Dfinity API query update interval: {config['intervalMinutes']} minutes\n"
+            f"\t ► Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}\n"
+            f"\t ► Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}\n"
+            f"\t ► Send Email if new node appears on network: {config['NotifyOnNodeAdded']}\n"
+            f"\t ► Send Email if node gets removed from network: {config['NotifyOnNodeRemoved']}\n"
+        )
 
-There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.
-There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.
-There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.
-"""
+    def stats_message(self):
+        return (
+            f"\n\n"
+            f"There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.\n"
+            f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
+            f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
 
 
@@ -122,7 +125,7 @@ class NodeMonitorEmail(EmailMessage):
             server.ehlo()
             server.login(gmailUsername, gmailPassword)
             server.send_message(self)
-            print(f"Email Sent to {self['To']}")
+            plog(f"Email Sent to {self['To']}")
         del self['To']
 
     def send_recipients(self, recipients):
@@ -217,18 +220,18 @@ class ChangeEvent:
 
     def __node_added(self):
         return (
-            f'Alert: Node added!'
-            f'It looks as if a new node has been added to the IC network, and has become visible on the dashboard.'
-            f'If you planned on this, all should be working accordingly'
-            f'Node ID: {self.node_id}'
+            f'Alert: Node added!\n'
+            f'It looks as if a new node has been added to the IC network, and has become visible on the dashboard.\n'
+            f'If you planned on this, all should be working accordingly.\n'
+            f'Node ID: {self.node_id}\n'
         )
     
     def __node_removed(self):
         return (
-            f'Alert: Node removed!'
-            f'It looks as if one node has been removed from the IC network, as it is no longer visible on the dashboard.'
-            f'If you planned on this, all should be working accordingly'
-            f'Node ID: {self.node_id}'
+            f'Alert: Node removed!\n'
+            f'It looks as if one node has been removed from the IC network, as it is no longer visible on the dashboard.\n'
+            f'If you planned on this, all should be working accordingly.\n'
+            f'Node ID: {self.node_id}\n'
         )
 
     def __status_change(self):

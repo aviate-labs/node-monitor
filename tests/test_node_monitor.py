@@ -46,6 +46,10 @@ class TestNodeMonitor(unittest.TestCase):
 
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t1 = NodesSnapshot.from_file("tests/t1.json")
+    t2 = NodesSnapshot.from_file("tests/t2.json")
+    t3 = NodesSnapshot.from_file("tests/t3.json")
+    t4 = NodesSnapshot.from_file("tests/t4.json")
+    t5 = NodesSnapshot.from_file("tests/t5.json")
 
     def test_update(self):
         """make sure queue ability works to popleft at maxlength"""
@@ -59,7 +63,7 @@ class TestNodeMonitor(unittest.TestCase):
                             self.nm.snapshots[1])
 
 
-    # @unittest.skip("sends an email")
+    @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
@@ -68,7 +72,41 @@ class TestNodeMonitor(unittest.TestCase):
 
     @unittest.skip("sends an email")
     def test_one_node_up_email(self):
-        pass
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_two_nodes_down_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t2)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_one_node_change_subnet_id_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t3)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_one_node_removed_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t4)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_one_node_added_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t4)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
+
+
 
 
 
