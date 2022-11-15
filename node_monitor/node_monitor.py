@@ -24,8 +24,19 @@ with open("config.json") as f:
     config = json.load(f)
     emailRecipients = config['emailRecipients']
     nodeProviderId  = config['nodeProviderId']
-    intervalMinutes = config['intervalMinutes']
 
+# config['intervalMinutes']
+# config['NotifyOnNodeMonitorStartup']
+# config['NotifyOnNodeChangeStatus']
+# config['NotifyOnAllNodeChanges']
+# config['NotifyOnNodeAdded']
+# config['NotifyOnNodeRemoved']
+
+
+def plog(s):
+    "prints and logs"
+    new_s = f'[{datetime.utcnow()}]: -- ' + s
+    print(new_s)
 
 
 class NodeMonitor:
@@ -36,34 +47,54 @@ class NodeMonitor:
     def update(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
-        print(f'[{datetime.utcnow()}]: -- Fetched New Data')
+        plog("Fetched New Data")
 
     def run_once(self):
         """run nodemonitor once"""
         diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
         if diff:
-            print(f'[{datetime.utcnow()}]: !! Change Detected, Sending Email')
+            plog("!! Change Detected, Sending Email")
             change_events = diff.aggregate_changes()
             for email_recipient in emailRecipients:
                 for change_event in change_events:
                     msg_content = str(change_event)
                     NodeMonitorEmail(email_recipient, msg_content).send()
-            print(f'[{datetime.utcnow()}]: -- Emails Sent')
+            plog("-- Emails Sent")
         else:
-            print(f'[{datetime.utcnow()}]: -- No Change (5 min)')
+            plog(f"-- No Change ({config['intervalMinutes']} min)")
 
 
     def runloop(self):
         """main loop"""
-        print(f'[{datetime.utcnow()}]: Starting Node Monitor...')
+        plog("Starting Node Monitor...")
         self.update()
         try:
             while True:
                 self.update()
                 self.run_once()
-                time.sleep(60*intervalMinutes)
+                time.sleep(60 * config['intervalMinutes'])
         except KeyboardInterrupt:
-            print(f'[{datetime.utcnow()}]: Stopped Node Monitor')
+            plog("Stopped Node Monitor")
+
+
+    def welcome_message(self, recipient):
+        return (
+            f"""
+            Welcome, {recipient}!
+            Thank you for subscribing to Node Monitor by Aviate Labs!
+            Your Node Monitor Settings:
+            -- Dfinity API query update interval: {config['intervalMinutes']} minutes
+            -- Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}
+            -- Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}
+            -- Send Email if new node appears on network: {config['NotifyOnNodeAdded']}
+            -- Send Email if node gets removed from network {config['NotifyOnNodeRemoved']}
+
+            There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.
+            There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.
+            There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.
+            """
+        )
+
 
 
 
@@ -100,7 +131,7 @@ class NodeMonitorDiff(DeepDiff):
         DeepDiff.__init__(self, t1, t2, view='tree', group_by='node_id')
 
     def aggregate_changes(self):
-        """extract diff into a list of dictionaries, one for each change"""
+        """extract diff into a list of ChangeEvent objects"""
         utcdate = datetime.utcnow()
         change_events = []
         if 'values_changed' in self.keys():
@@ -201,7 +232,10 @@ class ChangeEvent:
         match self.change_type:
             case "node_added": self.__node_added()
             case "node_removed": self.__node_removed()
-            case "value_change": self.__status_change()
+            case "value_change": 
+                match self.changed_parameter:
+                    case "status": self.__status_change()
+                    case _: self.generic()
             case _: self.__generic()
 
 
@@ -215,6 +249,15 @@ class NodesSnapshot(list):
 
     def __init__(self, data):
         list.__init__(self, data)
+
+    def get_num_up_nodes(self):
+        pass
+
+    def get_num_down_nodes(self):
+        pass
+
+    def get_num_unassigned_nodes(self):
+        pass
 
     @staticmethod
     def from_file(file_path):

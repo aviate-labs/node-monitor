@@ -51,6 +51,12 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.run_once()
 
+    @unittest.skip("sends an email")
+    def test_one_node_up_email(self):
+        pass
+
+    
+
 
 
 
