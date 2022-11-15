@@ -1,9 +1,12 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from node_monitor.node_monitor import NodeMonitor, NodesSnapshot
+from node_monitor.node_monitor import NodeMonitor, NodesSnapshot, NodeMonitorDiff, ChangeEvent, NodeMonitorEmail
+import node_monitor.node_monitor
 import json
 from pprint import pprint
+
+
 
 
 
@@ -21,6 +24,9 @@ class TestNodesSnapshot(unittest.TestCase):
 
 
 
+
+
+
 class TestNodeMonitor(unittest.TestCase):
 
     t0 = NodesSnapshot.from_file("tests/t0.json")
@@ -28,193 +34,156 @@ class TestNodeMonitor(unittest.TestCase):
 
     def test_update(self):
         """make sure queue ability works to popleft at maxlength"""
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t1)
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t1)
-        self.assertEqual(nodemonitor.snapshots[0], self.t0)
-        self.assertEqual(nodemonitor.snapshots[1], self.t1)
-        self.assertNotEqual(nodemonitor.snapshots[0],
-                            nodemonitor.snapshots[1])
+        self.nm = NodeMonitor()
+        self.nm.snapshots.append(self.t1)
+        self.nm.snapshots.append(self.t0)
+        self.nm.snapshots.append(self.t1)
+        self.assertEqual(self.nm.snapshots[0], self.t0)
+        self.assertEqual(self.nm.snapshots[1], self.t1)
+        self.assertNotEqual(self.nm.snapshots[0],
+                            self.nm.snapshots[1])
 
 
-    def test_get_diff(self):
-        """make sure diff works properly"""
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t1)
-        diff = nodemonitor.get_diff()
+    @unittest.skip("sends an email")
+    def test_one_node_down_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
+        nm.run_once()
+
+
+
+
+
+
+
+class TestNodeMonitorEmail(unittest.TestCase):
+    @unittest.skip("sends an email")
+    def test_send_email(self):
+        recipient = node_monitor.node_monitor.emailRecipients[0]
+        NodeMonitorEmail(recipient, "test email").send()
+
+
+
+
+class TestChangeEvent(unittest.TestCase):
+    def test__ge__(self):
+        pass
+
+
+
+
+class TestNodeMonitorDiff(unittest.TestCase):
+    t0 = NodesSnapshot.from_file("tests/t0.json")
+    t1 = NodesSnapshot.from_file("tests/t1.json")
+    t2 = NodesSnapshot.from_file("tests/t2.json")
+    t3 = NodesSnapshot.from_file("tests/t3.json")
+    t4 = NodesSnapshot.from_file("tests/t4.json")
+    t5 = NodesSnapshot.from_file("tests/t5.json")
+
+    def test_diff(self):
+        diff = NodeMonitorDiff(self.t0, self.t1)
         self.assertNotEqual(diff.t1, diff.t2)
 
 
-    def test_extract_from_diff(self):
-        """one node goes down"""
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t1)
-        diff    = nodemonitor.get_diff()
-        changed = nodemonitor.extract_from_diff(diff)
-        self.assertEqual(len(changed), 1)
-        self.assertGreaterEqual(
-            changed[0].items(),
-            {
-                "node_id": "77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae",
-                "parameter": "status",
-                "t1": "UP",
-                "t2": "DOWN",
-            }.items()
-        )
-
-
-    def test_filter_by(self):
-        """filter relevant dicts from list of dicts"""
-        nodemonitor = NodeMonitor
-        l0 = [{'a': 1, 'b': 2}, {'a': 9, 'b': 3}, {'a': 1, 'b': 4}]
-        d  = {'a': 1} 
-        l1 = nodemonitor.filter_by(d, l0)
+    def test_one_node_down(self):
+        """test one node going down"""
+        diff = NodeMonitorDiff(self.t0, self.t1)
+        change_events = diff.aggregate_changes()
+        self.assertEqual(len(change_events), 1)
         self.assertEqual(
-            l1,
-            [{'a': 1, 'b': 2}, {'a': 1, 'b': 4}]
+            change_events[0],
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN",
+                node_id="77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae"
+            )
+        )
+
+    def test_two_nodes_down(self):
+        """test two nodes going down"""
+        diff = NodeMonitorDiff(self.t0, self.t2)
+        change_events = diff.aggregate_changes()
+        self.assertEqual(len(change_events), 2)
+        self.assertEqual(
+            change_events[0],
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN",
+                node_id="77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae"
+            )
+        )
+        self.assertEqual(
+            change_events[1],
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN",
+                node_id="clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae"
+            )
         )
 
 
-
-
-class TestOneNodeDownEmail(unittest.TestCase):
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t1 = NodesSnapshot.from_file("tests/t1.json")
-
-    @unittest.skip("sends an email")
-    def test_run_once(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t1)
-        nodemonitor.run_once()
-
-
-
-
-
-
-class TestTwoNodesDown(unittest.TestCase):
-    """Test two nodes going down"""
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t2 = NodesSnapshot.from_file("tests/t2.json")
-
-    def test_extract_from_diff(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t2)
-        diff    = nodemonitor.get_diff()
-        changed = nodemonitor.extract_from_diff(diff)
-        self.assertEqual(len(changed), 2)
-        self.assertGreaterEqual(
-            changed[0].items(),
-            {
-                "node_id": "77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae",
-                "parameter": "status",
-                "t1": "UP",
-                "t2": "DOWN",
-            }.items()
-        )
-        self.assertGreaterEqual(
-            changed[1].items(),
-            {
-                "node_id": "clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae",
-                "parameter": "status",
-                "t1": "UP",
-                "t2": "DOWN",
-            }.items()
+    def test_one_node_change_subnet_id(self):
+        diff = NodeMonitorDiff(self.t0, self.t3)
+        change_events = diff.aggregate_changes()
+        self.assertEqual(len(change_events), 1)
+        self.assertEqual(
+            change_events[0],
+            ChangeEvent(
+                node_id="3ecdy-dk5hn-gmh2r-4wral-uqy4v-4kly2-k6tb2-zqxyl-7ljhv-3xhes-cqe",
+                change_type="value_change",
+                changed_parameter="subnet_id",
+                t1="nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe",
+                t2="o3ow2-2ipam-6fcjo-3j5vt-fzbge-2g7my-5fz2m-p4o2t-dwlc4-gt2q7-5ae"
+            )
         )
 
-
-
-class TestOneNodeChangeSubnetId(unittest.TestCase):
-    """test one node switching to join another subnet ID"""
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t3 = NodesSnapshot.from_file("tests/t3.json")
-
-    def test_extract_from_diff(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t3)
-        diff    = nodemonitor.get_diff()
-        changed = nodemonitor.extract_from_diff(diff)
-        self.assertEqual(len(changed), 1)
-        self.assertGreaterEqual(
-            changed[0].items(),
-            {
-                "node_id": "3ecdy-dk5hn-gmh2r-4wral-uqy4v-4kly2-k6tb2-zqxyl-7ljhv-3xhes-cqe",
-                "parameter": "subnet_id",
-                "t1": "nl6hn-ja4yw-wvmpy-3z2jx-ymc34-pisx3-3cp5z-3oj4a-qzzny-jbsv3-4qe",
-                "t2": "o3ow2-2ipam-6fcjo-3j5vt-fzbge-2g7my-5fz2m-p4o2t-dwlc4-gt2q7-5ae",
-            }.items()
+    def test_one_node_removed(self):
+        diff = NodeMonitorDiff(self.t0, self.t4)
+        change_events = diff.aggregate_changes()
+        self.assertEqual(
+            change_events[0],
+            ChangeEvent(
+                node_id="2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
+                change_type="node_removed",
+                ## needs to include t1.
+                ## or to have a greaterThan comparison to make sure that
+                ## one object's params are a subset of another
+                ## object's params
+            )
         )
 
-class TestOneNodeRemoved(unittest.TestCase):
-    """test one entry being completely removed from list"""
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t4 = NodesSnapshot.from_file("tests/t4.json")
-
-    def test_extract_from_diff(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t4)
-        diff    = nodemonitor.get_diff()
-        changed = nodemonitor.extract_from_diff(diff)
-        self.assertGreaterEqual(
-            changed[0].items(),
-            {
-                "node_id": "2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
-                "parameter": "removed_node",
-            }.items())
-
-    @unittest.skip("sends an email")
-    def test_run_once(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t4)
-        nodemonitor.run_once()
-
-
-
-class TestOneNodeAddded(unittest.TestCase):
-    """test one complete new entry being added to list"""
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t4 = NodesSnapshot.from_file("tests/t4.json")
-
-    def test_extract_from_diff(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t4)
-        nodemonitor.snapshots.append(self.t0)
-        diff    = nodemonitor.get_diff()
-        changed = nodemonitor.extract_from_diff(diff)
-        self.assertGreaterEqual(
-            changed[0].items(),
-            {
-                'node_id': '2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe',
-                "parameter": "added_node",
-            }.items()
+    def test_one_node_added(self):
+        diff = NodeMonitorDiff(self.t4, self.t0)
+        change_events = diff.aggregate_changes()
+        self.assertEqual(
+            change_events[0],
+            ChangeEvent(
+                node_id="2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
+                change_type="node_added",
+                ## needs to include t1.
+                ## or to have a greaterThan comparison to make sure that
+                ## one object's params are a subset of another
+                ## object's params
+            )
         )
-    
-    @unittest.skip("sends an email")
-    def test_run_once(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t4)
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.run_once()
 
-
-
-
-class TestNodePositionsSwapped(unittest.TestCase):
-    """test change for two differently ordered datasets"""
-    t0 = NodesSnapshot.from_file("tests/t0.json")
-    t5 = NodesSnapshot.from_file("tests/t5.json")
-
-    def test_extract_from_diff(self):
-        nodemonitor = NodeMonitor()
-        nodemonitor.snapshots.append(self.t0)
-        nodemonitor.snapshots.append(self.t5)
-        diff    = nodemonitor.get_diff()
+    def test_node_positions_swapped(self):
+        diff = NodeMonitorDiff(self.t0, self.t5)
         self.assertEqual(diff, {})
+        
+
+
+
+
+
+
+
+
+
