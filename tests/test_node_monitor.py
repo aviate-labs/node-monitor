@@ -11,16 +11,31 @@ from pprint import pprint
 
 
 class TestNodesSnapshot(unittest.TestCase):
-    def test_from_file(self):
-        t0 = NodesSnapshot.from_file("tests/t0.json")
-        self.assertIsInstance(t0, list)
-        self.assertIsInstance(t0[0], dict)
 
+    t0 = NodesSnapshot.from_file("tests/t0.json")
+    t2 = NodesSnapshot.from_file("tests/t2.json")
+
+    def test_from_file(self):
+        self.assertIsInstance(self.t0, list)
+        self.assertIsInstance(self.t0[0], dict)
+
+
+    @unittest.skip("queries api")
     def test_from_api(self):
-        t0 = NodesSnapshot.from_api(
+        t1 = NodesSnapshot.from_api(
             "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae")
-        self.assertIsInstance(t0, list)
-        self.assertIsInstance(t0[0], dict)
+        self.assertIsInstance(t1, list)
+        self.assertIsInstance(t1[0], dict)
+
+
+    def test_get_num_up_nodes(self):
+        self.assertEqual(self.t2.get_num_up_nodes(), 54)
+
+    def test_get_num_down_nodes(self):
+        self.assertEqual(self.t2.get_num_down_nodes(), 2)
+
+    def test_get_num_unassigned_nodes(self):
+        self.assertEqual(self.t2.get_num_unassigned_nodes(), 6)
 
 
 
@@ -55,7 +70,7 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_up_email(self):
         pass
 
-    
+
 
 
 
@@ -65,9 +80,17 @@ class TestNodeMonitor(unittest.TestCase):
 
 class TestNodeMonitorEmail(unittest.TestCase):
     @unittest.skip("sends an email")
-    def test_send_email(self):
+    def test_send_to(self):
         recipient = node_monitor.node_monitor.emailRecipients[0]
-        NodeMonitorEmail(recipient, "test email").send()
+        NodeMonitorEmail("test email").send_to(recipient)
+
+    @unittest.skip("sends multiple emails")
+    def test_send_recipients(self):
+        recipient1 = node_monitor.node_monitor.emailRecipients[0]
+        recipient2 = node_monitor.node_monitor.emailRecipients[0]
+        NodeMonitorEmail("test email").send_recipients([recipient1, recipient2])
+
+
 
 
 

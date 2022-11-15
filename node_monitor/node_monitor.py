@@ -9,7 +9,8 @@ from collections import deque
 from deepdiff import DeepDiff
 from datetime import datetime
 from pprint import pprint, pformat
-from dataclasses import dataclass
+import signal
+import sys
 
 
 ### Secrets
@@ -34,7 +35,7 @@ with open("config.json") as f:
 
 
 def plog(s):
-    "prints and logs"
+    """prints and logs"""
     new_s = f'[{datetime.utcnow()}]: -- ' + s
     print(new_s)
 
@@ -44,43 +45,51 @@ class NodeMonitor:
     def __init__(self):
         self.snapshots = deque(maxlen=2)
 
-    def update(self):
+    def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
         plog("Fetched New Data")
 
     def run_once(self):
-        """run nodemonitor once"""
         diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
         if diff:
-            plog("!! Change Detected, Sending Email")
-            change_events = diff.aggregate_changes()
-            for email_recipient in emailRecipients:
-                for change_event in change_events:
-                    msg_content = str(change_event)
-                    NodeMonitorEmail(email_recipient, msg_content).send()
-            plog("-- Emails Sent")
+            plog("!! Change Detected")
+            actionables = []
+            events = diff.aggregate_changes()
+            if config['NotifyOnNodeAdded']:
+                actionables.extend([event for event in events if event.change_type == "node_added"])
+            if config['NotifyOnNodeRemoved']:
+                actionables.extend([event for event in events if event.change_type == "node_removed"])
+            if config['NotifyOnAllNodeChanges']:
+                actionables.extend([event for event in events if event.change_type == "value_change"])
+            elif config['NotifyOnNodeChangeStatus']:
+                actionables.extend([event for event in events if (event.change_type == "value_change" and event.changed_parameter == "status")])
+
+            for event in actionables:
+                email = NodeMonitorEmail(str(event))
+                email.send_recipients(emailRecipients)
+            plog("Emails Sent")
         else:
-            plog(f"-- No Change ({config['intervalMinutes']} min)")
+            plog(f"No Change ({config['intervalMinutes']} min)")
 
 
     def runloop(self):
         """main loop"""
         plog("Starting Node Monitor...")
-        self.update()
-        try:
-            while True:
-                self.update()
-                self.run_once()
-                time.sleep(60 * config['intervalMinutes'])
-        except KeyboardInterrupt:
-            plog("Stopped Node Monitor")
+        self.update_state()
+        if config['NotifyOnNodeMonitorStartup']:
+            welcome_email = NodeMonitorEmail(self.welcome_message())
+            welcome_email.send_recipients(emailRecipients)
+        signal.signal( signal.SIGINT, lambda s, f : sys.exit(0))
+        while True:
+            self.update_state()
+            self.run_once()
+            time.sleep(60 * config['intervalMinutes'])
 
 
-    def welcome_message(self, recipient):
+    def welcome_message(self):
         return (
             f"""
-            Welcome, {recipient}!
             Thank you for subscribing to Node Monitor by Aviate Labs!
             Your Node Monitor Settings:
             -- Dfinity API query update interval: {config['intervalMinutes']} minutes
@@ -99,14 +108,15 @@ class NodeMonitor:
 
 
 class NodeMonitorEmail(EmailMessage):
-    def __init__(self, msg_to, msg_content, msg_subject="Node Alert"):
+    def __init__(self, msg_content, msg_subject="Node Alert"):
         EmailMessage.__init__(self)
         self['Subject'] = msg_subject
-        self['To']      = msg_to
+        # self['To']      = "NA"
         self['From']    = "Node Monitor by Aviate Labs"
         self.set_content(msg_content)
 
-    def send(self):
+    def send_to(self, recipient):
+        self['To'] = recipient
         with SMTP("smtp.gmail.com", 587) as server:
             server.ehlo()
             server.starttls()
@@ -114,6 +124,11 @@ class NodeMonitorEmail(EmailMessage):
             server.login(gmailUsername, gmailPassword)
             server.send_message(self)
             print(f"Email Sent to {self['To']}")
+        del self['To']
+
+    def send_recipients(self, recipients):
+        for recipient in recipients:
+            self.send_to(recipient)
 
 
 
@@ -251,13 +266,13 @@ class NodesSnapshot(list):
         list.__init__(self, data)
 
     def get_num_up_nodes(self):
-        pass
+        return len([d for d in self if d['status'] == "UP"])
 
     def get_num_down_nodes(self):
-        pass
+        return len([d for d in self if d['status'] == "DOWN"])
 
     def get_num_unassigned_nodes(self):
-        pass
+        return len([d for d in self if d['status'] == "UNASSIGNED"])
 
     @staticmethod
     def from_file(file_path):
