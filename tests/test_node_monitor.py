@@ -65,11 +65,65 @@ class TestNodeMonitorEmail(unittest.TestCase):
 
 
 
-
 class TestChangeEvent(unittest.TestCase):
     def test__ge__(self):
-        pass
+        self.assertGreaterEqual(
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN"
+            ),
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status"
+            )
+        )
 
+    def test__ge__error_first(self):
+        assert not (
+            ChangeEvent(
+                change_type="value_chasdange",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN"
+            )
+            >=
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status"
+            )
+        )
+
+    def test__ge__error_second(self):
+        assert not (
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN"
+            )
+            >=
+            ChangeEvent(
+                change_type="value_chasange",
+                changed_parameter="status"
+            )
+        )
+    
+    def test_not__ge__(self):
+        assert not ( 
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status"
+            )
+            >=
+            ChangeEvent(
+                change_type="value_change",
+                changed_parameter="status",
+                t1="UP",
+                t2="DOWN"
+            )
+        )
 
 
 
@@ -91,7 +145,7 @@ class TestNodeMonitorDiff(unittest.TestCase):
         diff = NodeMonitorDiff(self.t0, self.t1)
         change_events = diff.aggregate_changes()
         self.assertEqual(len(change_events), 1)
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[0],
             ChangeEvent(
                 change_type="value_change",
@@ -107,7 +161,7 @@ class TestNodeMonitorDiff(unittest.TestCase):
         diff = NodeMonitorDiff(self.t0, self.t2)
         change_events = diff.aggregate_changes()
         self.assertEqual(len(change_events), 2)
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[0],
             ChangeEvent(
                 change_type="value_change",
@@ -117,7 +171,7 @@ class TestNodeMonitorDiff(unittest.TestCase):
                 node_id="77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae"
             )
         )
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[1],
             ChangeEvent(
                 change_type="value_change",
@@ -133,7 +187,7 @@ class TestNodeMonitorDiff(unittest.TestCase):
         diff = NodeMonitorDiff(self.t0, self.t3)
         change_events = diff.aggregate_changes()
         self.assertEqual(len(change_events), 1)
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[0],
             ChangeEvent(
                 node_id="3ecdy-dk5hn-gmh2r-4wral-uqy4v-4kly2-k6tb2-zqxyl-7ljhv-3xhes-cqe",
@@ -147,30 +201,22 @@ class TestNodeMonitorDiff(unittest.TestCase):
     def test_one_node_removed(self):
         diff = NodeMonitorDiff(self.t0, self.t4)
         change_events = diff.aggregate_changes()
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[0],
             ChangeEvent(
                 node_id="2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
                 change_type="node_removed",
-                ## needs to include t1.
-                ## or to have a greaterThan comparison to make sure that
-                ## one object's params are a subset of another
-                ## object's params
             )
         )
 
     def test_one_node_added(self):
         diff = NodeMonitorDiff(self.t4, self.t0)
         change_events = diff.aggregate_changes()
-        self.assertEqual(
+        self.assertGreaterEqual(
             change_events[0],
             ChangeEvent(
                 node_id="2ew2x-bmzxs-o6sw6-xbxv6-efhzc-47y5k-vy5ce-luaqo-lecdi-33z4i-gqe",
                 change_type="node_added",
-                ## needs to include t1.
-                ## or to have a greaterThan comparison to make sure that
-                ## one object's params are a subset of another
-                ## object's params
             )
         )
 

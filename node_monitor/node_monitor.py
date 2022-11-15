@@ -137,7 +137,8 @@ class NodeMonitorDiff(DeepDiff):
                 change_events.append(
                     ChangeEvent(
                         event_time=utcdate,
-                        change_type=path_list[0],
+                        change_type="node_added",
+                        node_id=path_list[0],
                         t2=change.t2
                     )
                 )
@@ -160,20 +161,14 @@ class ChangeEvent:
         self.parent_t1 = parent_t1
         self.parent_t2 = parent_t2
 
-
-    def __eq__(self, other):
-        """Not full equality. Only compares important params for testing"""
-        return (
-            self.change_type == other.change_type and
-            self.node_id == other.node_id and
-            self.changed_parameter == other.changed_parameter and
-            self.t1 == other.t1 and
-            self.t2 == other.t2
-        )
-
-    def __gt__(self, other):
+    def __ge__(self, other):
         """checks to see if other's values are contained within self"""
-        pass
+        a = [(k,v) for (k,v) in self.__dict__.items() if v is not None]
+        b = [(k,v) for (k,v) in other.__dict__.items() if v is not None]
+        for (k, v) in b:
+            if (k, v) not in a: return False
+        return True
+
 
     def __node_added(self):
         return (
@@ -201,18 +196,13 @@ class ChangeEvent:
         )
 
     def __str__(self):
-        if True:
-            return self.__generic()
-        if self.change_type == "node_added": 
-            return self.__node_added()
-        if self.change_type == "node_removed": 
-            return self.node_removed()
-        if self.change_type == "value_change":
-            if self.changed_parameter == "STATUS":
-                return self.__status_change()
-            else:
-                return self.__generic()
-
+        return self.__generic()
+        ### 
+        match self.change_type:
+            case "node_added": self.__node_added()
+            case "node_removed": self.__node_removed()
+            case "value_change": self.__status_change()
+            case _: self.__generic()
 
 
 
