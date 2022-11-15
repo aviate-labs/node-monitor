@@ -89,19 +89,18 @@ class NodeMonitor:
 
     def welcome_message(self):
         return (
-            f"""
-            Thank you for subscribing to Node Monitor by Aviate Labs!
-            Your Node Monitor Settings:
-            -- Dfinity API query update interval: {config['intervalMinutes']} minutes
-            -- Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}
-            -- Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}
-            -- Send Email if new node appears on network: {config['NotifyOnNodeAdded']}
-            -- Send Email if node gets removed from network {config['NotifyOnNodeRemoved']}
+f"""Thank you for subscribing to Node Monitor by Aviate Labs!
+Your Node Monitor Settings:
+-- Dfinity API query update interval: {config['intervalMinutes']} minutes
+-- Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}
+-- Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}
+-- Send Email if new node appears on network: {config['NotifyOnNodeAdded']}
+-- Send Email if node gets removed from network {config['NotifyOnNodeRemoved']}
 
-            There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.
-            There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.
-            There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.
-            """
+There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.
+There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.
+There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.
+"""
         )
 
 
@@ -219,17 +218,40 @@ class ChangeEvent:
     def __node_added(self):
         return (
             f'Alert: Node added!'
+            f'It looks as if a new node has been added to the IC network, and has become visible on the dashboard.'
+            f'If you planned on this, all should be working accordingly'
+            f'Node ID: {self.node_id}'
         )
     
     def __node_removed(self):
         return (
             f'Alert: Node removed!'
+            f'It looks as if one node has been removed from the IC network, as it is no longer visible on the dashboard.'
+            f'If you planned on this, all should be working accordingly'
+            f'Node ID: {self.node_id}'
         )
 
     def __status_change(self):
-        return (
-            f'Alert: status change!'
-        )
+        match self.t2:
+            case "UP":
+                return (
+                    f'🟢🟢🟢 Node UP! 🟢🟢🟢\n'
+                    f'Node Back Online\n'
+                    f'Node ID: {self.node_id}\n'
+                )
+            case "DOWN":
+                return (
+                    f'🛑🛑🛑 MAYDAY! NODE DOWN! 🛑🛑🛑\n'
+                    f'Node ID: {self.node_id}\n'
+                )
+            case "UNASSIGNED":
+                return (
+                    f'🟡🟡🟡 Alert: status change: UNASSIGNED 🟡🟡🟡\n'
+                    f"Node's status is now UNASSIGNED\n"
+                    f'Node ID: {self.node_id}\n'
+                )
+            case _: return self.__generic()
+
 
     def __generic(self):
         return (
@@ -242,16 +264,14 @@ class ChangeEvent:
         )
 
     def __str__(self):
-        return self.__generic()
-        ### 
         match self.change_type:
-            case "node_added": self.__node_added()
-            case "node_removed": self.__node_removed()
+            case "node_added": return self.__node_added()
+            case "node_removed": return self.__node_removed()
             case "value_change": 
                 match self.changed_parameter:
-                    case "status": self.__status_change()
-                    case _: self.generic()
-            case _: self.__generic()
+                    case "status": return self.__status_change()
+                    case _: return self.generic()
+            case _: return self.__generic()
 
 
 
