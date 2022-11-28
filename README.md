@@ -30,6 +30,17 @@ Create a config.json file in this directory like so
 }
 ```
 
+The lookuptable.json file is mapping of node-ids to custom labels. Its use is optional.
+Example lookuptable.json:
+```js
+{
+    "5jo56-bx...": "an1-dll01",
+    "vseni-vz...": "an1-dll02",
+    "rbr7v-bi...": "an1-dll03",
+    "kby7l-tp...": "an1-dll04",
+}
+```
+
 
 Install dependencies
 ```sh
