@@ -21,6 +21,7 @@ Create a config.json file in this directory like so
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
     "intervalMinutes": 15,
     "lookupTableFile": "lookuptable.json",
+    "loggingEnabled": true,
     "NotifyOnNodeMonitorStartup": true,
     "NotifyOnNodeChangeStatus": true,
     "NotifyOnAllNodeChanges": false,

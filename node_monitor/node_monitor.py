@@ -7,7 +7,7 @@ from smtplib import SMTP
 from email.message import EmailMessage
 from collections import deque
 from deepdiff import DeepDiff
-from datetime import datetime
+from datetime import datetime, timezone
 from pprint import pprint, pformat
 import signal
 import sys
@@ -33,6 +33,7 @@ with open("config.json") as f:
 # config['NotifyOnAllNodeChanges']
 # config['NotifyOnNodeAdded']
 # config['NotifyOnNodeRemoved']
+# config['loggingEnabled']
 
 
 ### Lookup Table
@@ -46,7 +47,12 @@ if lookupTableFile != "":
 def plog(s):
     """prints and logs"""
     new_s = f'[{datetime.utcnow()}]: -- ' + s
+    if config['loggingEnabled']:
+        utcdatestr = datetime.now(timezone.utc).date().isoformat()
+        with open('logs/' + utcdatestr + '.log', 'a') as f:
+            f.write(new_s + "\n")
     print(new_s)
+
 
 
 class NodeMonitor:
