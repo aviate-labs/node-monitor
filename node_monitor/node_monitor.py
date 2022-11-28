@@ -241,17 +241,23 @@ class ChangeEvent:
                     f'🟢🟢🟢 Node UP! 🟢🟢🟢\n'
                     f'Node Back Online\n'
                     f'Node ID: {self.node_id}\n'
+                    f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case "DOWN":
                 return (
                     f'🛑🛑🛑 MAYDAY! NODE DOWN! 🛑🛑🛑\n'
                     f'Node ID: {self.node_id}\n'
+                    f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case "UNASSIGNED":
                 return (
                     f'🟡🟡🟡 Alert: status change: UNASSIGNED 🟡🟡🟡\n'
                     f"Node's status is now UNASSIGNED\n"
                     f'Node ID: {self.node_id}\n'
+                    f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case _: return self.__generic()
 
