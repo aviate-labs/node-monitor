@@ -2,7 +2,7 @@
 
 Node monitoring software for (near) immediate notifications of changes to Internet Computer Nodes.
 
-Queries the API every 5 minutes (configurable) and reports changes to email.
+Queries the API with a specified interval (configurable) and reports changes to email.
 Can be configured to filter different kinds of events.
 
 
@@ -19,7 +19,8 @@ Create a config.json file in this directory like so
 {
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
-    "intervalMinutes": 5,
+    "intervalMinutes": 15,
+    "lookupTableFile": "lookuptable.json",
     "NotifyOnNodeMonitorStartup": true,
     "NotifyOnNodeChangeStatus": true,
     "NotifyOnAllNodeChanges": false,

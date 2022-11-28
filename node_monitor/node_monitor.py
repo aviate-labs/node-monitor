@@ -25,6 +25,7 @@ with open("config.json") as f:
     config = json.load(f)
     emailRecipients = config['emailRecipients']
     nodeProviderId  = config['nodeProviderId']
+    lookupTableFile = config['lookupTableFile']
 
 # config['intervalMinutes']
 # config['NotifyOnNodeMonitorStartup']
@@ -32,6 +33,14 @@ with open("config.json") as f:
 # config['NotifyOnAllNodeChanges']
 # config['NotifyOnNodeAdded']
 # config['NotifyOnNodeRemoved']
+
+
+### Lookup Table
+lookuptable = {}
+if lookupTableFile != "":
+    with open(lookupTableFile) as f:
+        lookuptable = json.load(f)
+
 
 
 def plog(s):
@@ -242,14 +251,16 @@ class ChangeEvent:
                     f'Node Back Online\n'
                     f'Node ID: {self.node_id}\n'
                     f'Node DC ID: {self.parent_t2["dc_id"]}\n'
-                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
+                    f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
+                    f'Check live node status here: \nhttps://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case "DOWN":
                 return (
                     f'🛑🛑🛑 MAYDAY! NODE DOWN! 🛑🛑🛑\n'
                     f'Node ID: {self.node_id}\n'
                     f'Node DC ID: {self.parent_t2["dc_id"]}\n'
-                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
+                    f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
+                    f'Check live node status here: \nhttps://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case "UNASSIGNED":
                 return (
@@ -257,7 +268,8 @@ class ChangeEvent:
                     f"Node's status is now UNASSIGNED\n"
                     f'Node ID: {self.node_id}\n'
                     f'Node DC ID: {self.parent_t2["dc_id"]}\n'
-                    f'Check live node status here: https://dashboard.internetcomputer.org/node/{self.node_id}'
+                    f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
+                    f'Check live node status here: \nhttps://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
             case _: return self.__generic()
 

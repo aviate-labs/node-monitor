@@ -9,8 +9,13 @@
 # logs
 logs/
 
+# misc
+*.csv
+*.json
+
 # python
 *.pyc
 **/__pycache__/
 .env
-config.json
+
+
