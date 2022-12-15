@@ -1,57 +1,20 @@
 import requests
 import json
 import time
-from dotenv import load_dotenv
-import os
-from smtplib import SMTP
-from email.message import EmailMessage
 from collections import deque
 from deepdiff import DeepDiff
-from datetime import datetime, timezone
+from datetime import datetime
 from pprint import pprint, pformat
 import signal
 import sys
 
 
-### Secrets
-load_dotenv()
-gmailUsername       = os.environ.get('gmailUsername')
-gmailPassword       = os.environ.get('gmailPassword')
-discordBotToken     = os.environ.get('discordBotToken')
+from .node_monitor_email import NodeMonitorEmail
+from .load_config import (
+    nodeProviderId, emailRecipients, config, lookuptable, plog
+)
 
 
-### Config File
-with open("config.json") as f:
-    config = json.load(f)
-    emailRecipients = config['emailRecipients']
-    nodeProviderId  = config['nodeProviderId']
-    lookupTableFile = config['lookupTableFile']
-
-# config['intervalMinutes']
-# config['NotifyOnNodeMonitorStartup']
-# config['NotifyOnNodeChangeStatus']
-# config['NotifyOnAllNodeChanges']
-# config['NotifyOnNodeAdded']
-# config['NotifyOnNodeRemoved']
-# config['loggingEnabled']
-
-
-### Lookup Table
-lookuptable = {}
-if lookupTableFile != "":
-    with open(lookupTableFile) as f:
-        lookuptable = json.load(f)
-
-
-
-def plog(s):
-    """prints and logs"""
-    new_s = f'[{datetime.utcnow()}]: -- ' + s
-    if config['loggingEnabled']:
-        utcdatestr = datetime.now(timezone.utc).date().isoformat()
-        with open('logs/' + utcdatestr + '.log', 'a') as f:
-            f.write(new_s + "\n")
-    print(new_s)
 
 
 
@@ -122,30 +85,6 @@ class NodeMonitor:
         )
 
 
-
-
-class NodeMonitorEmail(EmailMessage):
-    def __init__(self, msg_content, msg_subject="Node Alert"):
-        EmailMessage.__init__(self)
-        self['Subject'] = msg_subject
-        # self['To']      = "NA"
-        self['From']    = "Node Monitor by Aviate Labs"
-        self.set_content(msg_content)
-
-    def send_to(self, recipient):
-        self['To'] = recipient
-        with SMTP("smtp.gmail.com", 587) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(gmailUsername, gmailPassword)
-            server.send_message(self)
-            plog(f"Email Sent to {self['To']}")
-        del self['To']
-
-    def send_recipients(self, recipients):
-        for recipient in recipients:
-            self.send_to(recipient)
 
 
 

@@ -1,7 +1,10 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from node_monitor.node_monitor import NodeMonitor, NodesSnapshot, NodeMonitorDiff, ChangeEvent, NodeMonitorEmail
+from node_monitor.node_monitor import (
+    NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
+)
+from node_monitor.node_monitor_email import NodeMonitorEmail
 import node_monitor.node_monitor
 import json
 from pprint import pprint

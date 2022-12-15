@@ -1,5 +1,6 @@
-import csv
-import json
+import csv, json
+
+
 
 def csv_to_json():
     """helps to parse a csv lookup file into a json file that
