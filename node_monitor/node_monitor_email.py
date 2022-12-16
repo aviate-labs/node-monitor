@@ -1,7 +1,7 @@
 from email.message import EmailMessage
 from smtplib import SMTP
 
-from node_monitor.load_config import gmailUsername, gmailPassword, plog
+from node_monitor.load_config import gmailUsername, gmailPassword
 
 
 class NodeMonitorEmail(EmailMessage):
@@ -20,7 +20,6 @@ class NodeMonitorEmail(EmailMessage):
             server.ehlo()
             server.login(gmailUsername, gmailPassword)
             server.send_message(self)
-            plog(f"Email Sent to {self['To']}")
         del self['To']
 
     def send_recipients(self, recipients):

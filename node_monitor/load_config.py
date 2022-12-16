@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os, json
+import logging
 
 
 ### Secrets
@@ -33,14 +34,8 @@ if lookupTableFile != "":
         lookuptable = json.load(f)
 
 
-
-def plog(s):
-    """prints and logs"""
-    ## TODO: delete and replace with logging library
-    new_s = f'[{datetime.utcnow()}]: -- ' + s
-    if config['loggingEnabled']:
-        utcdatestr = datetime.now(timezone.utc).date().isoformat()
-        with open('logs/' + utcdatestr + '.log', 'a') as f:
-            f.write(new_s + "\n")
-    print(new_s)
+## Logging - use systemd to forward stdout/stderr to journald
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper(),
+                    format='%(asctime)s:%(levelname)s:%(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 

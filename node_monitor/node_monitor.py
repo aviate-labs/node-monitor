@@ -7,11 +7,12 @@ from datetime import datetime
 from pprint import pprint, pformat
 import signal
 import sys
+import logging
 
 
 from node_monitor.node_monitor_email import NodeMonitorEmail
 from node_monitor.load_config import (
-    nodeProviderId, emailRecipients, config, lookuptable, plog
+    nodeProviderId, emailRecipients, config, lookuptable
 )
 
 
@@ -26,12 +27,12 @@ class NodeMonitor:
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
-        plog("Fetched New Data")
+        logging.info("Fetched New Data")
 
     def run_once(self):
         diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
         if diff:
-            plog("!! Change Detected")
+            logging.info("!! Change Detected")
             actionables = []
             events = diff.aggregate_changes()
             if config['NotifyOnNodeAdded']:
@@ -46,14 +47,14 @@ class NodeMonitor:
             for event in actionables:
                 email = NodeMonitorEmail(str(event) + self.stats_message())
                 email.send_recipients(emailRecipients)
-            plog("Emails Sent")
+            logging.info("Emails Sent")
         else:
-            plog(f"No Change ({config['intervalMinutes']} min)")
+            logging.info(f"No Change ({config['intervalMinutes']} min)")
 
 
     def runloop(self):
         """main loop"""
-        plog("Starting Node Monitor...")
+        logging.info("Starting Node Monitor...")
         self.update_state()
         if config['NotifyOnNodeMonitorStartup']:
             welcome_email = NodeMonitorEmail(self.welcome_message() + self.stats_message())
