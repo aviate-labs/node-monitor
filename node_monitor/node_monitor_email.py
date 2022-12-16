@@ -1,7 +1,7 @@
 from email.message import EmailMessage
 from smtplib import SMTP
 
-from .load_config import gmailUsername, gmailPassword, plog
+from node_monitor.load_config import gmailUsername, gmailPassword, plog
 
 
 class NodeMonitorEmail(EmailMessage):

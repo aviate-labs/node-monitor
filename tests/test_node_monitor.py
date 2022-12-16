@@ -5,8 +5,6 @@ from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
 from node_monitor.node_monitor_email import NodeMonitorEmail
-import node_monitor.node_monitor
-import json
 from pprint import pprint
 
 

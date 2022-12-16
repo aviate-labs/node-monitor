@@ -9,8 +9,8 @@ import signal
 import sys
 
 
-from .node_monitor_email import NodeMonitorEmail
-from .load_config import (
+from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable, plog
 )
 
