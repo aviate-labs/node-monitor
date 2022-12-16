@@ -33,18 +33,11 @@ class NodeMonitor:
         diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
         if diff:
             logging.info("!! Change Detected")
-            actionables = []
             events = diff.aggregate_changes()
-            if config['NotifyOnNodeAdded']:
-                actionables.extend([event for event in events if event.change_type == "node_added"])
-            if config['NotifyOnNodeRemoved']:
-                actionables.extend([event for event in events if event.change_type == "node_removed"])
-            if config['NotifyOnAllNodeChanges']:
-                actionables.extend([event for event in events if event.change_type == "value_change"])
-            elif config['NotifyOnNodeChangeStatus']:
-                actionables.extend([event for event in events if (event.change_type == "value_change" and event.changed_parameter == "status")])
+            events_actionable = [event for event in events
+                                 if event.is_actionable()]
 
-            for event in actionables:
+            for event in events_actionable:
                 email = NodeMonitorEmail(str(event) + self.stats_message())
                 email.send_recipients(emailRecipients)
             logging.info("Emails Sent")
@@ -163,6 +156,21 @@ class ChangeEvent:
         self.t2 = t2
         self.parent_t1 = parent_t1
         self.parent_t2 = parent_t2
+
+
+    def is_actionable(self):
+        match self.change_type:
+            case "node_added":
+                return config['NotifyOnNodeAdded']
+            case "node_removed":
+                return config['NotifyOnNodeRemoved']
+            case "value_change":
+                if config['NotifyOnAllNodeChanges']:
+                    return True
+                elif config['NotifyOnNodeChangeStatus']:
+                    return self.changed_parameter == 'status'
+            case _: return False
+
 
     def __ge__(self, other):
         """checks to see if other's values are contained within self"""
