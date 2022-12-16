@@ -5,9 +5,8 @@ from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
 from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.load_config import emailRecipients
 from pprint import pprint
-
-
 
 
 
@@ -120,13 +119,13 @@ class TestNodeMonitor(unittest.TestCase):
 class TestNodeMonitorEmail(unittest.TestCase):
     @unittest.skip("sends an email")
     def test_send_to(self):
-        recipient = node_monitor.node_monitor.emailRecipients[0]
+        recipient = emailRecipients[0]
         NodeMonitorEmail("test email").send_to(recipient)
 
     @unittest.skip("sends multiple emails")
     def test_send_recipients(self):
-        recipient1 = node_monitor.node_monitor.emailRecipients[0]
-        recipient2 = node_monitor.node_monitor.emailRecipients[0]
+        recipient1 = emailRecipients[0]
+        recipient2 = emailRecipients[0]
         NodeMonitorEmail("test email").send_recipients([recipient1, recipient2])
 
 
