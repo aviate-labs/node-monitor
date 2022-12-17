@@ -36,10 +36,11 @@ class NodeMonitor:
             events = diff.aggregate_changes()
             events_actionable = [event for event in events
                                  if event.is_actionable()]
-
-            for event in events_actionable:
-                email = NodeMonitorEmail(str(event) + self.stats_message())
-                email.send_recipients(emailRecipients)
+            email = NodeMonitorEmail(
+                "\n\n".join(str(event) for event in events_actionable)
+                + "\n\n" + self.stats_message()
+            )
+            email.send_recipients(emailRecipients)
             logging.info("Emails Sent")
         else:
             logging.info(f"No Change ({config['intervalMinutes']} min)")
@@ -72,7 +73,6 @@ class NodeMonitor:
 
     def stats_message(self):
         return (
-            f"\n\n"
             f"There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.\n"
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
