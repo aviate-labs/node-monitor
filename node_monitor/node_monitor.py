@@ -8,9 +8,10 @@ from pprint import pprint, pformat
 import signal
 import sys
 import logging
+import threading
 
 
-from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable
 )
@@ -23,6 +24,11 @@ class NodeMonitor:
 
     def __init__(self):
         self.snapshots = deque(maxlen=2)
+        self.email_watcher_thread = threading.Thread(
+            target=email_watcher, args=(self,),
+        )
+        self.email_watcher_thread.start()
+        self.email_watcher_exit_event = threading.Event()
 
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
@@ -53,11 +59,20 @@ class NodeMonitor:
         if config['NotifyOnNodeMonitorStartup']:
             welcome_email = NodeMonitorEmail(self.welcome_message() + self.stats_message())
             welcome_email.send_recipients(emailRecipients)
-        signal.signal( signal.SIGINT, lambda s, f : sys.exit(0))
+        signal.signal( signal.SIGINT, lambda s, f : self.exit())
         while True:
             self.update_state()
             self.run_once()
             time.sleep(60 * config['intervalMinutes'])
+
+
+    def exit(self):
+        logging.info(f"Node Monitor shutting down...")
+        self.email_watcher_exit_event.set()
+        self.email_watcher_thread.join()
+        logging.info("Shut Down")
+        sys.exit(0)
+
 
 
     def welcome_message(self):
