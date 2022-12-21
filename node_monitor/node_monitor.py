@@ -24,11 +24,12 @@ class NodeMonitor:
 
     def __init__(self):
         self.snapshots = deque(maxlen=2)
-        self.email_watcher_thread = threading.Thread(
-            target=email_watcher, args=(self,),
-        )
-        self.email_watcher_thread.start()
-        self.email_watcher_exit_event = threading.Event()
+        if config['IMAPClientEnabled']:
+            self.email_watcher_thread = threading.Thread(
+                target=email_watcher, args=(self,),
+            )
+            self.email_watcher_thread.start()
+            self.email_watcher_exit_event = threading.Event()
 
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
@@ -68,8 +69,9 @@ class NodeMonitor:
 
     def exit(self):
         logging.info(f"Node Monitor shutting down...")
-        self.email_watcher_exit_event.set()
-        self.email_watcher_thread.join()
+        if config['IMAPClientEnabled']:
+            self.email_watcher_exit_event.set()
+            self.email_watcher_thread.join()
         logging.info("Shut Down")
         sys.exit(0)
 

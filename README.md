@@ -1,12 +1,14 @@
 # Node Monitor by Aviate Labs
 
-Node monitoring software for (near) immediate notifications of changes to Internet Computer Nodes.
+Node monitoring software for notifications of changes to Internet Computer Nodes.
 
 Queries the API with a specified interval (configurable) and reports changes to email.
 Can be configured to filter different kinds of events.
 
+Includes an optional feature to send a status update to any incoming emails that contain the word 'status' in the body or subject.
 
-### Setup
+
+## Setup
 Create a .env file in this directory like so
 ```text
 gmailUsername   = "email.sender@gmail.com"
@@ -14,19 +16,19 @@ gmailPassword   = "mypassword"
 discordBotToken = "xxxxxxxxxxxxxx"
 ```
 
-Create a config.json file in this directory like so
+Create a config.json file in this directory. Below is a good default config.
 ```js
 {
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
-    "intervalMinutes": 15,
+    "intervalMinutes": 5,
     "lookupTableFile": "lookuptable.json",
-    "loggingEnabled": true,
     "NotifyOnNodeMonitorStartup": true,
     "NotifyOnNodeChangeStatus": true,
     "NotifyOnAllNodeChanges": false,
     "NotifyOnNodeAdded": true,
-    "NotifyOnNodeRemoved": true
+    "NotifyOnNodeRemoved": true,
+    "IMAPClientEnabled": false
 }
 ```
 
@@ -48,7 +50,7 @@ $ pip install -r requirements.txt
 ```
 
 
-### Running
+## Running
 Run with python, and stop with keyboardinterrupt (crtl-c)
 ```sh
 $ python3 -m node_monitor
@@ -60,20 +62,24 @@ $ python3 -m node_monitor
 ```
 
 
-### TODO
-- asyncio
-- logging
-- discord bot (probably not)
-- slack bot (probably not)
-- ability to send an email and get back a status update
+## TODO
+- Discord bot
+- Better error handling
 
-### Notes
-fetch api data with curl
+## Notes
+For testing, fetch api data with curl. The repo should already include tests and accompanying json documents, so this shouldn't really be necessary
 ```sh
-> curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
+$ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
 ```
 
-### Settings Explained
+### Testing
+```sh
+$ python3 -m unittest tests/test_node_monitor.py
+```
+
+
+## Settings Explained
+
 - intervalMinutes: The interval in which to wait to query the dashboard API
 
 - NotifyOnNodeMonitorStartup: Send a notification email each time Node Monitor is started
@@ -86,4 +92,5 @@ fetch api data with curl
 
 - NotifyOnNodeRemoved: Send an email when a node is removed from the dashboard API
 
+- IMAPClientEnabled: Watch inbox and send any responses to emails querying a status update
 

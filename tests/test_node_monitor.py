@@ -5,9 +5,11 @@ from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
 from node_monitor.node_monitor_email import NodeMonitorEmail
-from node_monitor.load_config import emailRecipients
+from node_monitor.load_config import emailRecipients, config
 from pprint import pprint
 
+
+config['IMAPClientEnabled'] = False
 
 
 class TestNodesSnapshot(unittest.TestCase):

@@ -24,8 +24,7 @@ with open("config.json") as f:
 # config['NotifyOnAllNodeChanges']
 # config['NotifyOnNodeAdded']
 # config['NotifyOnNodeRemoved']
-# config['loggingEnabled']
-
+# config['IMAPClientEnabled']
 
 ### Lookup Table
 lookuptable = {}
