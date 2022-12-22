@@ -13,7 +13,6 @@ Create a .env file in this directory like so
 ```text
 gmailUsername   = "email.sender@gmail.com"
 gmailPassword   = "mypassword"
-discordBotToken = "xxxxxxxxxxxxxx"
 ```
 
 Create a config.json file in this directory. Below is a good default config.
@@ -63,7 +62,6 @@ $ python3 -m node_monitor
 
 
 ## TODO
-- Discord bot
 - Better error handling
 
 ## Notes
