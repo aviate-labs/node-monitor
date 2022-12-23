@@ -64,16 +64,16 @@ $ python3 -m node_monitor
 ## TODO
 - Better error handling
 
-## Notes
+## Testing
+```sh
+$ python3 -m unittest tests/test_node_monitor.py
+```
+### Notes
 For testing, fetch api data with curl. The repo should already include tests and accompanying json documents, so this shouldn't really be necessary
 ```sh
 $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
 ```
 
-### Testing
-```sh
-$ python3 -m unittest tests/test_node_monitor.py
-```
 
 
 ## Settings Explained
