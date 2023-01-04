@@ -204,6 +204,8 @@ class ChangeEvent:
             f'It looks as if a new node has been added to the IC network, and has become visible on the dashboard.\n'
             f'If you planned on this, all should be working accordingly.\n'
             f'Node ID: {self.node_id}\n'
+            f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+            f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
         )
     
     def __node_removed(self):
@@ -212,6 +214,8 @@ class ChangeEvent:
             f'It looks as if one node has been removed from the IC network, as it is no longer visible on the dashboard.\n'
             f'If you planned on this, all should be working accordingly.\n'
             f'Node ID: {self.node_id}\n'
+            f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+            f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
         )
 
     def __status_change(self):
