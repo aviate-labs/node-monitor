@@ -198,27 +198,27 @@ class ChangeEvent:
         return True
 
 
-    def __node_added(self):
+    def _node_added(self):
         return (
             f'Alert: Node added!\n'
             f'It looks as if a new node has been added to the IC network, and has become visible on the dashboard.\n'
             f'If you planned on this, all should be working accordingly.\n'
             f'Node ID: {self.node_id}\n'
-            f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+            f'Node DC ID: {self.t2["dc_id"]}\n'
             f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
         )
     
-    def __node_removed(self):
+    def _node_removed(self):
         return (
             f'Alert: Node removed!\n'
             f'It looks as if one node has been removed from the IC network, as it is no longer visible on the dashboard.\n'
             f'If you planned on this, all should be working accordingly.\n'
             f'Node ID: {self.node_id}\n'
-            f'Node DC ID: {self.parent_t2["dc_id"]}\n'
+            f'Node DC ID: {self.t1["dc_id"]}\n'
             f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
         )
 
-    def __status_change(self):
+    def _status_change(self):
         match self.t2:
             case "UP":
                 return (
@@ -246,10 +246,10 @@ class ChangeEvent:
                     f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
                     f'Check live node status here: \nhttps://dashboard.internetcomputer.org/node/{self.node_id}'
                 )
-            case _: return self.__generic()
+            case _: return self._generic()
 
 
-    def __generic(self):
+    def _generic(self):
         return (
             f'For NODE with ID: {self.node_id}:\n'
             f'-- Change Type: {self.change_type}\n\n'
@@ -261,13 +261,13 @@ class ChangeEvent:
 
     def __str__(self):
         match self.change_type:
-            case "node_added": return self.__node_added()
-            case "node_removed": return self.__node_removed()
+            case "node_added": return self._node_added()
+            case "node_removed": return self._node_removed()
             case "value_change": 
                 match self.changed_parameter:
-                    case "status": return self.__status_change()
+                    case "status": return self._status_change()
                     case _: return self.generic()
-            case _: return self.__generic()
+            case _: return self._generic()
 
 
 
