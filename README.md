@@ -64,6 +64,13 @@ $ python3 -m node_monitor
 ## TODO
 - Better error handling
 
+## Using with rsync
+```bash
+# a=preserve links, n=dry run, v=verbose
+$ rsync -anv --exclude 'config.json' --exclude '.git/' . username@remote_host:/root/directory
+# remove the `n` to run for real
+```
+
 ## Testing
 ```sh
 $ python3 -m unittest tests/test_node_monitor.py

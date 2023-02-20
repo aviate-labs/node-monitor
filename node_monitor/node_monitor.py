@@ -62,8 +62,12 @@ class NodeMonitor:
             welcome_email.send_recipients(emailRecipients)
         signal.signal( signal.SIGINT, lambda s, f : self.exit())
         while True:
-            self.update_state()
-            self.run_once()
+            try: 
+                self.update_state()
+                self.run_once()
+            except Exception as e:
+                logging.exception(e)
+                logging.info("Error occurred. Retrying...")
             time.sleep(60 * config['intervalMinutes'])
 
 
@@ -300,10 +304,6 @@ class NodesSnapshot(list):
     def from_api(provider_id=None):
         """slurps nodes from the dfinity api, optional node_provider_id"""
         payload = {"node_provider_id": provider_id} if provider_id else None
-        try:
-            response = requests.get(NodesSnapshot.endpoint, params=payload)
-            nodes_JSON = response.json()["nodes"]
-        except Exception as e:
-            logging.error(e)
-        return NodesSnapshot(nodes_JSON)
+        response = requests.get(NodesSnapshot.endpoint, params=payload)
+        return NodesSnapshot(response.json()["nodes"])
 
