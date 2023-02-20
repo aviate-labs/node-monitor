@@ -300,6 +300,10 @@ class NodesSnapshot(list):
     def from_api(provider_id=None):
         """slurps nodes from the dfinity api, optional node_provider_id"""
         payload = {"node_provider_id": provider_id} if provider_id else None
-        response = requests.get(NodesSnapshot.endpoint, params=payload)
-        return NodesSnapshot(response.json()["nodes"])
+        try:
+            response = requests.get(NodesSnapshot.endpoint, params=payload)
+            nodes_JSON = response.json()["nodes"]
+        except Exception as e:
+            logging.error(e)
+        return NodesSnapshot(nodes_JSON)
 
