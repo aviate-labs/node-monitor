@@ -1,11 +1,12 @@
 import sqlite3
 import requests
 import json
-import datetime
 import hashlib
 import time
+import logging
 
-DEVELOPMENT = False
+DEVELOPMENT = False   # uses in-memory database
+SAFEGUARD = True      # disables dangerous methods
 
 class NodeMonitorDB:
     """Database class for node monitor.
@@ -40,6 +41,8 @@ class NodeMonitorDB:
         self.c = self.conn.cursor()
         self.c.execute('CREATE TABLE IF NOT EXISTS refs (uuid TEXT, raw_json TEXT)')
         self.c.execute('CREATE TABLE IF NOT EXISTS timestamps (epoch_seconds INTEGER, uuid TEXT)')
+        self.conn.commit()
+        logging.info("DB Connection Opened")
 
     def _refs_uuid_already_exists(self, md5: str) -> bool:
         self.c.execute("SELECT * FROM refs WHERE uuid = ?", (md5,))
@@ -49,6 +52,7 @@ class NodeMonitorDB:
         self.c.execute("INSERT INTO refs (uuid, raw_json) VALUES (?, ?)",
                   (md5, raw_json))
         self.conn.commit()
+        logging.info(f"Added new entry to refs table: {md5}")
 
     def timestamps_add(self, epoch_seconds: int, raw_json: str) -> None:
         uuid = NodeMonitorDB.str_to_uuid(raw_json)
@@ -59,16 +63,19 @@ class NodeMonitorDB:
         self.conn.commit()
         
     def DANGEROUSLY_delete_everything(self) -> None:
-        self.c.execute("DELETE FROM refs")
-        self.c.execute("DELETE FROM timestamps")
-        self.conn.commit()
+        if not SAFEGUARD:
+            self.c.execute("DELETE FROM timestamps")
+            self.c.execute("DELETE FROM refs")
+            self.conn.commit()
+            logging.info("Deleted all data from both tables")
 
     def __del__(self):
         self.conn.close()
+        logging.info("DB Connection Closed")
         
     @staticmethod
     def get_seconds_since_epoch() -> int:
-        return int(datetime.datetime.now().timestamp())
+        return int(time.time())
     
     @staticmethod
     def str_to_uuid(s: str) -> str:
