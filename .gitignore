@@ -18,4 +18,5 @@ logs/
 **/__pycache__/
 .env
 
-
+# database
+master.db
