@@ -23,7 +23,7 @@ from node_monitor.load_config import (
 class NodeMonitor:
 
     def __init__(self):
-        self.snapshots = deque(maxlen=2)
+        self.snapshots = deque(maxlen=3)
         if config['IMAPClientEnabled']:
             self.email_watcher_thread = threading.Thread(
                 target=email_watcher, args=(self,),
@@ -37,7 +37,7 @@ class NodeMonitor:
         logging.info("Fetched New Data")
 
     def run_once(self):
-        diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
+        diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
         if diff:
             logging.info("!! Change Detected")
             events = diff.aggregate_changes()
