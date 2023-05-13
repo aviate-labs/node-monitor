@@ -107,14 +107,13 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once()
 
-    @unittest.skip("sends an email")
+    # @unittest.skip("shouldn't send an email")
     def test_one_node_ghost_outage(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t1)
-        nm.run_once()
         nm.snapshots.append(self.t0)
-        nm.run_once()
+        nm.run_once() 
 
     @unittest.skip("sends an email")
     def test_one_node_real_outage(self):
