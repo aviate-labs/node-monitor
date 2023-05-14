@@ -38,13 +38,17 @@ class NodeMonitor:
 
     def run_once(self):
         diff_boundary = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
-        diff_adjacent = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
-        diff = DeepDiff(diff_boundary, diff_adjacent)
-        if not diff:
+        diff_01 = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
+        diff_12 = NodeMonitorDiff(self.snapshots[1], self.snapshots[2])
+        diffs = [DeepDiff(diff_boundary, diff_01), 
+                 DeepDiff(diff_boundary, diff_12), 
+                 DeepDiff(diff_01, diff_12)]
+        all_true = all(diffs)
+        if not all_true:
             logging.info("!! Change Detected")
-            events = diff_adjacent.aggregate_changes()
+            events = diff_boundary.aggregate_changes()
             events_actionable = [event for event in events
-                                 if event.is_actionable()]
+                                if event.is_actionable()]
             email = NodeMonitorEmail(
                 "\n\n".join(str(event) for event in events_actionable)
                 + "\n\n" + self.stats_message()

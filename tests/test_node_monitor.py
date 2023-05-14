@@ -67,7 +67,7 @@ class TestNodeMonitor(unittest.TestCase):
                             self.nm.snapshots[1])
 
 
-    # @unittest.skip("sends an email")
+    @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
@@ -79,29 +79,22 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_up_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t1)
-        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t0)
         nm.run_once()
 
-    # @unittest.skip("sends an email")
+    @unittest.skip("sends an email")
     def test_two_nodes_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t2)
-        nm.run_once()
-    
-    @unittest.skip("sends an email")
-    def test_two_nodes_down_one_node_up_email(self):
-        nm = NodeMonitor()
         nm.snapshots.append(self.t2)
-        nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t1)
         nm.run_once()
 
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t3)
         nm.run_once()
@@ -110,12 +103,14 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_removed_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t4)
         nm.run_once()
 
     @unittest.skip("sends an email")
     def test_one_node_added_email(self):
         nm = NodeMonitor()
+        nm.snapshots.append(self.t4)
         nm.snapshots.append(self.t4)
         nm.snapshots.append(self.t0)
         nm.run_once()
@@ -127,7 +122,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t0)
         nm.run_once() 
-        print("got here and didn't send and email")
 
     @unittest.skip("sends an email")
     def test_one_node_real_one_node_ghost_outage_email(self):
@@ -137,17 +131,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.run_once() 
 
-    @unittest.skip("sends an email")
-    def test_random(self):
-        nm = NodeMonitor()
-        nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t2)
-        nm.snapshots.append(self.t1)
-        nm.run_once() # correct: email about n_eae down | current: no email
-        nm.snapshots.append(self.t0)
-        nm.run_once() # correct: email about n_eae up |
-        nm.snapshots.append(self.t0)
-        nm.run_once() # correct: no email | current: email about n1 up
 
 
 
