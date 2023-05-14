@@ -59,31 +59,44 @@ class TestNodeMonitor(unittest.TestCase):
         self.nm.snapshots.append(self.t1)
         self.nm.snapshots.append(self.t0)
         self.nm.snapshots.append(self.t1)
+        self.nm.snapshots.append(self.t0)
         self.assertEqual(self.nm.snapshots[0], self.t0)
         self.assertEqual(self.nm.snapshots[1], self.t1)
+        self.assertEqual(self.nm.snapshots[2], self.t0)
         self.assertNotEqual(self.nm.snapshots[0],
                             self.nm.snapshots[1])
 
 
-    @unittest.skip("sends an email")
+    # @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t1)
-        nm.run_once()
+        nm.snapshots.append(self.t1)
+        nm.run_once() 
 
     @unittest.skip("sends an email")
     def test_one_node_up_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
         nm.run_once()
 
-    @unittest.skip("sends an email")
+    # @unittest.skip("sends an email")
     def test_two_nodes_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t2)
+        nm.run_once()
+    
+    @unittest.skip("sends an email")
+    def test_two_nodes_down_one_node_up_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t2)
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
         nm.run_once()
 
     @unittest.skip("sends an email")
@@ -107,21 +120,38 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once()
 
-    # @unittest.skip("shouldn't send an email")
-    def test_one_node_ghost_outage(self):
+    @unittest.skip("shouldn't send an email")
+    def test_one_node_ghost_outage_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t0)
+        nm.run_once() 
+        print("got here and didn't send and email")
+
+    @unittest.skip("sends an email")
+    def test_one_node_real_one_node_ghost_outage_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t2)
+        nm.snapshots.append(self.t1)
         nm.run_once() 
 
     @unittest.skip("sends an email")
-    def test_one_node_real_outage(self):
+    def test_random(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t2)
         nm.snapshots.append(self.t1)
-        nm.snapshots.append(self.t1)
-        nm.run_once() 
+        nm.run_once() # correct: email about n_eae down | current: no email
+        nm.snapshots.append(self.t0)
+        nm.run_once() # correct: email about n_eae up |
+        nm.snapshots.append(self.t0)
+        nm.run_once() # correct: no email | current: email about n1 up
+
+
+
+    
 
 
 

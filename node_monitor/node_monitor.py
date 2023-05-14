@@ -37,10 +37,12 @@ class NodeMonitor:
         logging.info("Fetched New Data")
 
     def run_once(self):
-        diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
-        if diff:
+        diff_boundary = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
+        diff_adjacent = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
+        diff = DeepDiff(diff_boundary, diff_adjacent)
+        if not diff:
             logging.info("!! Change Detected")
-            events = diff.aggregate_changes()
+            events = diff_adjacent.aggregate_changes()
             events_actionable = [event for event in events
                                  if event.is_actionable()]
             email = NodeMonitorEmail(
