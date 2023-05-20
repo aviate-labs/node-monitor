@@ -91,11 +91,16 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t2)
         nm.run_once()
 
+    """Test failed.
+
+    Expected behaviour: send an email about subnet change.
+    Actual behaviour: only a status email is sent.
+    """
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t3)
         nm.snapshots.append(self.t3)
         nm.run_once()
 
