@@ -37,26 +37,61 @@ class NodeMonitor:
         logging.info("Fetched New Data")
 
     def run_once(self):
-        diff_boundary = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
-        diff_01 = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
-        diff_12 = NodeMonitorDiff(self.snapshots[1], self.snapshots[2])
-        diffs = [DeepDiff(diff_boundary, diff_01), 
-                 DeepDiff(diff_boundary, diff_12), 
-                 DeepDiff(diff_01, diff_12)]
-        all_true = all(diffs)
-        if not all_true:
-            logging.info("!! Change Detected")
-            events = diff_boundary.aggregate_changes()
-            events_actionable = [event for event in events
-                                if event.is_actionable()]
-            email = NodeMonitorEmail(
-                "\n\n".join(str(event) for event in events_actionable)
-                + "\n\n" + self.stats_message()
-            )
-            email.send_recipients(emailRecipients)
-            logging.info("Emails Sent")
-        else:
-            logging.info(f"No Change ({config['intervalMinutes']} min)")
+        """sends an email if status change persists for two consecutive snapshots"""
+        diff_0_2 = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
+        diff_0_1 = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
+        diff_1_2 = NodeMonitorDiff(self.snapshots[1], self.snapshots[2])
+
+        """implementation 1 - does not overload equality operator
+        
+        For test_one_node_up_long_email and test_one_node_down_long_email, 
+        a status email is also sent.
+        """
+        # if not DeepDiff(diff_0_1, diff_0_2):
+        #     logging.info("!! Change Detected")
+        #     events = diff_0_2.aggregate_changes()
+        #     events_actionable = [event for event in events
+        #                         if event.is_actionable()]
+        #     email = NodeMonitorEmail(
+        #         "\n\n".join(str(event) for event in events_actionable)
+        #         + "\n\n" + self.stats_message()
+        #     )
+        #     email.send_recipients(emailRecipients)
+        #     logging.info("Emails Sent")
+        # else:
+        #     logging.info(f"No Change ({config['intervalMinutes']} min)")
+
+        # return
+
+        """implementation 2 - overload equality operator
+        
+        Does not sent status emails like implementation 1 but it fails 
+        test_node_positions_swapped. This could be due to overloading the equality
+        operator?
+        """
+        diffs = [diff_0_1 == diff_0_2, diff_0_1 == diff_1_2, diff_0_2 == diff_1_2]
+        match diffs:
+            # True status change - node changed state and stayed in state for two consecutive snapshots
+            case True, False, False:
+                logging.info("!! Change Detected")
+                events = diff_0_2.aggregate_changes()
+                events_actionable = [event for event in events
+                                    if event.is_actionable()]
+                email = NodeMonitorEmail(
+                    "\n\n".join(str(event) for event in events_actionable)
+                    + "\n\n" + self.stats_message()
+                )
+                email.send_recipients(emailRecipients)
+                logging.info("Emails Sent")
+                return
+            # No Change
+            case True, True, True:
+                logging.info(f"No Change ({config['intervalMinutes']} min)")
+                return
+            # Ghost outage or all snapshots are different.
+            case False, False, False:
+                logging.info(f"No Change ({config['intervalMinutes']} min)")
+                return
 
 
     def runloop(self):
@@ -118,9 +153,13 @@ class NodeMonitor:
 
 class NodeMonitorDiff(DeepDiff):
     """Extends DeepDiff to easily support the node check API"""
-
+    
     def __init__(self, t1, t2):
         DeepDiff.__init__(self, t1, t2, view='tree', group_by='node_id')
+
+    def __eq__(self, tn):
+        if DeepDiff(self, tn): return False
+        return True
 
     def aggregate_changes(self):
         """extract diff into a list of ChangeEvent objects"""

@@ -79,7 +79,7 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_up_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t1)
-        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t0)
         nm.run_once()
 
@@ -123,7 +123,12 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once() 
 
-    @unittest.skip("sends an email")
+    """Test failed.
+
+    Expected behaviour: send an email that one node is really down.
+    Actual behaviour: no email sent.
+    """
+    # @unittest.skip("sends an email") 
     def test_one_node_real_one_node_ghost_outage_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
@@ -131,23 +136,33 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.run_once() 
 
+    @unittest.skip("sends an email")
+    def test_one_node_up_long_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_one_node_down_long_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
+        nm.run_once()
+        nm.snapshots.append(self.t1)
+        nm.run_once()
+        nm.snapshots.append(self.t1)
+        nm.run_once()
 
 
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class TestNodeMonitorEmail(unittest.TestCase):
     @unittest.skip("sends an email")
