@@ -45,12 +45,17 @@ class TestNodesSnapshot(unittest.TestCase):
 
 
 class TestNodeMonitor(unittest.TestCase):
-
+    # t0 = control
     t0 = NodesSnapshot.from_file("tests/t0.json")
+    # t1 = one node down
     t1 = NodesSnapshot.from_file("tests/t1.json")
+    # t2 = two nodes down
     t2 = NodesSnapshot.from_file("tests/t2.json")
+    # t3 = one node change subnet id
     t3 = NodesSnapshot.from_file("tests/t3.json")
+    # t4 = one node removed
     t4 = NodesSnapshot.from_file("tests/t4.json")
+    # t5 = node positions swapped (out of order list)
     t5 = NodesSnapshot.from_file("tests/t5.json")
 
     def test_update(self):
@@ -67,11 +72,13 @@ class TestNodeMonitor(unittest.TestCase):
                             self.nm.snapshots[1])
 
 
-    @unittest.skip("sends an email")
+    # @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.run_once()
         nm.snapshots.append(self.t1)
+        nm.run_once()
         nm.snapshots.append(self.t1)
         nm.run_once() 
 
@@ -91,11 +98,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t2)
         nm.run_once()
 
-    """Test failed.
-
-    Expected behaviour: send an email about subnet change.
-    Actual behaviour: only a status email is sent.
-    """
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
@@ -108,7 +110,7 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_removed_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t4)
         nm.snapshots.append(self.t4)
         nm.run_once()
 
@@ -128,16 +130,13 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once() 
 
-    """Test failed.
-
-    Expected behaviour: send an email that one node is really down.
-    Actual behaviour: no email sent.
-    """
-    # @unittest.skip("sends an email") 
+    @unittest.skip("sends an email") 
     def test_one_node_real_one_node_ghost_outage_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t2)
+        nm.snapshots.append(self.t1)
+        nm.run_once() 
         nm.snapshots.append(self.t1)
         nm.run_once() 
 

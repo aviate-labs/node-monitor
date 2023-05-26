@@ -9,6 +9,8 @@ import signal
 import sys
 import logging
 import threading
+import typing
+
 
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
@@ -16,7 +18,46 @@ from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable
 )
 
+#   --- diff_ac ---
+#
+#    |---|---|---|
+#    | a - b - c |
+#    |---|---|---| 
+#
+#   diff_ab - diff_bc
 
+def categorize_deque(deque: typing.Deque) -> str:
+    """Takes a deque object and returns whether it is reportable"""
+    assert len(deque) == 3
+    # true/false * 3 = 2^3 = 8 total possibilities
+    def _match_diffs(diff_ac, diff_ab, diff_bc):  
+        match bool(diff_ac):
+            case True: # A reportable change occured
+                match [bool(diff_ab), bool(diff_bc)]:
+                    # a changed to b, b changed to c, a != c
+                    case [True , True ]: return "REPORT"
+                    # a changed to b, b stayed the same
+                    case [True , False]: return "REPORT"
+                    # a stayed b, b changed to c, check next round
+                    case [False, True ]: return "IGNORE"
+                    # impossible to have no changes result in a change
+                    case [False, False]: return "UNREACHABLE"
+            case False: # No reportable change occured
+                match [bool(diff_ab), bool(diff_bc)]:
+                    # a changed to b, then b changed to c, a == c
+                    case [True , True ]: return "IGNORE" 
+                    # needs two changes for no diff between a and c
+                    case [True , False]: return "UNREACHABLE"
+                    # needs two changes for no diff between a and c
+                    case [False, True ]: return "UNREACHABLE" 
+                    # no state changes throughout all 3
+                    case [False, False]: return "IGNORE" 
+    diff_ac = NodeMonitorDiff(deque[0], deque[2])
+    diff_ab = NodeMonitorDiff(deque[0], deque[1])
+    diff_bc = NodeMonitorDiff(deque[1], deque[2]) 
+    result = _match_diffs(diff_ac, diff_ab, diff_bc)
+    assert result == "IGNORE" or result == "REPORT"
+    return result
 
 
 
@@ -34,47 +75,22 @@ class NodeMonitor:
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
-        logging.info("Fetched New Data")
+        logging.info("Fetched New Data")  
 
     def run_once(self):
         """sends an email if status change persists for two consecutive snapshots"""
-        diff_0_2 = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
-        diff_0_1 = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
-        diff_1_2 = NodeMonitorDiff(self.snapshots[1], self.snapshots[2])
-
-        """implementation 1 - does not overload equality operator
+        if len(self.snapshots) != 3:
+            logging.info(f"Deque length is less than 3")
+            return
         
-        For test_one_node_up_long_email and test_one_node_down_long_email, 
-        a status email is also sent.
-        """
-        # if not DeepDiff(diff_0_1, diff_0_2):
-        #     logging.info("!! Change Detected")
-        #     events = diff_0_2.aggregate_changes()
-        #     events_actionable = [event for event in events
-        #                         if event.is_actionable()]
-        #     email = NodeMonitorEmail(
-        #         "\n\n".join(str(event) for event in events_actionable)
-        #         + "\n\n" + self.stats_message()
-        #     )
-        #     email.send_recipients(emailRecipients)
-        #     logging.info("Emails Sent")
-        # else:
-        #     logging.info(f"No Change ({config['intervalMinutes']} min)")
-
-        # return
-
-        """implementation 2 - overload equality operator
-        
-        Does not sent status emails like implementation 1 but it fails 
-        test_node_positions_swapped. This could be due to overloading the equality
-        operator?
-        """
-        diffs = [diff_0_1 == diff_0_2, diff_0_1 == diff_1_2, diff_0_2 == diff_1_2]
-        match diffs:
-            # True status change - node changed state and stayed in state for two consecutive snapshots
-            case True, False, False:
+        diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
+        match categorize_deque(self.snapshots):
+            case "IGNORE":
+                logging.info(f"No Change ({config['intervalMinutes']} min)")
+                return
+            case "REPORT":
                 logging.info("!! Change Detected")
-                events = diff_0_2.aggregate_changes()
+                events = diff_ac.aggregate_changes()
                 events_actionable = [event for event in events
                                     if event.is_actionable()]
                 email = NodeMonitorEmail(
@@ -84,15 +100,6 @@ class NodeMonitor:
                 email.send_recipients(emailRecipients)
                 logging.info("Emails Sent")
                 return
-            # No Change
-            case True, True, True:
-                logging.info(f"No Change ({config['intervalMinutes']} min)")
-                return
-            # Ghost outage or all snapshots are different.
-            case False, False, False:
-                logging.info(f"No Change ({config['intervalMinutes']} min)")
-                return
-
 
     def runloop(self):
         """main loop"""
@@ -139,7 +146,7 @@ class NodeMonitor:
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
-
+    
 
 
 
@@ -156,10 +163,6 @@ class NodeMonitorDiff(DeepDiff):
     
     def __init__(self, t1, t2):
         DeepDiff.__init__(self, t1, t2, view='tree', group_by='node_id')
-
-    def __eq__(self, tn):
-        if DeepDiff(self, tn): return False
-        return True
 
     def aggregate_changes(self):
         """extract diff into a list of ChangeEvent objects"""
