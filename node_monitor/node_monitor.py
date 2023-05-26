@@ -80,7 +80,7 @@ class NodeMonitor:
     def run_once(self):
         """sends an email if status change persists for two consecutive snapshots"""
         if len(self.snapshots) != 3:
-            logging.info(f"Deque length is less than 3")
+            logging.info(f"No change - deque length is less than 3")
             return
         
         diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])

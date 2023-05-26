@@ -72,7 +72,7 @@ class TestNodeMonitor(unittest.TestCase):
                             self.nm.snapshots[1])
 
 
-    # @unittest.skip("sends an email")
+    @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
@@ -98,6 +98,9 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t2)
         nm.run_once()
 
+    # UNEXPECTED BEHAVIOR
+    # Expected behavior - send change in subnet id email
+    # Actual behavior   - send node status email
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
@@ -118,7 +121,7 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_added_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t4)
-        nm.snapshots.append(self.t4)
+        nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t0)
         nm.run_once()
 
@@ -130,6 +133,10 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once() 
 
+    # UNDESIRED BEHAVIOR
+    # This test correctly reports the downed node (ID ending in 'eae'), 
+    # but redundantly notifies the node (ID ending in 'pae') going up. 
+    # Consider adding a config option for notifying only when a node is down.
     @unittest.skip("sends an email") 
     def test_one_node_real_one_node_ghost_outage_email(self):
         nm = NodeMonitor()
