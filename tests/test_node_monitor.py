@@ -45,12 +45,17 @@ class TestNodesSnapshot(unittest.TestCase):
 
 
 class TestNodeMonitor(unittest.TestCase):
-
+    # t0 = control
     t0 = NodesSnapshot.from_file("tests/t0.json")
+    # t1 = one node down
     t1 = NodesSnapshot.from_file("tests/t1.json")
+    # t2 = two nodes down
     t2 = NodesSnapshot.from_file("tests/t2.json")
+    # t3 = one node change subnet id
     t3 = NodesSnapshot.from_file("tests/t3.json")
+    # t4 = one node removed
     t4 = NodesSnapshot.from_file("tests/t4.json")
+    # t5 = node positions swapped (out of order list)
     t5 = NodesSnapshot.from_file("tests/t5.json")
 
     def test_update(self):
@@ -59,8 +64,10 @@ class TestNodeMonitor(unittest.TestCase):
         self.nm.snapshots.append(self.t1)
         self.nm.snapshots.append(self.t0)
         self.nm.snapshots.append(self.t1)
+        self.nm.snapshots.append(self.t0)
         self.assertEqual(self.nm.snapshots[0], self.t0)
         self.assertEqual(self.nm.snapshots[1], self.t1)
+        self.assertEqual(self.nm.snapshots[2], self.t0)
         self.assertNotEqual(self.nm.snapshots[0],
                             self.nm.snapshots[1])
 
@@ -69,13 +76,17 @@ class TestNodeMonitor(unittest.TestCase):
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.run_once()
         nm.snapshots.append(self.t1)
         nm.run_once()
+        nm.snapshots.append(self.t1)
+        nm.run_once() 
 
     @unittest.skip("sends an email")
     def test_one_node_up_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t0)
         nm.run_once()
 
@@ -84,12 +95,17 @@ class TestNodeMonitor(unittest.TestCase):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t2)
+        nm.snapshots.append(self.t2)
         nm.run_once()
 
+    # UNEXPECTED BEHAVIOR
+    # Expected behavior - send change in subnet id email
+    # Actual behavior   - send node status email
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t3)
         nm.snapshots.append(self.t3)
         nm.run_once()
 
@@ -98,6 +114,7 @@ class TestNodeMonitor(unittest.TestCase):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t4)
+        nm.snapshots.append(self.t4)
         nm.run_once()
 
     @unittest.skip("sends an email")
@@ -105,18 +122,58 @@ class TestNodeMonitor(unittest.TestCase):
         nm = NodeMonitor()
         nm.snapshots.append(self.t4)
         nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
+    @unittest.skip("shouldn't send an email")
+    def test_one_node_ghost_outage_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
+        nm.run_once() 
+
+    # UNDESIRED BEHAVIOR
+    # This test correctly reports the downed node (ID ending in 'eae'), 
+    # but redundantly notifies the node (ID ending in 'pae') going up. 
+    # Consider adding a config option for notifying only when a node is down.
+    @unittest.skip("sends an email") 
+    def test_one_node_real_one_node_ghost_outage_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t2)
+        nm.snapshots.append(self.t1)
+        nm.run_once() 
+        nm.snapshots.append(self.t1)
+        nm.run_once() 
+
+    @unittest.skip("sends an email")
+    def test_one_node_up_long_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t1)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
+    @unittest.skip("sends an email")
+    def test_one_node_down_long_email(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t1)
+        nm.run_once()
+        nm.snapshots.append(self.t1)
+        nm.run_once()
+        nm.snapshots.append(self.t1)
         nm.run_once()
 
 
 
-
-
-
-
-
-
-
-
+    
 
 class TestNodeMonitorEmail(unittest.TestCase):
     @unittest.skip("sends an email")

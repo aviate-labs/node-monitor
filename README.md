@@ -15,6 +15,9 @@ gmailUsername   = "email.sender@gmail.com"
 gmailPassword   = "mypassword"
 ```
 
+If you have 2FA enabled on your gmail account. You will need to use an application specific password in the `gmailPassword` field. Follow the steps [here](https://support.google.com/mail/answer/185833?hl=en-GB).
+
+
 Create a config.json file in this directory. Below is a good default config.
 ```js
 {

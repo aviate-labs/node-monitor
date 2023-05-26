@@ -9,6 +9,8 @@ import signal
 import sys
 import logging
 import threading
+import typing
+
 
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
@@ -16,14 +18,53 @@ from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable
 )
 
+#   --- diff_ac ---
+#
+#    |---|---|---|
+#    | a - b - c |
+#    |---|---|---| 
+#
+#   diff_ab - diff_bc
 
+def categorize_deque(deque: typing.Deque) -> str:
+    """Takes a deque object and returns whether it is reportable"""
+    assert len(deque) == 3
+    # true/false * 3 = 2^3 = 8 total possibilities
+    def _match_diffs(diff_ac, diff_ab, diff_bc):  
+        match bool(diff_ac):
+            case True: # A reportable change occured
+                match [bool(diff_ab), bool(diff_bc)]:
+                    # a changed to b, b changed to c, a != c
+                    case [True , True ]: return "REPORT"
+                    # a changed to b, b stayed the same
+                    case [True , False]: return "REPORT"
+                    # a stayed b, b changed to c, check next round
+                    case [False, True ]: return "IGNORE"
+                    # impossible to have no changes result in a change
+                    case [False, False]: return "UNREACHABLE"
+            case False: # No reportable change occured
+                match [bool(diff_ab), bool(diff_bc)]:
+                    # a changed to b, then b changed to c, a == c
+                    case [True , True ]: return "IGNORE" 
+                    # needs two changes for no diff between a and c
+                    case [True , False]: return "UNREACHABLE"
+                    # needs two changes for no diff between a and c
+                    case [False, True ]: return "UNREACHABLE" 
+                    # no state changes throughout all 3
+                    case [False, False]: return "IGNORE" 
+    diff_ac = NodeMonitorDiff(deque[0], deque[2])
+    diff_ab = NodeMonitorDiff(deque[0], deque[1])
+    diff_bc = NodeMonitorDiff(deque[1], deque[2]) 
+    result = _match_diffs(diff_ac, diff_ab, diff_bc)
+    assert result == "IGNORE" or result == "REPORT"
+    return result
 
 
 
 class NodeMonitor:
 
     def __init__(self):
-        self.snapshots = deque(maxlen=2)
+        self.snapshots = deque(maxlen=3)
         if config['IMAPClientEnabled']:
             self.email_watcher_thread = threading.Thread(
                 target=email_watcher, args=(self,),
@@ -34,24 +75,31 @@ class NodeMonitor:
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
-        logging.info("Fetched New Data")
+        logging.info("Fetched New Data")  
 
     def run_once(self):
-        diff = NodeMonitorDiff(self.snapshots[0], self.snapshots[1])
-        if diff:
-            logging.info("!! Change Detected")
-            events = diff.aggregate_changes()
-            events_actionable = [event for event in events
-                                 if event.is_actionable()]
-            email = NodeMonitorEmail(
-                "\n\n".join(str(event) for event in events_actionable)
-                + "\n\n" + self.stats_message()
-            )
-            email.send_recipients(emailRecipients)
-            logging.info("Emails Sent")
-        else:
-            logging.info(f"No Change ({config['intervalMinutes']} min)")
-
+        """sends an email if status change persists for two consecutive snapshots"""
+        if len(self.snapshots) != 3:
+            logging.info(f"No change - deque length is less than 3")
+            return
+        
+        diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
+        match categorize_deque(self.snapshots):
+            case "IGNORE":
+                logging.info(f"No Change ({config['intervalMinutes']} min)")
+                return
+            case "REPORT":
+                logging.info("!! Change Detected")
+                events = diff_ac.aggregate_changes()
+                events_actionable = [event for event in events
+                                    if event.is_actionable()]
+                email = NodeMonitorEmail(
+                    "\n\n".join(str(event) for event in events_actionable)
+                    + "\n\n" + self.stats_message()
+                )
+                email.send_recipients(emailRecipients)
+                logging.info("Emails Sent")
+                return
 
     def runloop(self):
         """main loop"""
@@ -98,7 +146,7 @@ class NodeMonitor:
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
-
+    
 
 
 
@@ -112,7 +160,7 @@ class NodeMonitor:
 
 class NodeMonitorDiff(DeepDiff):
     """Extends DeepDiff to easily support the node check API"""
-
+    
     def __init__(self, t1, t2):
         DeepDiff.__init__(self, t1, t2, view='tree', group_by='node_id')
 
