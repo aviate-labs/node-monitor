@@ -133,10 +133,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.run_once() 
 
-    # UNDESIRED BEHAVIOR
-    # This test correctly reports the downed node (ID ending in 'eae'), 
-    # but redundantly notifies the node (ID ending in 'pae') going up. 
-    # Consider adding a config option for notifying only when a node is down.
     @unittest.skip("sends an email") 
     def test_one_node_real_one_node_ghost_outage_email(self):
         nm = NodeMonitor()

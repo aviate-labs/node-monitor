@@ -92,7 +92,9 @@ class NodeMonitor:
                 logging.info("!! Change Detected")
                 events = diff_ac.aggregate_changes()
                 events_actionable = [event for event in events
-                                    if event.is_actionable()]
+                                    if event.is_actionable() and event.t2 == "DOWN"]
+                print(events_actionable)
+                if len(events_actionable) == 0: return
                 email = NodeMonitorEmail(
                     "\n\n".join(str(event) for event in events_actionable)
                     + "\n\n" + self.stats_message()
