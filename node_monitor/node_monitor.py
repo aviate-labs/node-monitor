@@ -133,7 +133,6 @@ class NodeMonitor:
                 self.run_once()
                 current_time = time.time()
                 if report_interval_set and current_time - last_email_time >= report_interval:
-                    print("status email sent")
                     status_email.send_recipients(emailRecipients)
                     last_email_time = current_time
             except Exception as e:
