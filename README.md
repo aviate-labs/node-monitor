@@ -25,6 +25,7 @@ Create a config.json file in this directory. Below is a good default config.
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
     "intervalMinutes": 5,
+    "intervalStatusReport": 1440, 
     "lookupTableFile": "lookuptable.json",
     "NotifyOnNodeMonitorStartup": true,
     "NotifyOnNodeChangeStatus": true,
@@ -34,6 +35,7 @@ Create a config.json file in this directory. Below is a good default config.
     "IMAPClientEnabled": false
 }
 ```
+The value in `intervalStatusReport` is set in minutes. This will be the time interval in which you will receive a status report. If set, this value should always be larger than the value in `intervalMinutes`.
 
 The lookuptable.json file is mapping of node-ids to custom labels. Its use is optional.
 Example lookuptable.json:
