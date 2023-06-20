@@ -96,14 +96,8 @@ class NodeMonitor:
                                      if event.is_actionable() and event.t2 == "DOWN"]
                 if len(events_actionable) == 0:
                     return
-                email = NodeMonitorEmail(
-                    "\n\n".join(str(event) for event in events_actionable)
-                    + "\n\n" + self.stats_message()
-                )
-                email.send_recipients(emailRecipients)
-                SlackBot().send_message(
-                    "\n\n".join(str(event) for event in events_actionable) 
-                    + "\n\n" + self.stats_message())
+                message = "\n\n".join(str(event) for event in events_actionable) + "\n\n" + self.stats_message()
+                self.send_to_apps(message)
                 logging.info("Emails Sent")
                 return
 
@@ -169,6 +163,13 @@ class NodeMonitor:
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
+    
+    def send_to_apps(self, message):
+        email = NodeMonitorEmail(message)
+        email.send_recipients(emailRecipients)
+        SlackBot().send_message(message)
+        return
+
 
     # possible diff keys (scraped from source):
     # 'set_item_added', 'set_item_removed', 'iterable_item_removed'
