@@ -14,6 +14,7 @@ Create a .env file in this directory like so
 gmailUsername   = "email.sender@gmail.com"
 gmailPassword   = "mypassword"
 ```
+The email address listed in the `gmailUsername` field serves as the primary sender for notifications and the point of contact for getting the status of your nodes. 
 
 If you have 2FA enabled on your gmail account. You will need to use an application specific password in the `gmailPassword` field. Follow the steps [here](https://support.google.com/mail/answer/185833?hl=en-GB).
 

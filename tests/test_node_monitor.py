@@ -1,10 +1,11 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from unittest.mock import patch, MagicMock
 from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
-from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.load_config import emailRecipients, config
 from pprint import pprint
 
@@ -345,12 +346,6 @@ class TestNodeMonitorDiff(unittest.TestCase):
     def test_node_positions_swapped(self):
         diff = NodeMonitorDiff(self.t0, self.t5)
         self.assertEqual(diff, {})
-        
-
-
-
-
-
 
 
 

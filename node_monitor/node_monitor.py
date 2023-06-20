@@ -12,7 +12,6 @@ import threading
 import typing
 
 
-
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable
@@ -22,43 +21,44 @@ from node_monitor.load_config import (
 #
 #    |---|---|---|
 #    | a - b - c |
-#    |---|---|---| 
+#    |---|---|---|
 #
 #   diff_ab - diff_bc
+
 
 def categorize_deque(deque: typing.Deque) -> str:
     """Takes a deque object and returns whether it is reportable"""
     assert len(deque) == 3
     # true/false * 3 = 2^3 = 8 total possibilities
-    def _match_diffs(diff_ac, diff_ab, diff_bc):  
+
+    def _match_diffs(diff_ac, diff_ab, diff_bc):
         match bool(diff_ac):
-            case True: # A reportable change occured
+            case True:  # A reportable change occured
                 match [bool(diff_ab), bool(diff_bc)]:
                     # a changed to b, b changed to c, a != c
-                    case [True , True ]: return "REPORT"
+                    case [True, True]: return "REPORT"
                     # a changed to b, b stayed the same
-                    case [True , False]: return "REPORT"
+                    case [True, False]: return "REPORT"
                     # a stayed b, b changed to c, check next round
-                    case [False, True ]: return "IGNORE"
+                    case [False, True]: return "IGNORE"
                     # impossible to have no changes result in a change
                     case [False, False]: return "UNREACHABLE"
-            case False: # No reportable change occured
+            case False:  # No reportable change occured
                 match [bool(diff_ab), bool(diff_bc)]:
                     # a changed to b, then b changed to c, a == c
-                    case [True , True ]: return "IGNORE" 
+                    case [True, True]: return "IGNORE"
                     # needs two changes for no diff between a and c
-                    case [True , False]: return "UNREACHABLE"
+                    case [True, False]: return "UNREACHABLE"
                     # needs two changes for no diff between a and c
-                    case [False, True ]: return "UNREACHABLE" 
+                    case [False, True]: return "UNREACHABLE"
                     # no state changes throughout all 3
-                    case [False, False]: return "IGNORE" 
+                    case [False, False]: return "IGNORE"
     diff_ac = NodeMonitorDiff(deque[0], deque[2])
     diff_ab = NodeMonitorDiff(deque[0], deque[1])
-    diff_bc = NodeMonitorDiff(deque[1], deque[2]) 
+    diff_bc = NodeMonitorDiff(deque[1], deque[2])
     result = _match_diffs(diff_ac, diff_ab, diff_bc)
     assert result == "IGNORE" or result == "REPORT"
     return result
-
 
 
 class NodeMonitor:
@@ -75,14 +75,14 @@ class NodeMonitor:
     def update_state(self):
         """fetches a snapshot from API and pushes to fixed size deque"""
         self.snapshots.append(NodesSnapshot.from_api(nodeProviderId))
-        logging.info("Fetched New Data")  
+        logging.info("Fetched New Data")
 
     def run_once(self):
         """sends an email if status change persists for two consecutive snapshots"""
         if len(self.snapshots) != 3:
             logging.info(f"No change - deque length is less than 3")
             return
-        
+
         diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
         match categorize_deque(self.snapshots):
             case "IGNORE":
@@ -92,9 +92,9 @@ class NodeMonitor:
                 logging.info("!! Change Detected")
                 events = diff_ac.aggregate_changes()
                 events_actionable = [event for event in events
-                                    if event.is_actionable() and event.t2 == "DOWN"]
-                print(events_actionable)
-                if len(events_actionable) == 0: return
+                                     if event.is_actionable() and event.t2 == "DOWN"]
+                if len(events_actionable) == 0:
+                    return
                 email = NodeMonitorEmail(
                     "\n\n".join(str(event) for event in events_actionable)
                     + "\n\n" + self.stats_message()
@@ -108,18 +108,27 @@ class NodeMonitor:
         logging.info("Starting Node Monitor...")
         self.update_state()
         if config['NotifyOnNodeMonitorStartup']:
-            welcome_email = NodeMonitorEmail(self.welcome_message() + self.stats_message())
+            welcome_email = NodeMonitorEmail(
+                self.welcome_message() + self.stats_message())
             welcome_email.send_recipients(emailRecipients)
-        signal.signal( signal.SIGINT, lambda s, f : self.exit())
+        signal.signal(signal.SIGINT, lambda s, f: self.exit())
+        email = NodeMonitorEmail(
+            "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺"
+            + "\n\n" + self.stats_message()
+        )
+        last_email_time = time.time()
         while True:
-            try: 
+            try:
                 self.update_state()
                 self.run_once()
+                current_time = time.time()
+                if current_time - last_email_time >= 60*config['intervalStatusReport']:
+                    email.send_recipients(emailRecipients)
+                    last_email_time = current_time
             except Exception as e:
                 logging.exception(e)
                 logging.info("Error occurred. Retrying...")
             time.sleep(60 * config['intervalMinutes'])
-
 
     def exit(self):
         logging.info(f"Node Monitor shutting down...")
@@ -128,8 +137,6 @@ class NodeMonitor:
             self.email_watcher_thread.join()
         logging.info("Shut Down")
         sys.exit(0)
-
-
 
     def welcome_message(self):
         return (
@@ -148,10 +155,6 @@ class NodeMonitor:
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
-    
-
-
-
 
     # possible diff keys (scraped from source):
     # 'set_item_added', 'set_item_removed', 'iterable_item_removed'
@@ -162,7 +165,7 @@ class NodeMonitor:
 
 class NodeMonitorDiff(DeepDiff):
     """Extends DeepDiff to easily support the node check API"""
-    
+
     def __init__(self, t1, t2):
         DeepDiff.__init__(self, t1, t2, view='tree', group_by='node_id')
 
@@ -173,13 +176,13 @@ class NodeMonitorDiff(DeepDiff):
         if 'values_changed' in self.keys():
             for change in self['values_changed']:
                 # relevant info, even if unused, keep for reference
-                path        = change.path()
-                path_list   = change.path(output_format='list')
+                path = change.path()
+                path_list = change.path(output_format='list')
                 change_events.append(
                     ChangeEvent(
                         event_time=utcdate,
                         change_type="value_change",
-                        node_id= path_list[0],
+                        node_id=path_list[0],
                         changed_parameter=path_list[1],
                         t1=change.t1,
                         t2=change.t2,
@@ -212,9 +215,6 @@ class NodeMonitorDiff(DeepDiff):
         return change_events
 
 
-
-
-
 class ChangeEvent:
     def __init__(self, event_time=None, change_type=None, node_id=None,
                  changed_parameter=None, t1=None, t2=None, parent_t1=None,
@@ -227,7 +227,6 @@ class ChangeEvent:
         self.t2 = t2
         self.parent_t1 = parent_t1
         self.parent_t2 = parent_t2
-
 
     def is_actionable(self):
         match self.change_type:
@@ -242,15 +241,14 @@ class ChangeEvent:
                     return self.changed_parameter == 'status'
             case _: return False
 
-
     def __ge__(self, other):
         """checks to see if other's values are contained within self"""
-        a = [(k,v) for (k,v) in self.__dict__.items() if v is not None]
-        b = [(k,v) for (k,v) in other.__dict__.items() if v is not None]
+        a = [(k, v) for (k, v) in self.__dict__.items() if v is not None]
+        b = [(k, v) for (k, v) in other.__dict__.items() if v is not None]
         for (k, v) in b:
-            if (k, v) not in a: return False
+            if (k, v) not in a:
+                return False
         return True
-
 
     def _node_added(self):
         return (
@@ -261,7 +259,7 @@ class ChangeEvent:
             f'Node DC ID: {self.t2["dc_id"]}\n'
             f'Node Label: {lookuptable.get(self.node_id, "Not Found")}\n'
         )
-    
+
     def _node_removed(self):
         return (
             f'Alert: Node removed!\n'
@@ -302,7 +300,6 @@ class ChangeEvent:
                 )
             case _: return self._generic()
 
-
     def _generic(self):
         return (
             f'For NODE with ID: {self.node_id}:\n'
@@ -317,14 +314,11 @@ class ChangeEvent:
         match self.change_type:
             case "node_added": return self._node_added()
             case "node_removed": return self._node_removed()
-            case "value_change": 
+            case "value_change":
                 match self.changed_parameter:
                     case "status": return self._status_change()
                     case _: return self.generic()
             case _: return self._generic()
-
-
-
 
 
 class NodesSnapshot(list):
@@ -356,4 +350,3 @@ class NodesSnapshot(list):
         payload = {"node_provider_id": provider_id} if provider_id else None
         response = requests.get(NodesSnapshot.endpoint, params=payload)
         return NodesSnapshot(response.json()["nodes"])
-
