@@ -107,28 +107,33 @@ class NodeMonitor:
         """main loop"""
         logging.info("Starting Node Monitor...")
         self.update_state()
+
         if config['NotifyOnNodeMonitorStartup']:
             welcome_email = NodeMonitorEmail(
                 self.welcome_message() + self.stats_message())
             welcome_email.send_recipients(emailRecipients)
+
         signal.signal(signal.SIGINT, lambda s, f: self.exit())
-        email = NodeMonitorEmail(
-            "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺"
-            + "\n\n" + self.stats_message()
+
+        status_email = NodeMonitorEmail(
+            "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message()
         )
+        report_interval = 60 * config['intervalStatusReport']
+        api_query_interval = 60 * config['intervalMinutes']
         last_email_time = time.time()
+
         while True:
             try:
                 self.update_state()
                 self.run_once()
                 current_time = time.time()
-                if current_time - last_email_time >= 60*config['intervalStatusReport']:
-                    email.send_recipients(emailRecipients)
+                if current_time - last_email_time >= report_interval:
+                    status_email.send_recipients(emailRecipients)
                     last_email_time = current_time
             except Exception as e:
                 logging.exception(e)
                 logging.info("Error occurred. Retrying...")
-            time.sleep(60 * config['intervalMinutes'])
+            time.sleep(api_query_interval)
 
     def exit(self):
         logging.info(f"Node Monitor shutting down...")
