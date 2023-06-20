@@ -35,7 +35,7 @@ Create a config.json file in this directory. Below is a good default config.
     "IMAPClientEnabled": false
 }
 ```
-The value in `intervalStatusReport` is set in minutes. This will be the time interval in which you will receive a status report. If set, this value should always be larger than the value in `intervalMinutes`.
+The `intervalStatusReport` value, set in minutes, determines how often you'll receive these reports. It should always be larger than the `intervalMinutes` value. If it this is not set in your config.json file, or the `intervalStatusReport` < `intervalMinutes`, you will not recieve a status report.
 
 The lookuptable.json file is mapping of node-ids to custom labels. Its use is optional.
 Example lookuptable.json:
