@@ -118,16 +118,22 @@ class NodeMonitor:
         status_email = NodeMonitorEmail(
             "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message()
         )
-        report_interval = 60 * config['intervalStatusReport']
+
+        report_interval_set = False
+        if 'intervalStatusReport' in config and config['intervalStatusReport'] > config['intervalMinutes']:
+            report_interval = 60 * config['intervalStatusReport']
+            last_email_time = time.time()
+            report_interval_set = True
+
         api_query_interval = 60 * config['intervalMinutes']
-        last_email_time = time.time()
 
         while True:
             try:
                 self.update_state()
                 self.run_once()
                 current_time = time.time()
-                if current_time - last_email_time >= report_interval:
+                if report_interval_set and current_time - last_email_time >= report_interval:
+                    print("status email sent")
                     status_email.send_recipients(emailRecipients)
                     last_email_time = current_time
             except Exception as e:
