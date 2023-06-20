@@ -165,9 +165,11 @@ class NodeMonitor:
         )
     
     def send_to_apps(self, message):
-        email = NodeMonitorEmail(message)
-        email.send_recipients(emailRecipients)
-        SlackBot().send_message(message)
+        if config['NotifyByEmail']:
+            email = NodeMonitorEmail(message)
+            email.send_recipients(emailRecipients)
+        if config['NotifyBySlack']:
+            SlackBot().send_message(message)
         return
 
 
