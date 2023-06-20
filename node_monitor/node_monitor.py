@@ -83,8 +83,6 @@ class NodeMonitor:
         if len(self.snapshots) != 3:
             logging.info(f"No change - deque length is less than 3")
             return
-        
-        SlackBot().send_message("Hello world")
 
         diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
         match categorize_deque(self.snapshots):
@@ -103,6 +101,9 @@ class NodeMonitor:
                     + "\n\n" + self.stats_message()
                 )
                 email.send_recipients(emailRecipients)
+                SlackBot().send_message(
+                    "\n\n".join(str(event) for event in events_actionable) 
+                    + "\n\n" + self.stats_message())
                 logging.info("Emails Sent")
                 return
 

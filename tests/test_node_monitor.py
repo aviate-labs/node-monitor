@@ -92,9 +92,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t2)
         nm.run_once()
 
-    # UNEXPECTED BEHAVIOR
-    # Expected behavior - send change in subnet id email
-    # Actual behavior   - send node status email
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
@@ -161,14 +158,11 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.run_once()
 
-    # @unittest.skip("sends an email")
-    def test_hello_world_slack(self):
-        nm = NodeMonitor()
-        nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t0)
-        nm.snapshots.append(self.t0)
-        nm.run_once()
 
+class TestNodeMonitorSlackBot(unittest.TestCase):
+    @unittest.skip("sends an email")
+    def test_hello_world_slack(self):
+        SlackBot().send_message("test message on slack")
 
 
 class TestNodeMonitorEmail(unittest.TestCase):
