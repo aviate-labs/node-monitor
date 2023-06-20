@@ -9,6 +9,7 @@ load_dotenv()
 gmailUsername       = os.environ.get('gmailUsername')
 gmailPassword       = os.environ.get('gmailPassword')
 discordBotToken     = os.environ.get('discordBotToken')  # Not implemented
+slackBotToken       = os.environ.get('slackBotToken')
 
 
 ### Config File

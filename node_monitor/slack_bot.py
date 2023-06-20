@@ -1,11 +1,19 @@
 import slack
-import os
-from pathlib import Path
 from dotenv import load_dotenv
+from node_monitor.load_config import slackBotToken
 
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
 
-client = slack.WebClient(token=os.environ['slackToken'])
+class SlackBot():
+    def __init__(self):
+        self.client = slack.WebClient(token=slackBotToken)
+    
+    def send_message(self, message_content):
+        self.client.chat_postMessage(channel='#node-monitor', text=message_content)
 
-client.chat_postMessage(channel='#node-monitor', text="Hello world!")
+
+
+
+# client = slack.WebClient(token=slackBotToken)
+
+# client.chat_postMessage(channel='#node-monitor', text="Hello world!")
+

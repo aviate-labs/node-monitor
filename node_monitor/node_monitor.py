@@ -13,8 +13,9 @@ import typing
 
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
+from node_monitor.slack_bot import SlackBot
 from node_monitor.load_config import (
-    nodeProviderId, emailRecipients, config, lookuptable
+    nodeProviderId, emailRecipients, config, lookuptable, slackBotToken
 )
 
 #   --- diff_ac ---
@@ -82,6 +83,8 @@ class NodeMonitor:
         if len(self.snapshots) != 3:
             logging.info(f"No change - deque length is less than 3")
             return
+        
+        SlackBot().send_message("Hello world")
 
         diff_ac = NodeMonitorDiff(self.snapshots[0], self.snapshots[2])
         match categorize_deque(self.snapshots):

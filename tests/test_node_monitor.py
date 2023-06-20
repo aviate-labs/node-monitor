@@ -1,11 +1,11 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from unittest.mock import patch, MagicMock
 from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
-from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
+from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.slack_bot import SlackBot
 from node_monitor.load_config import emailRecipients, config
 from pprint import pprint
 
@@ -160,6 +160,15 @@ class TestNodeMonitor(unittest.TestCase):
         nm.run_once()
         nm.snapshots.append(self.t1)
         nm.run_once()
+
+    # @unittest.skip("sends an email")
+    def test_hello_world_slack(self):
+        nm = NodeMonitor()
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
+        nm.snapshots.append(self.t0)
+        nm.run_once()
+
 
 
 class TestNodeMonitorEmail(unittest.TestCase):
