@@ -14,6 +14,7 @@ Create a .env file in this directory like so
 gmailUsername   = "email.sender@gmail.com"
 gmailPassword   = "mypassword"
 ```
+The email address listed in the `gmailUsername` field serves as the primary sender for notifications and the point of contact for getting the status of your nodes. 
 
 If you have 2FA enabled on your gmail account. You will need to use an application specific password in the `gmailPassword` field. Follow the steps [here](https://support.google.com/mail/answer/185833?hl=en-GB).
 
@@ -24,6 +25,7 @@ Create a config.json file in this directory. Below is a good default config.
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
     "intervalMinutes": 5,
+    "intervalStatusReport": 1440, 
     "lookupTableFile": "lookuptable.json",
     "NotifyOnNodeMonitorStartup": true,
     "NotifyOnNodeChangeStatus": true,
@@ -33,6 +35,7 @@ Create a config.json file in this directory. Below is a good default config.
     "IMAPClientEnabled": false
 }
 ```
+The `intervalStatusReport` value, set in minutes, determines how often you'll receive these reports. It should always be larger than the `intervalMinutes` value. If it this is not set in your config.json file, or the `intervalStatusReport` < `intervalMinutes`, you will not recieve a status report.
 
 The lookuptable.json file is mapping of node-ids to custom labels. Its use is optional.
 Example lookuptable.json:

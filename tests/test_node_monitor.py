@@ -1,10 +1,11 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from unittest.mock import patch, MagicMock
 from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
-from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.load_config import emailRecipients, config
 from pprint import pprint
 
@@ -21,14 +22,12 @@ class TestNodesSnapshot(unittest.TestCase):
         self.assertIsInstance(self.t0, list)
         self.assertIsInstance(self.t0[0], dict)
 
-
     @unittest.skip("queries api")
     def test_from_api(self):
         t1 = NodesSnapshot.from_api(
             "rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae")
         self.assertIsInstance(t1, list)
         self.assertIsInstance(t1[0], dict)
-
 
     def test_get_num_up_nodes(self):
         self.assertEqual(self.t2.get_num_up_nodes(), 54)
@@ -38,10 +37,6 @@ class TestNodesSnapshot(unittest.TestCase):
 
     def test_get_num_unassigned_nodes(self):
         self.assertEqual(self.t2.get_num_unassigned_nodes(), 6)
-
-
-
-
 
 
 class TestNodeMonitor(unittest.TestCase):
@@ -71,7 +66,6 @@ class TestNodeMonitor(unittest.TestCase):
         self.assertNotEqual(self.nm.snapshots[0],
                             self.nm.snapshots[1])
 
-
     @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
@@ -80,7 +74,7 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t1)
         nm.run_once()
         nm.snapshots.append(self.t1)
-        nm.run_once() 
+        nm.run_once()
 
     @unittest.skip("sends an email")
     def test_one_node_up_email(self):
@@ -131,17 +125,17 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t1)
         nm.snapshots.append(self.t0)
-        nm.run_once() 
+        nm.run_once()
 
-    @unittest.skip("sends an email") 
+    @unittest.skip("sends an email")
     def test_one_node_real_one_node_ghost_outage_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)
         nm.snapshots.append(self.t2)
         nm.snapshots.append(self.t1)
-        nm.run_once() 
+        nm.run_once()
         nm.snapshots.append(self.t1)
-        nm.run_once() 
+        nm.run_once()
 
     @unittest.skip("sends an email")
     def test_one_node_up_long_email(self):
@@ -168,9 +162,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.run_once()
 
 
-
-    
-
 class TestNodeMonitorEmail(unittest.TestCase):
     @unittest.skip("sends an email")
     def test_send_to(self):
@@ -181,10 +172,8 @@ class TestNodeMonitorEmail(unittest.TestCase):
     def test_send_recipients(self):
         recipient1 = emailRecipients[0]
         recipient2 = emailRecipients[0]
-        NodeMonitorEmail("test email").send_recipients([recipient1, recipient2])
-
-
-
+        NodeMonitorEmail("test email").send_recipients(
+            [recipient1, recipient2])
 
 
 class TestChangeEvent(unittest.TestCase):
@@ -231,9 +220,9 @@ class TestChangeEvent(unittest.TestCase):
                 changed_parameter="status"
             )
         )
-    
+
     def test_not__ge__(self):
-        assert not ( 
+        assert not (
             ChangeEvent(
                 change_type="value_change",
                 changed_parameter="status"
@@ -248,7 +237,6 @@ class TestChangeEvent(unittest.TestCase):
         )
 
 
-
 class TestNodeMonitorDiff(unittest.TestCase):
     t0 = NodesSnapshot.from_file("tests/t0.json")
     t1 = NodesSnapshot.from_file("tests/t1.json")
@@ -260,7 +248,6 @@ class TestNodeMonitorDiff(unittest.TestCase):
     def test_diff(self):
         diff = NodeMonitorDiff(self.t0, self.t1)
         self.assertNotEqual(diff.t1, diff.t2)
-
 
     def test_one_node_down(self):
         """test one node going down"""
@@ -304,7 +291,6 @@ class TestNodeMonitorDiff(unittest.TestCase):
             )
         )
 
-
     def test_one_node_change_subnet_id(self):
         diff = NodeMonitorDiff(self.t0, self.t3)
         change_events = diff.aggregate_changes()
@@ -345,13 +331,3 @@ class TestNodeMonitorDiff(unittest.TestCase):
     def test_node_positions_swapped(self):
         diff = NodeMonitorDiff(self.t0, self.t5)
         self.assertEqual(diff, {})
-        
-
-
-
-
-
-
-
-
-
