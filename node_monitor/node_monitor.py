@@ -15,7 +15,7 @@ import typing
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.slack_bot import SlackBot
 from node_monitor.load_config import (
-    nodeProviderId, emailRecipients, config, lookuptable, slackBotToken
+    nodeProviderId, emailRecipients, config, lookuptable,
 )
 
 #   --- diff_ac ---

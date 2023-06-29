@@ -1,6 +1,6 @@
 import slack
-from dotenv import load_dotenv
-from node_monitor.load_config import slackBotToken
+import logging
+from node_monitor.load_config import slackBotToken, slackChannelName
 
 
 class SlackBot():
@@ -8,8 +8,13 @@ class SlackBot():
         self.client = slack.WebClient(token=slackBotToken)
 
     def send_message(self, message_content):
-        self.client.chat_postMessage(
-            channel='#node-monitor', text=message_content)
+        try:
+            self.client.chat_postMessage(
+                channel=slackChannelName, text=message_content)
+        except Exception as e:
+            # logging.exception(e)
+            logging.info(
+                f"Error occurred while sending Slack message. Check that the name of the Slack channel is correct")
 
 
 # TODO: allow slack bot to monitor chat for "status message"
