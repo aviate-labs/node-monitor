@@ -32,7 +32,9 @@ Create a config.json file in this directory. Below is a good default config.
     "NotifyOnAllNodeChanges": false,
     "NotifyOnNodeAdded": true,
     "NotifyOnNodeRemoved": true,
-    "IMAPClientEnabled": false
+    "IMAPClientEnabled": false,
+    "NotifyBySlack": true,
+    "NotifyByEmail": true
 }
 ```
 The `intervalStatusReport` value, set in minutes, determines how often you'll receive these reports. It should always be larger than the `intervalMinutes` value. If it this is not set in your config.json file, or the `intervalStatusReport` < `intervalMinutes`, you will not recieve a status report.
