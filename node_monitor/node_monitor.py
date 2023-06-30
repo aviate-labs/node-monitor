@@ -13,8 +13,9 @@ import typing
 
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
+from node_monitor.slack_bot import SlackBot
 from node_monitor.load_config import (
-    nodeProviderId, emailRecipients, config, lookuptable
+    nodeProviderId, emailRecipients, config, lookuptable,
 )
 
 #   --- diff_ac ---
@@ -95,11 +96,11 @@ class NodeMonitor:
                                      if event.is_actionable() and event.t2 == "DOWN"]
                 if len(events_actionable) == 0:
                     return
-                email = NodeMonitorEmail(
+                message = (
                     "\n\n".join(str(event) for event in events_actionable)
-                    + "\n\n" + self.stats_message()
-                )
-                email.send_recipients(emailRecipients)
+                    + "\n\n"
+                    + self.stats_message())
+                self.send_to_subscribers(message)
                 logging.info("Emails Sent")
                 return
 
@@ -109,15 +110,10 @@ class NodeMonitor:
         self.update_state()
 
         if config['NotifyOnNodeMonitorStartup']:
-            welcome_email = NodeMonitorEmail(
+            self.send_to_subscribers(
                 self.welcome_message() + self.stats_message())
-            welcome_email.send_recipients(emailRecipients)
 
         signal.signal(signal.SIGINT, lambda s, f: self.exit())
-
-        status_email = NodeMonitorEmail(
-            "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message()
-        )
 
         report_interval_set = False
         if 'intervalStatusReport' in config and config['intervalStatusReport'] > config['intervalMinutes']:
@@ -133,7 +129,8 @@ class NodeMonitor:
                 self.run_once()
                 current_time = time.time()
                 if report_interval_set and current_time - last_email_time >= report_interval:
-                    status_email.send_recipients(emailRecipients)
+                    self.send_to_subscribers(
+                        "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message())
                     last_email_time = current_time
             except Exception as e:
                 logging.exception(e)
@@ -153,10 +150,13 @@ class NodeMonitor:
             f"Thank you for subscribing to Node Monitor by Aviate Labs!\n"
             f"Your Node Monitor Settings:\n"
             f"\t ► Dfinity API query update interval: {config['intervalMinutes']} minutes\n"
-            f"\t ► Send Email on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}\n"
-            f"\t ► Send Email on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}\n"
-            f"\t ► Send Email if new node appears on network: {config['NotifyOnNodeAdded']}\n"
-            f"\t ► Send Email if node gets removed from network: {config['NotifyOnNodeRemoved']}\n"
+            f"\t ► Send notifications via Email: {config['NotifyByEmail']}\n"
+            f"\t ► Send notifications via Slack: {config['NotifyBySlack']}\n"
+            f"\t ► Send notification on Node Change status (UP, DOWN, UNASSIGNED): {config['NotifyOnNodeChangeStatus']}\n"
+            f"\t ► Send notification on Any Node update (verbose mode): {config['NotifyOnAllNodeChanges']}\n"
+            f"\t ► Send notification if new node appears on network: {config['NotifyOnNodeAdded']}\n"
+            f"\t ► Send notification if node gets removed from network: {config['NotifyOnNodeRemoved']}\n"
+            f"\t ► Send status report based on this interval (minutes): {config['intervalMinutes']}\n"
         )
 
     def stats_message(self):
@@ -165,6 +165,14 @@ class NodeMonitor:
             f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
             f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
         )
+
+    def send_to_subscribers(self, message):
+        if config['NotifyByEmail']:
+            email = NodeMonitorEmail(message)
+            email.send_recipients(emailRecipients)
+        if config['NotifyBySlack']:
+            SlackBot().send_message(message)
+        return
 
     # possible diff keys (scraped from source):
     # 'set_item_added', 'set_item_removed', 'iterable_item_removed'

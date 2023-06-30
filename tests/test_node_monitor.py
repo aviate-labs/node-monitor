@@ -1,11 +1,11 @@
 import unittest
 # import os, sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from unittest.mock import patch, MagicMock
 from node_monitor.node_monitor import (
     NodeMonitor, NodeMonitorDiff, ChangeEvent, NodesSnapshot
 )
-from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
+from node_monitor.node_monitor_email import NodeMonitorEmail
+from node_monitor.slack_bot import SlackBot
 from node_monitor.load_config import emailRecipients, config
 from pprint import pprint
 
@@ -92,9 +92,6 @@ class TestNodeMonitor(unittest.TestCase):
         nm.snapshots.append(self.t2)
         nm.run_once()
 
-    # UNEXPECTED BEHAVIOR
-    # Expected behavior - send change in subnet id email
-    # Actual behavior   - send node status email
     @unittest.skip("sends an email")
     def test_one_node_change_subnet_id_email(self):
         nm = NodeMonitor()
@@ -160,6 +157,12 @@ class TestNodeMonitor(unittest.TestCase):
         nm.run_once()
         nm.snapshots.append(self.t1)
         nm.run_once()
+
+
+class TestNodeMonitorSlackBot(unittest.TestCase):
+    @unittest.skip("sends an email")
+    def test_hello_world_slack(self):
+        SlackBot().send_message("test message on slack")
 
 
 class TestNodeMonitorEmail(unittest.TestCase):
