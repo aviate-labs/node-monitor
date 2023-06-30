@@ -96,8 +96,10 @@ class NodeMonitor:
                                      if event.is_actionable() and event.t2 == "DOWN"]
                 if len(events_actionable) == 0:
                     return
-                message = "\n\n".join(
-                    str(event) for event in events_actionable) + "\n\n" + self.stats_message()
+                message = (
+                    "\n\n".join(str(event) for event in events_actionable)
+                    + "\n\n"
+                    + self.stats_message())
                 self.send_to_subscribers(message)
                 logging.info("Emails Sent")
                 return
