@@ -11,6 +11,7 @@ gmailUsername = os.environ.get('gmailUsername')
 gmailPassword = os.environ.get('gmailPassword')
 discordBotToken = os.environ.get('discordBotToken')  # Not implemented
 slackBotToken = os.environ.get('slackBotToken')
+telegramBotToken = os.environ.get('telegramBotToken')
 
 
 # Config File
@@ -20,6 +21,7 @@ with open("config.json") as f:
     nodeProviderId = config['nodeProviderId']
     lookupTableFile = config['lookupTableFile']
     slackChannelName = config['slackChannelName']
+    telegramChatId = config['telegramChatId']
 
 # config['intervalMinutes']
 # config['NotifyOnNodeMonitorStartup']

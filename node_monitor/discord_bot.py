@@ -1,4 +1,4 @@
-import discord
+spimport discord
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
