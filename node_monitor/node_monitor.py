@@ -14,6 +14,7 @@ import typing
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.slack_bot import SlackBot
+from node_monitor.telegram_bot import TelegramBot
 from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable,
 )
@@ -172,6 +173,8 @@ class NodeMonitor:
             email.send_recipients(emailRecipients)
         if config['NotifyBySlack']:
             SlackBot().send_message(message)
+        if config['NotifyByTelegram']:
+            TelegramBot().send_message_to_channel(message)
         return
 
     # possible diff keys (scraped from source):

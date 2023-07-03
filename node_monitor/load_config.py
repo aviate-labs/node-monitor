@@ -7,21 +7,22 @@ import logging
 
 # Secrets
 load_dotenv()
-gmailUsername = os.environ.get('gmailUsername')
-gmailPassword = os.environ.get('gmailPassword')
-discordBotToken = os.environ.get('discordBotToken')  # Not implemented
-slackBotToken = os.environ.get('slackBotToken')
-telegramBotToken = os.environ.get('telegramBotToken')
+gmailUsername       = os.environ.get('gmailUsername')
+gmailPassword       = os.environ.get('gmailPassword')
+discordBotToken     = os.environ.get('discordBotToken')  # Not implemented
+slackBotToken       = os.environ.get('slackBotToken')
+telegramBotToken    = os.environ.get('telegramBotToken')
 
 
 # Config File
 with open("config.json") as f:
     config = json.load(f)
-    emailRecipients = config['emailRecipients']
-    nodeProviderId = config['nodeProviderId']
-    lookupTableFile = config['lookupTableFile']
-    slackChannelName = config['slackChannelName']
-    telegramChatId = config['telegramChatId']
+    emailRecipients     = config['emailRecipients']
+    nodeProviderId      = config['nodeProviderId']
+    lookupTableFile     = config['lookupTableFile']
+    slackChannelName    = config['slackChannelName']
+    telegramChatId      = config['telegramChatId']
+    telegramChannelId   = config['telegramChannelId']
 
 # config['intervalMinutes']
 # config['NotifyOnNodeMonitorStartup']
