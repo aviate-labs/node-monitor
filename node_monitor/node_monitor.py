@@ -131,7 +131,9 @@ class NodeMonitor:
                 current_time = time.time()
                 if report_interval_set and current_time - last_email_time >= report_interval:
                     self.send_to_subscribers(
-                        "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message())
+                        "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺"
+                        + "\n\n"
+                        + self.stats_message())
                     last_email_time = current_time
                     logging.info("Send status report")
             except Exception as e:

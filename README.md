@@ -24,6 +24,8 @@ Create a config.json file in this directory. Below is a good default config.
 {
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
     "slackChannelName": "node-monitor",
+    "telegramChatId": "0123456789",
+    "telegramChannelId": "-1234567890987",
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
     "intervalMinutes": 5,
     "intervalStatusReport": 1440, 
