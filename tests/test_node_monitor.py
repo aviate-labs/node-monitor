@@ -66,7 +66,7 @@ class TestNodeMonitor(unittest.TestCase):
         self.assertNotEqual(self.nm.snapshots[0],
                             self.nm.snapshots[1])
 
-    # @unittest.skip("sends an email")
+    @unittest.skip("sends an email")
     def test_one_node_down_email(self):
         nm = NodeMonitor()
         nm.snapshots.append(self.t0)

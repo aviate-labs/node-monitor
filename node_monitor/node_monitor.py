@@ -133,6 +133,7 @@ class NodeMonitor:
                     self.send_to_subscribers(
                         "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message())
                     last_email_time = current_time
+                    logging.info("Send status report")
             except Exception as e:
                 logging.exception(e)
                 logging.info("Error occurred. Retrying...")
@@ -173,8 +174,10 @@ class NodeMonitor:
             email.send_recipients(emailRecipients)
         if config['NotifyBySlack']:
             SlackBot().send_message(message)
-        if config['NotifyByTelegram']:
+        if config['NotifyByTelegramChannel']:
             TelegramBot().send_message_to_channel(message)
+        if config['NotifyByTelegramChat']:
+            TelegramBot().send_message_to_chat(message)
         return
 
     # possible diff keys (scraped from source):
