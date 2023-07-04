@@ -14,7 +14,7 @@ Create a .env file in this directory like so
 gmailUsername       = "email.sender@gmail.com"
 gmailPassword       = "mypassword"
 slackBotToken       = "your-slack-bot-api-token"
-telegramBotToken    = "your=telegram-bot-api-token"
+telegramBotToken    = "your-telegram-bot-api-token"
 ```
 The email address listed in the `gmailUsername` field serves as the primary sender for notifications and the point of contact for getting the status of your nodes. 
 
@@ -114,9 +114,25 @@ $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
 
 ## Set up Node Monitor Slack Bot
 
-- Follow the steps in this [walkthrough](https://app.tango.us/app/workflow/Setting-up-a-Node-Monitor-Bot-in-Slack--Step-by-Step-Instructions-c971a31e13a344dc8cba4c2ebc3f4e4e)
+- Follow the steps in this [walkthrough](https://app.tango.us/app/workflow/Setting-up-a-Node-Monitor-Bot-in-Slack--Step-by-Step-Instructions-c971a31e13a344dc8cba4c2ebc3f4e4e).
 
-- After following the steps in this tutorial you should have the bot API token and the channel name (step 24 and 29)
+- After following the steps in this tutorial you should have the bot API token and the channel name (step 24 and 29).
 
-- Put the bot API token in the `.env` file and the channel name in the `config.json` file.
+- Put the bot API token in the `.env` file in the `slackBotToken` field and the channel name in the `config.json` file in the `slackChannelName` field.
 
+## Set up Node Monitor Telegram bot
+
+### Messaging a channel 
+- Follow the steps in this [walkthrough](https://help.nethunt.com/en/articles/6467726-how-to-create-a-telegram-bot-and-use-it-to-post-in-telegram-channels)
+
+- After following the steps in the tutorial, you should have a bot API token and the channel ID. Put the bot API token in the `.env` file in the `telegramBotToken` field and the channel ID in the `config.json` file in the `telegramChanelId` field.
+
+### Messaging a chat 
+- Follow the same steps as in the tutorial for messaging a channel.
+
+- In step 3, look for your chat ID. It should look something like:
+    ```json
+    'chat': {'id': this-is-your-chat-id, ...}
+    ```
+
+- Now you have the bot API token and the chat ID, put the bot API token in the `.env` file in the `telegramBotToken` field and the chat ID in the `config.json` file in the `telegramChatId` field.
