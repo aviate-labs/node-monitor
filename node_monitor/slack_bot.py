@@ -14,7 +14,7 @@ class SlackBot():
         except Exception as e:
             # logging.exception(e)
             logging.info(
-                f"Error occurred while sending Slack message. Check that the name of the Slack channel is correct")
+                f"Error occurred while sending Slack message. Check that the name of the Slack channel and/or bot API token is correct")
 
 
 # TODO: allow slack bot to monitor chat for "status message"
