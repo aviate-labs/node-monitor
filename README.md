@@ -112,6 +112,10 @@ $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
 
 - IMAPClientEnabled: Watch inbox and send any responses to emails querying a status update
 
+- NotfyBySlack: Sends Slack messages according to the settings specified above
+
+- NotifyByTelegram: Sends Telegram messages according to the settings specified above
+
 ## Set up Node Monitor Slack Bot
 
 - Follow the steps in this [walkthrough](https://app.tango.us/app/workflow/Setting-up-a-Node-Monitor-Bot-in-Slack--Step-by-Step-Instructions-c971a31e13a344dc8cba4c2ebc3f4e4e).
