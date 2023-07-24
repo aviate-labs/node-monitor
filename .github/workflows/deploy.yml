@@ -11,44 +11,7 @@ jobs:
       - name: Rsync Deploy
         env:
         # define SSH/Rsync destination environment var
-          dest: 'root@68.183.3.137:/test'
+          dest: 'path'
         run: |
-          echo "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" > deploy_key
-          chmod 600 ./deploy_key
           rsync -anv --exclude '.git/' . ${{env.dest}}
 
