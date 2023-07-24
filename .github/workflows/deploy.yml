@@ -1,1 +1,17 @@
+name: Build & Deploy
+on:
+  push:
+    branches: [21-set-up-cicd-pipeline-with-do]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Rsync Deploy
+        env:
+        # define SSH/Rsync destination environment var
+          dest: 'root@68.183.3.137:/test'
+          run: |
+            mkdir test
+            rsync -anv --exclude '.git/' . ${{env.dest}}
 
