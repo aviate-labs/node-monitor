@@ -1,0 +1,22 @@
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# editors: emacs, vscode
+*~
+.vscode/
+
+# logs
+logs/
+
+# misc
+*.csv
+*.json
+
+# python
+*.pyc
+**/__pycache__/
+.env
+
+# database
+master.db

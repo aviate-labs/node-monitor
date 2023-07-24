@@ -9,3 +9,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./config.json
+        target: /app/config.json
+      - type: bind
+        source: ./.env
+        target: /app/.env
