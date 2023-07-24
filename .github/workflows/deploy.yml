@@ -11,7 +11,7 @@ jobs:
         env:
         # define SSH/Rsync destination environment var
           dest: 'root@68.183.3.137:/test'
-          run: |
-            mkdir test
-            rsync -anv --exclude '.git/' . ${{env.dest}}
+        run: |
+          mkdir test
+          rsync -anv --exclude '.git/' . ${{env.dest}}
 
