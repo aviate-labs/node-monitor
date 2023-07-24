@@ -6,7 +6,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      
       - name: Rsync Deploy
         env:
         # define SSH/Rsync destination environment var
