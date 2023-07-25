@@ -17,5 +17,5 @@ jobs:
           cd node-monitor
           docker compose down
           git pull
-          docker compose up -d
+          docker compose up --build -d
           echo 'Deployment successful to digital ocean'
