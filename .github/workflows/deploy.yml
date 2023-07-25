@@ -1,7 +1,7 @@
 name: Build & Deploy
 on:
   push:
-    branches: [main]
+    branches: [21-set-up-cicd-pipeline-with-do]
 jobs:
   deploy:
     runs-on: ubuntu-latest
