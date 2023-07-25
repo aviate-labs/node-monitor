@@ -16,3 +16,6 @@ services:
       - type: bind
         source: ./.env
         target: /app/.env
+      - type: bind
+        source: ./lookuptable.json
+        target: /app/.env
