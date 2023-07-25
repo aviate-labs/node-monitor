@@ -163,7 +163,7 @@ class NodeMonitor:
         return (
             f"Nodes 'UP': {self.snapshots[-1].get_num_up_nodes()}\n"
             f"Nodes 'DOWN': {self.snapshots[-1].get_num_down_nodes()}\n"
-            f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
+            f"Nodes 'UNASSIGNED': {self.snapshots[-1].get_num_unassigned_nodes()}\n\n"
         )
 
     def send_to_subscribers(self, message):
