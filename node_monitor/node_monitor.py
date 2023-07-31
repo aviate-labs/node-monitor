@@ -177,9 +177,9 @@ class NodeMonitor:
         if config['NotifyBySlack']:
             SlackBot().send_message(message)
         if config['NotifyByTelegramChannel']:
-            TelegramBot().send_message_to_channel(message)
+            TelegramBot.send_message_to_channel(message)
         if config['NotifyByTelegramChat']:
-            TelegramBot().send_message_to_chat(message)
+            TelegramBot.send_message_to_chat(message)
         return
 
     # possible diff keys (scraped from source):

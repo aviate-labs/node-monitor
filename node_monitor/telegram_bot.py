@@ -4,7 +4,8 @@ from node_monitor.load_config import telegramBotToken, telegramChatId, telegramC
 
 
 class TelegramBot():
-    def send_message_to_channel(self, message_content):
+    @staticmethod
+    def send_message_to_channel(message_content):
         try:
             request = requests.get(
                 f"https://api.telegram.org/bot{telegramBotToken}"
@@ -18,7 +19,8 @@ class TelegramBot():
                 f"Check that the Telegram channel id and/or Telegram bot API token is correct"
             )
 
-    def send_message_to_chat(self, message_content):
+    @staticmethod
+    def send_message_to_chat(message_content):
         try:
             request = requests.get(
                 f"https://api.telegram.org/bot{telegramBotToken}"
