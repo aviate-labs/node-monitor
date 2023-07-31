@@ -12,11 +12,12 @@ logs/
 # misc
 *.csv
 *.json
+.git/
+.env
 
 # python
 *.pyc
 **/__pycache__/
-.env
 
 # database
 master.db
