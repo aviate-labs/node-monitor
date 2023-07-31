@@ -1,5 +1,3 @@
-version: "3.7"
-
 name: node_monitor_service
 
 services:
