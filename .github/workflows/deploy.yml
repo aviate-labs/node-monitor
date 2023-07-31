@@ -13,12 +13,19 @@ jobs:
         host: ${{secrets.SSH_HOST}} # IP address of the server you wish to ssh into
         key: ${{secrets.SSH_KEY}} # Private or public key of the server
         username: ${{ secrets.SSH_USERNAME }} # User of the server you want to ssh into
-        script: | #change the script below to do 'git pull' in the correct directory in the droplet
-          cd test 
-          cd node-monitor
-          docker compose down
-          git fetch
-          git reset --hard origin/release
-          docker image prune -a
-          docker compose up --build -d
-          echo 'Deployment successful to digital ocean'
+    - name: Navigate to directory
+      run: |
+        cd test 
+        cd node-monitor
+    - name: Stop running image
+      run: |
+        docker compose down
+    - name: Hard reset of local branch to match to remote
+      run: |
+        git fetch
+        git reset --hard origin/release
+    - name: Clean up unused images and rebuild node monitor
+      run: |
+        docker image prune -a
+        docker compose up --build -d
+        echo 'Deployment successful to digital ocean'
