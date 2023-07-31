@@ -21,4 +21,4 @@ jobs:
           docker compose down
           docker image prune -a -f
           docker compose up --build -d
-          echo 'Deployment successful to digital ocean droplet'
+          echo 'Node monitor successfuly deployed to digital ocean droplet'
