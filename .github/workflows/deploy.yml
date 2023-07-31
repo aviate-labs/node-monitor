@@ -18,7 +18,7 @@ jobs:
           cd node-monitor
           docker compose down
           git fetch
-          git reset --hard origin/release
+          git reset --hard origin/21-set-up-cicd-pipeline-with-do
           docker image prune -a
           docker compose up --build -d
           echo 'Deployment successful to digital ocean'
