@@ -21,4 +21,4 @@ jobs:
           git fetch
           git reset --hard origin/21-set-up-cicd-pipeline-with-do  
           docker compose up --build -d
-          echo 'Deployment successful to digital ocean'
+          echo 'Deployment successful to digital ocean droplet'
