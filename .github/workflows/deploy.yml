@@ -17,7 +17,8 @@ jobs:
           cd test 
           cd node-monitor
           docker compose down
-          git pull
+          git fetch
+          git reset --hard origin/release
           docker image prune -a
           docker compose up --build -d
           echo 'Deployment successful to digital ocean'
