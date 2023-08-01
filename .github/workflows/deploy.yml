@@ -14,7 +14,7 @@ jobs:
         key: ${{secrets.SSH_KEY}} # Private or public key of the server
         username: ${{ secrets.SSH_USERNAME }} # User of the server you want to ssh into
         script: | #TODO: add correct reference to remote branch and directory on droplet to run node monitor
-          cd node-monitor-v2
+          cd node-monitor-prod
           cd node-monitor
           git fetch
           git reset --hard origin/21-set-up-cicd-pipeline-with-do  
