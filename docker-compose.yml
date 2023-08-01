@@ -1,0 +1,19 @@
+name: node_monitor_service
+
+services:
+  node_monitor:
+    container_name: node_monitor
+    image: louisevel/node_monitor
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./config.json
+        target: /app/config.json
+      - type: bind
+        source: ./.env
+        target: /app/.env
+      - type: bind
+        source: ./lookuptable.json
+        target: /app/lookuptable.json

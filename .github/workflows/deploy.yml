@@ -1,19 +1,24 @@
 name: Build & Deploy
 on:
   push:
-    branches: [main]
+    branches: [21-set-up-cicd-pipeline-with-do] #Needs to be changed to release when on main.
 jobs:
   deploy:
+    name: Deploy Node Monitor
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy Node Monitor
-      uses: appleboy/ssh-action@v0.1.2
+    - name: SSH into droplet and run script
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{secrets.SSH_HOST}} # IP address of the server you wish to ssh into
         key: ${{secrets.SSH_KEY}} # Private or public key of the server
         username: ${{ secrets.SSH_USERNAME }} # User of the server you want to ssh into
-        script: |
-          mkdir test
-          cd test
-          git clone git@github.com:aviate-labs/node-monitor.git
-          echo 'Deployment successful to digital ocean'
+        script: | #TODO: add correct reference to remote branch and directory on droplet to run node monitor
+          cd node-monitor-prod
+          cd node-monitor
+          git fetch
+          git reset --hard origin/21-set-up-cicd-pipeline-with-do  
+          docker compose down
+          docker image prune -a -f
+          docker compose up --build -d
+          echo 'Node monitor successfuly deployed to digital ocean droplet'
