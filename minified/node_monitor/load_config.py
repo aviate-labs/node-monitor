@@ -16,6 +16,7 @@ slackBotToken    = os.environ.get('slackBotToken'  )
 
 ##############################################
 ## Default Config
+## TODO: Give this an override that node providers can tune
 
 defaultConfig = {
     'NotifyByEmail'             : True,
