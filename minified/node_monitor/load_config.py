@@ -17,5 +17,9 @@ slackBotToken    = os.environ.get('slackBotToken'  )
 ##############################################
 ## Default Config
 
-## NYI
-
+defaultConfig = {
+    'NotifyByEmail'             : True,
+    'NotifyBySlack'             : False,
+    'NotifyByTelegramChannel'   : False,
+    'NotifyByTelegramChat'      : False,
+}
