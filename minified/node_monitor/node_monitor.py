@@ -10,7 +10,7 @@ Seconds = int
 sync_interval: Seconds = 60 * 4
 
 
-class NodeMonitor():
+class NodeMonitor:
     def __init__(self) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
@@ -22,7 +22,10 @@ class NodeMonitor():
     
     def _analyze(self) -> None:
         """Run analysis on the snapshots."""
-        self.compromised_nodes = get_compromised_nodes(self.snapshots)
+        if len(self.snapshots) != 3:
+            self.compromised_nodes = []
+        else:
+            self.compromised_nodes = get_compromised_nodes(self.snapshots)
     
     def broadcast(self) -> None:
         """Broadcast relevant information to the appropriate channels."""
@@ -55,13 +58,14 @@ class NodeMonitor():
 
 
 def get_compromised_nodes(snapshots: Deque[ic_api.Nodes]) -> List[ic_api.Node]:
-    """Check for compromised nodes, making sure to debounce."""
+    """Check for compromised nodes, making sure to debounce.
+    Will throw an exception if snapshots is not of length 3."""
     # We used to use a diff here to monitor any type of changes, but we 
     # prefer this method of checking manually because it results in less code.
     # Original NodeMonitorDiff: commit d743197e4f5da80611ece61e63580b2a65c41491
 
-    if len(snapshots) < 3:
-        return []
+    assert len(snapshots) == 3, \
+        "snapshots must be of length 3, not {}".format(len(snapshots))
     
     # destructure the nodes from the snapshots
     a = snapshots[0].nodes
