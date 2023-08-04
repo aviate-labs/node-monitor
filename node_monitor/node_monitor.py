@@ -14,6 +14,7 @@ import typing
 
 from node_monitor.node_monitor_email import NodeMonitorEmail, email_watcher
 from node_monitor.slack_bot import SlackBot
+from node_monitor.telegram_bot import TelegramBot
 from node_monitor.load_config import (
     nodeProviderId, emailRecipients, config, lookuptable,
 )
@@ -130,8 +131,11 @@ class NodeMonitor:
                 current_time = time.time()
                 if report_interval_set and current_time - last_email_time >= report_interval:
                     self.send_to_subscribers(
-                        "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺" + "\n\n" + self.stats_message())
+                        "🩺🩺🩺 NODE STATUS REPORT 🩺🩺🩺"
+                        + "\n\n"
+                        + self.stats_message())
                     last_email_time = current_time
+                    logging.info("Send status report")
             except Exception as e:
                 logging.exception(e)
                 logging.info("Error occurred. Retrying...")
@@ -161,9 +165,9 @@ class NodeMonitor:
 
     def stats_message(self):
         return (
-            f"There are currently {self.snapshots[-1].get_num_up_nodes()} nodes in 'UP' status.\n"
-            f"There are currently {self.snapshots[-1].get_num_down_nodes()} nodes in 'DOWN' status.\n"
-            f"There are currently {self.snapshots[-1].get_num_unassigned_nodes()} nodes in 'UNASSIGNED' status.\n\n"
+            f"Nodes 'UP': {self.snapshots[-1].get_num_up_nodes()}\n"
+            f"Nodes 'DOWN': {self.snapshots[-1].get_num_down_nodes()}\n"
+            f"Nodes 'UNASSIGNED': {self.snapshots[-1].get_num_unassigned_nodes()}\n\n"
         )
 
     def send_to_subscribers(self, message):
@@ -172,6 +176,10 @@ class NodeMonitor:
             email.send_recipients(emailRecipients)
         if config['NotifyBySlack']:
             SlackBot().send_message(message)
+        if config['NotifyByTelegramChannel']:
+            TelegramBot.send_message_to_channel(message)
+        if config['NotifyByTelegramChat']:
+            TelegramBot.send_message_to_chat(message)
         return
 
     # possible diff keys (scraped from source):

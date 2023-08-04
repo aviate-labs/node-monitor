@@ -11,8 +11,10 @@ Includes an optional feature to send a status update to any incoming emails that
 ## Setup
 Create a .env file in this directory like so
 ```text
-gmailUsername   = "email.sender@gmail.com"
-gmailPassword   = "mypassword"
+gmailUsername       = "email.sender@gmail.com"
+gmailPassword       = "mypassword"
+slackBotToken       = "your-slack-bot-api-token"
+telegramBotToken    = "your-telegram-bot-api-token"
 ```
 The email address listed in the `gmailUsername` field serves as the primary sender for notifications and the point of contact for getting the status of your nodes. 
 
@@ -23,7 +25,9 @@ Create a config.json file in this directory. Below is a good default config.
 ```js
 {
     "emailRecipients": ["email.receiver1@gmail.com", "email.receiver2@gmail.com"],
-    "slackChannelName": "node-monitor",
+    "slackChannelName": "your-node-monitor-channel",
+    "telegramChatId": "0123456789",
+    "telegramChannelId": "-1234567890987",
     "nodeProviderId": "abc2d-48fgj-32ab3-2a...",
     "intervalMinutes": 5,
     "intervalStatusReport": 1440, 
@@ -108,3 +112,31 @@ $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
 
 - IMAPClientEnabled: Watch inbox and send any responses to emails querying a status update
 
+- NotfyBySlack: Sends Slack messages according to the settings specified above
+
+- NotifyByTelegram: Sends Telegram messages according to the settings specified above
+
+## Set up Node Monitor Slack Bot
+
+- Follow the steps in this [walkthrough](https://app.tango.us/app/workflow/Setting-up-a-Node-Monitor-Bot-in-Slack--Step-by-Step-Instructions-c971a31e13a344dc8cba4c2ebc3f4e4e).
+
+- After following the steps in this tutorial you should have the bot API token and the channel name (step 24 and 29).
+
+- Put the bot API token in the `.env` file in the `slackBotToken` field and the channel name in the `config.json` file in the `slackChannelName` field.
+
+## Set up Node Monitor Telegram bot
+
+### Messaging a channel 
+- Follow the steps in this [walkthrough](https://help.nethunt.com/en/articles/6467726-how-to-create-a-telegram-bot-and-use-it-to-post-in-telegram-channels)
+
+- After following the steps in the tutorial, you should have a bot API token and the channel ID. Put the bot API token in the `.env` file in the `telegramBotToken` field and the channel ID in the `config.json` file in the `telegramChanelId` field.
+
+### Messaging a chat 
+- Follow the same steps as in the tutorial for messaging a channel.
+
+- In step 3, look for your chat ID. It should look something like:
+    ```json
+    'chat': {'id': this-is-your-chat-id, ...}
+    ```
+
+- Now you have the bot API token and the chat ID, put the bot API token in the `.env` file in the `telegramBotToken` field and the chat ID in the `config.json` file in the `telegramChatId` field.
