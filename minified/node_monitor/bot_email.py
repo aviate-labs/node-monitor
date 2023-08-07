@@ -6,7 +6,7 @@ from typing import List
 class EmailBot():
     def __init__(
             self, gmail_username: str, gmail_password: str, 
-            smtp_server: str = 'smtp.gmail.com', smtp_port: int = 587):
+            smtp_server: str = 'smtp.gmail.com', smtp_port: int = 587) -> None:
         """Create an EmailBot object that can send emails from the given
         email account. The default SMTP server is gmail, but this can be
         changed if desired."""
