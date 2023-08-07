@@ -1,30 +1,19 @@
-from flask import Flask
-from typing import Dict
 import threading
-import time
 
 from node_monitor.node_monitor import NodeMonitor
+from node_monitor.server import create_server
 
 
 ## Initialize
-app = Flask(__name__)
 nm = NodeMonitor()
+app = create_server(nm)
 
 
-## Create Routes
-@app.route('/')
-def root() -> Dict[str, str]:
-    deque_length = str(len(nm.snapshots))
-    d = {
-        "status": "online",
-        "deque_length": deque_length,
-    }
-    return d
-
-
-## Run NodeMonitor
+## Run NodeMonitor in a separate thread
+#  daemon threads stop when the main thread stops
+#  can we call nm.mainloop as the target without creating a new fn?
 def start_node_monitor() -> None:
-    # run as a daemon thread so that it stops when the main thread stops
+    print("Starting NodeMonitor...")
     nm.mainloop()
 thread = threading.Thread(target=start_node_monitor, daemon=True)
 thread.start()
