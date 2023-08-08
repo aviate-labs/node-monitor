@@ -2,8 +2,29 @@ from typing import Deque, List
 import node_monitor.ic_api as ic_api
 
 def get_compromised_nodes(snapshots: Deque[ic_api.Nodes]) -> List[ic_api.Node]:
-    """Check for compromised nodes, making sure to debounce.
-    Will throw an exception if snapshots is not of length 3."""
+    """
+    Function to check for compromised nodes in a deque of snapshots.
+    It debounces these checks to filter out temporary blips
+
+    Parameters
+    ----------
+    snapshots : Deque[ic_api.Nodes]
+        A deque containing exactly three snapshots, where each snapshot is an
+        ic_api.Nodes object representing the nodes fetched from the 
+        ic-api at that time.
+
+    Returns
+    -------
+    List[ic_api.Node]
+        A list of nodes that are found to be compromised based on the comparison
+        of status across the snapshots.
+
+    Raises:
+    -------
+    AssertionError
+        If the length of the snapshots deque is not 3.
+    """
+    
     # We used to use a diff here to monitor any type of changes, but we 
     # prefer this method of checking manually because it results in less code.
     # Original NodeMonitorDiff: commit d743197e4f5da80611ece61e63580b2a65c41491
