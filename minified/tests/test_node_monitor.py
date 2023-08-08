@@ -1,8 +1,10 @@
-from node_monitor.node_monitor import NodeMonitor, get_compromised_nodes
-import node_monitor.ic_api as ic_api
 from devtools import debug
 from typing import Deque
 from collections import deque
+
+from node_monitor.node_monitor import NodeMonitor, get_compromised_nodes
+import node_monitor.ic_api as ic_api
+from node_monitor.bot_email import EmailBot
 
 # This is data only from nodes with aviate labs provider id
 # TODO: Update this data set for all node providers
@@ -26,7 +28,8 @@ class TestNodeMonitor:
     def test_resync(self):
         # make sure resync works
         # make sure that the deque never goes over 3
-        nm = NodeMonitor()
+        email_bot = EmailBot
+        nm = NodeMonitor(email_bot)
         nm._resync()
         nm._resync()
         nm._resync()

@@ -1,17 +1,21 @@
 import threading
 
+from node_monitor.bot_email import EmailBot
 from node_monitor.node_monitor import NodeMonitor
 from node_monitor.server import create_server
-
+import node_monitor.load_config as c
 
 ## Initialize
-nm = NodeMonitor()
+## Objects are passed by reference, so we can pass around the NodeMonitor
+## instance and work on the same data in different functions/threads
+email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
+nm = NodeMonitor(email_bot)
 app = create_server(nm)
 
 
 ## Run NodeMonitor in a separate thread
-#  daemon threads stop when the main thread stops
-#  can we call nm.mainloop as the target without creating a new fn?
+## daemon threads stop when the main thread stops
+## can we call nm.mainloop as the target without creating a new fn?
 def start_node_monitor() -> None:
     print("Starting NodeMonitor...")
     nm.mainloop()
