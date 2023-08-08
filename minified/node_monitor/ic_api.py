@@ -20,17 +20,19 @@ nodes_endpoint = "https://ic-api.internetcomputer.org/api/v3/nodes"
 # expected field is missing or if a field's value is of the wrong type,
 # then Pydantic raises a ValidationError.
 
+Principal = str
+
 class Node(BaseModel):
     dc_id: str
     dc_name: str
-    node_id: str
-    node_operator_id: str
-    node_provider_id: str
+    node_id: Principal
+    node_operator_id: Principal
+    node_provider_id: Principal
     node_provider_name: str
     owner: str
     region: str
     status: str
-    subnet_id: Optional[str]
+    subnet_id: Optional[Principal]
 
 class Nodes(BaseModel):
     nodes: List[Node]
@@ -40,7 +42,7 @@ class Nodes(BaseModel):
 ##############################################
 ## API Fetch Functions
 
-def get_nodes(provider_id: Optional[str] = None) -> Nodes:
+def get_nodes(provider_id: Optional[Principal] = None) -> Nodes:
     """slurps nodes from the dfinity api, optional node_provider_id"""
     payload = {"node_provider_id": provider_id} if provider_id else None
     response = requests.get(nodes_endpoint, params=payload)
