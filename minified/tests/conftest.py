@@ -1,13 +1,9 @@
 import pytest
 import node_monitor.ic_api as ic_api
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--send_emails", 
-        action="store_true", 
-        default=False, 
-        help="Send actual emails over the network to a test inbox"
-    )
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "live_email: test sends a live email over the network")
 
 ## Create mock data for testing
 ## Data was pulled from the ic-api using cURL and stored in json files.

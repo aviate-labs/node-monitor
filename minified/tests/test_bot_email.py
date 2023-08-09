@@ -6,13 +6,15 @@ import re
 from node_monitor.bot_email import EmailBot
 import node_monitor.load_config as c
 
-# Usage to actually send emails:
-#   -s is to print to stdout
-#   --send_emails is a custom flag
-# pytest -s --send_emails tests/test_bot_email.py
+# This test sends emails by default
+# Usage to disable live email sending:
+# pytest -m "not live_email" tests/test_bot_email.py
+
+# Usage to enable printing of stdout:
+# pytest -s tests/test_bot_email.py
 
 @patch('smtplib.SMTP')
-def _send_emails_mock(mock_smtp):
+def test_send_emails_mock(mock_smtp):
     """Mock sending emails and check that the correct calls were made."""
     mock_instance = mock_smtp.return_value.__enter__.return_value
 
@@ -30,7 +32,8 @@ def _send_emails_mock(mock_smtp):
     mock_instance.login.assert_called_once_with('username', 'password')
 
 
-def _send_emails_network():
+@pytest.mark.live_email
+def test_send_emails_network():
     """Send real emails over a network to a test inbox and check that 
     they were received."""
     email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
@@ -49,12 +52,3 @@ def _send_emails_network():
     assert response.status_code == 200, "Mailnesia website did not respond."
     assert re.search(subject, response.text), "The sent email was not received."
     print('Email received!')
-
-
-def test_send_emails(pytestconfig):
-    if pytestconfig.getoption('send_emails'):
-        print('Sending Live Emails...')
-        _send_emails_network()
-    else:
-        print('Mocking Emails...')
-        _send_emails_mock()
