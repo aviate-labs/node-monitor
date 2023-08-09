@@ -46,8 +46,8 @@ def _send_emails_network():
     time.sleep(10)
     url = 'https://mailnesia.com/mailbox/nodemonitortest'
     response = requests.get(url)
-    assert response.status_code == 200
-    assert re.search(subject, response.text)
+    assert response.status_code == 200, "Mailnesia website did not respond."
+    assert re.search(subject, response.text), "The sent email was not received."
     print('Email received!')
 
 
