@@ -47,7 +47,7 @@ class NodeMonitor:
             return None
         self.compromised_nodes = get_compromised_nodes(self.snapshots)
         self.compromised_nodes_by_provider = \
-            groupby('node_provider_id', self.compromised_nodes)
+            groupby(lambda node: node.node_provider_id, self.compromised_nodes)
         subscribers = self.node_provider_db.get_subscribers()
         self.actionables = {k: v for k, v
                             in self.compromised_nodes_by_provider.items()
