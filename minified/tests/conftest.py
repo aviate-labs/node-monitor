@@ -13,7 +13,7 @@ def pytest_addoption(parser):
 ## Data was pulled from the ic-api using cURL and stored in json files.
 ## This is data only from nodes with aviate labs provider id
 ## TODO: Update this data set to reflect multiple node providers
-mock = {
+cached = {
     "control":                ic_api.get_nodes_from_file("../tests/t0.json"),
     "one_node_down":          ic_api.get_nodes_from_file("../tests/t1.json"),
     "two_nodes_down":         ic_api.get_nodes_from_file("../tests/t2.json"),
