@@ -27,13 +27,13 @@ class NodeProviderDB:
 
 
     def get_subscribers(self) -> List[Principal]:
-        subs = [entry["node_provider_id"] for entry in tmp_db['preferences']]
+        subs = [entry["node_provider_principal"] for entry in tmp_db['preference']]
         return subs
     
     def get_preferences(self) -> Dict[Principal, Dict[str, bool]]:
         prefs: Dict[Principal, Dict[str, bool]] = {
-            entry['node_provider_id']: entry
-            for entry in tmp_db['preferences']}
+            entry['node_provider_principal']: entry
+            for entry in tmp_db['preference']}
         return prefs
     
     def get_node_lables(self) -> Dict[Principal, str]:
