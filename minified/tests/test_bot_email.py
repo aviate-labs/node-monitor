@@ -43,7 +43,7 @@ def test_send_emails_network():
     body = 'Test Body'
     email_bot.send_emails(recipients, subject, body)
     # Automatically check the email inbox
-    print("https://mailnesia.com/mailbox/nodemonitortest")
+    print(f'\nhttps://mailnesia.com/mailbox/nodemonitortest')
     print(f'Email Subject should match: {subject}')
     print('Checking now... Waiting 10 seconds...')
     time.sleep(10)
