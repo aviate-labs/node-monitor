@@ -57,7 +57,7 @@ class NodeMonitor:
     def broadcast(self) -> None:
         """Broadcast relevant information to the appropriate channels."""
         preferences = self.node_provider_db.get_preferences()
-        labels = self.node_provider_db.get_node_lables()
+        labels = self.node_provider_db.get_node_labels()
         for node_provider_id, nodes in self.actionables.items():
             # - - - - - - - - - - - - - - - - -
             def _represent(nodes: List[ic_api.Node]) -> str:

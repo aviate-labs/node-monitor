@@ -37,7 +37,7 @@ class NodeProviderDB:
             for entry in tmp_db['preference']}
         return prefs
     
-    def get_node_lables(self) -> Dict[Principal, str]:
+    def get_node_labels(self) -> Dict[Principal, str]:
         labels: Dict[Principal, str] = tmp_db['node_labels']
         return labels
 
