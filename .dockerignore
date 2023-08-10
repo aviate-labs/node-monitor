@@ -11,8 +11,8 @@ logs/
 
 # misc
 *.csv
-*.json
 .git/
+.json
 .env
 
 # python

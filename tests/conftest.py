@@ -37,11 +37,11 @@ def pytest_collection_modifyitems(config, items):
 ## This is data only from nodes with aviate labs provider id
 ## TODO: Update this data set to reflect multiple node providers
 cached = {
-    "control":                ic_api.get_nodes_from_file("../tests/t0.json"),
-    "one_node_down":          ic_api.get_nodes_from_file("../tests/t1.json"),
-    "two_nodes_down":         ic_api.get_nodes_from_file("../tests/t2.json"),
-    "one_node_change_subnet": ic_api.get_nodes_from_file("../tests/t3.json"),
-    "one_node_removed":       ic_api.get_nodes_from_file("../tests/t4.json"),
+    "control":                ic_api.get_nodes_from_file("data/t0.json"),
+    "one_node_down":          ic_api.get_nodes_from_file("data/t1.json"),
+    "two_nodes_down":         ic_api.get_nodes_from_file("data/t2.json"),
+    "one_node_change_subnet": ic_api.get_nodes_from_file("data/t3.json"),
+    "one_node_removed":       ic_api.get_nodes_from_file("data/t4.json"),
 }
 
 # Do we want this implemented?

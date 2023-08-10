@@ -10,5 +10,5 @@ def test_get_nodes():
     assert len(nodes.nodes) > 0
 
 def test_get_nodes_from_file():
-    nodes = ic_api.get_nodes_from_file("../tests/t0.json")
+    nodes = ic_api.get_nodes_from_file("data/t0.json")
     assert len(nodes.nodes) > 0

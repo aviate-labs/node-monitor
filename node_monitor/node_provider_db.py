@@ -4,7 +4,7 @@ import json
 
 # TODO: Replace this with a proper SQLite database
 
-with open('tmp_prod_db.json') as f:
+with open('./tmp_prod_db.json') as f:
     tmp_db: Dict[Any, Any] = json.load(f)
 # channel_detail
 # email_recipient

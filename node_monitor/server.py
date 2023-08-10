@@ -13,6 +13,7 @@ def create_server(nm: NodeMonitor) -> Flask:
         deque_length = str(len(nm.snapshots))
         last_update = str(nm.last_update)
         d = {
+            # TODO: do we use thread.is_alive() here?
             "status": "online",
             "deque_length": deque_length,
             "last_update": last_update
