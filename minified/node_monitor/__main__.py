@@ -17,10 +17,11 @@ app = create_server(nm)
 ## daemon threads stop when the main thread stops
 ## can we call nm.mainloop as the target without creating a new fn?
 def start_node_monitor() -> None:
-    print("Starting NodeMonitor...")
     nm.mainloop()
+print("Starting NodeMonitor...", end=" ")
 thread = threading.Thread(target=start_node_monitor, daemon=True)
 thread.start()
+print("Running.")
 
 
 
