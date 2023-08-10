@@ -67,17 +67,17 @@ class NodeMonitor:
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
             # - - - - - - - - - - - - - - - - -
-            if pref['NotifyByEmail'] == True:
+            if pref['notify_email'] == True:
                 recipients = \
                     self.node_provider_db.get_email_recipients(node_provider_id)
                 self.email_bot.send_emails(recipients, subject, msg)
-            if pref['NotifyBySlack'] == True:
+            if pref['notify_slack'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
-            if pref['NotifyByTelegramChannel'] == True:
+            if pref['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
-            if pref['NotifyByTelegramChat'] == True:
+            if pref['notify_telegram_channel'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
             # - - - - - - - - - - - - - - - - -

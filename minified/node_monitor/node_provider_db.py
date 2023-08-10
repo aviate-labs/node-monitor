@@ -22,12 +22,13 @@ class NodeProviderDB:
         emails: List[str] = [
             entry['email_address'] 
             for entry in tmp_db['email_recipient']
-            if entry['node_provider_id'] == node_provider]
+            if entry['node_provider_principal'] == node_provider]
         return emails
 
 
     def get_subscribers(self) -> List[Principal]:
-        subs = [entry["node_provider_principal"] for entry in tmp_db['preference']]
+        subs = [entry["node_provider_principal"] 
+                for entry in tmp_db['preference']]
         return subs
     
     def get_preferences(self) -> Dict[Principal, Dict[str, bool]]:
