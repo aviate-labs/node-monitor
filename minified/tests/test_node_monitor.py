@@ -9,7 +9,7 @@ from node_monitor.node_provider_db import NodeProviderDB
 
 from tests.conftest import cached
 
-# This uses data stored on disk that has been cURL'd from the ic-api.
+# This uses data stored on disk that has been fetched with cURL from the ic-api.
 
 
 class TestNodeMonitor:
