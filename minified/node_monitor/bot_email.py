@@ -3,7 +3,7 @@ import smtplib
 from typing import List
 
 
-class EmailBot():
+class EmailBot:
     def __init__(
             self, gmail_username: str, gmail_password: str, 
             smtp_server: str = 'smtp.gmail.com', smtp_port: int = 587) -> None:
