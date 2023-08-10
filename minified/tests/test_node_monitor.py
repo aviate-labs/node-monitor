@@ -5,6 +5,7 @@ from unittest.mock import patch, Mock
 from node_monitor.node_monitor import NodeMonitor
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
+from node_monitor.node_provider_db import NodeProviderDB
 
 from tests.conftest import cached
 
@@ -40,12 +41,35 @@ class TestNodeMonitor:
 
 
 
+# Set up a mock database so that we can test the broadcast() function
+# without needing to access a database. This (temporarily) uses Allusion's 
+# node-provider-id (principal) on our test data stored in 'tests/'
+# TODO: rename the 'tests/' directory in the root of the repo to 'data/'
+# TODO: expand these tests to work on all nodes, not just Allusion's nodes 
+# (currently all data in the 'tests/' directory is filtered to only contain
+# Allusion's nodes)
+
+mock_node_provider_db = Mock(spec=NodeProviderDB)
+mock_node_provider_db.get_email_recipients.return_value = \
+    ['test_recipient@gmail.com']
+mock_node_provider_db.get_subscribers.return_value = \
+    ['rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae']
+mock_node_provider_db.get_preferences.return_value = \
+    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
+     {'notify_email': True,
+      'notify_slack': False,
+      'notify_telegram_chat': False,
+      'notify_telegram_channel': False}}
+
+
+
 
 def test_control():
     """Test the control case. No nodes down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
     nm = NodeMonitor(mock_email_bot)
+    nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -59,6 +83,7 @@ def test_control():
     # test broadcast()
     nm.broadcast()
     assert mock_email_bot.send_emails.call_count == 0
+    mock_node_provider_db.reset_mock()
 
 
 
@@ -68,6 +93,7 @@ def test_one_node_bounce():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     nm = NodeMonitor(mock_email_bot)
+    nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['one_node_down'])
     nm._resync(cached['control'])
@@ -81,6 +107,7 @@ def test_one_node_bounce():
     # test broadcast()
     nm.broadcast()
     assert mock_email_bot.send_emails.call_count == 0
+    mock_node_provider_db.reset_mock()
 
 
 
@@ -89,6 +116,7 @@ def test_two_nodes_down():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     nm = NodeMonitor(mock_email_bot)
+    nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
     nm._resync(cached['two_nodes_down'])
@@ -102,4 +130,5 @@ def test_two_nodes_down():
     # test broadcast()
     nm.broadcast()
     assert mock_email_bot.send_emails.call_count == 1
+    mock_node_provider_db.reset_mock()
 
