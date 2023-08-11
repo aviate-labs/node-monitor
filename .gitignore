@@ -11,7 +11,7 @@ logs/
 
 # misc
 *.csv
-*.json
+tmp_prod_db.json
 
 # python
 *.pyc
