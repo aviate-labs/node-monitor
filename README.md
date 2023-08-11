@@ -36,6 +36,12 @@ $ pytest -s --send_emails tests/
 
 We use Gunicorn as our WSGI server.
 
+Docker is the recommended way to run this:
+```bash
+$ docker compose up --build
+```
+
+Run without Docker:
 ```bash
 $ make prod
 ```
