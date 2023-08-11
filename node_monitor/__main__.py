@@ -10,7 +10,6 @@ import node_monitor.load_config as c
 ## instance and work on the same data in different functions/threads
 email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
 nm = NodeMonitor(email_bot)
-app = create_server(nm)
 
 
 ## Run NodeMonitor in a separate thread
@@ -22,6 +21,9 @@ print("Starting NodeMonitor...", end=" ")
 thread = threading.Thread(target=start_node_monitor, daemon=True)
 thread.start()
 print("Running.")
+
+## Run Flask server in main thread
+app = create_server(nm, thread.is_alive)
 
 
 
