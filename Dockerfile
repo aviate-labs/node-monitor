@@ -10,10 +10,9 @@ WORKDIR /app
 
 EXPOSE 80
 
-RUN python3 node_monitor/load_config.py
-
+# Note: environment variables won't load until the container is run,
+# so we can't do something like 'RUN make test' here. We have to put the command
+# in the CMD section.
 # TODO: Should we put the check and test in a separate container?
-RUN make check
-RUN make test
 
-CMD ["make", "prod"]
+CMD bash -c "make check && make test && make prod"
