@@ -43,10 +43,9 @@ class TestNodeMonitor:
 
 # Set up a mock database so that we can test the broadcast() function
 # without needing to access a database. This (temporarily) uses Allusion's 
-# node-provider-id (principal) on our test data stored in 'tests/'
-# TODO: rename the 'tests/' directory in the root of the repo to 'data/'
+# node-provider-id (principal) on our test data stored in 'data/'
 # TODO: expand these tests to work on all nodes, not just Allusion's nodes 
-# (currently all data in the 'tests/' directory is filtered to only contain
+# (currently all data in the 'data/' directory is filtered to only contain
 # Allusion's nodes)
 
 mock_node_provider_db = Mock(spec=NodeProviderDB)
