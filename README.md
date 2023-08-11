@@ -17,6 +17,17 @@ Install dependencies
 $ pip install -r requirements.txt
 ```
 
+## Docker
+
+Docker is the recommended way to run this:
+```bash
+$ docker compose up --build
+```
+
+Test only:
+```bash
+$ TEST=true docker compose up --build
+```
 
 ## Testing
 
@@ -31,17 +42,10 @@ $ pytest -s --send_emails tests/
 ```
 
 
-
 ## Running
 
 We use Gunicorn as our WSGI server.
 
-Docker is the recommended way to run this:
-```bash
-$ docker compose up --build
-```
-
-Run without Docker:
 ```bash
 $ make prod
 ```

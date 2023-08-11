@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - TEST=${TEST}
     ports:
       - "80:80"
     volumes:
