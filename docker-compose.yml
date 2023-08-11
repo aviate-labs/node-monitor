@@ -1,5 +1,3 @@
-name: node_monitor_service
-
 services:
   node_monitor:
     container_name: node_monitor
@@ -7,13 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - TEST=${TEST}
+    ports:
+      - "80:80"
     volumes:
       - type: bind
-        source: ./config.json
-        target: /app/config.json
+        source: tmp_prod_db.json
+        target: /app/tmp_prod_db.json
       - type: bind
-        source: ./.env
+        source: .env
         target: /app/.env
-      - type: bind
-        source: ./lookuptable.json
-        target: /app/lookuptable.json
