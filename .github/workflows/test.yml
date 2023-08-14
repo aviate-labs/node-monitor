@@ -1,0 +1,12 @@
+name: Test & Check
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and Test Docker Container
+        run: TEST=true docker compose up --build
