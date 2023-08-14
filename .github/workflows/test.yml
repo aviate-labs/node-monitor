@@ -10,10 +10,16 @@ jobs:
 
       # TODO: remove this when the database implementation changes
       - name: Create fake temp_prod_db.json file
-        run: touch tmp_prod_db.json
+        run: |
+          touch tmp_prod_db.json
+          echo "{}" >> tmp_prod_db.json
 
       - name: Create fake .env file
-        run: touch .env
+        run: |
+          touch .env
+          echo "gmailUsername=test@email.com" >> .env
+          echo "gmailPassword=testPassword" >> .env
+
 
       - name: Build and Test Docker Container
         run: TEST=true docker compose up --build --exit-code-from node_monitor
