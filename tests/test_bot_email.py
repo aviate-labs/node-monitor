@@ -36,7 +36,7 @@ def test_send_emails_mock(mock_smtp):
 def test_send_emails_network():
     """Send real emails over a network to a test inbox and check that 
     they were received."""
-    email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
+    email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
     # Uses an anonymous email inbox for testing
     recipients = ['nodemonitortest@mailnesia.com']
     subject = str(time.time())

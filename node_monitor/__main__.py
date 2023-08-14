@@ -8,7 +8,7 @@ import node_monitor.load_config as c
 ## Initialize
 ## Objects are passed by reference, so we can pass around the NodeMonitor
 ## instance and work on the same data in different functions/threads
-email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
+email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 nm = NodeMonitor(email_bot)
 
 

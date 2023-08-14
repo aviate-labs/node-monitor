@@ -7,10 +7,10 @@ load_dotenv()
 ##############################################
 ## Secrets
 
-gmailUsername    = os.environ.get('gmailUsername',   '')
-gmailPassword    = os.environ.get('gmailPassword',   '')
-discordBotToken  = os.environ.get('discordBotToken', '')  # Not implemented
-slackBotToken    = os.environ.get('slackBotToken',   '')
+EMAIL_USERNAME    = os.environ.get('EMAIL_USERNAME',   '')
+EMAIL_PASSWORD    = os.environ.get('EMAIL_PASSWORD',   '')
+TOKEN_DISCORD  = os.environ.get('TOKEN_DISCORD', '')  # Not implemented
+TOKEN_SLACK    = os.environ.get('TOKEN_SLACK',   '')
 
-assert gmailUsername != ''
-assert gmailPassword != ''
+assert EMAIL_USERNAME != ''
+assert EMAIL_PASSWORD != ''
