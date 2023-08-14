@@ -14,7 +14,7 @@ jobs:
           touch tmp_prod_db.json
           echo "{}" >> tmp_prod_db.json
 
-      - name: Create fake .env file
+      - name: Create fake .env file to pass assertions
         run: |
           touch .env
           echo "gmailUsername=test@email.com" >> .env
