@@ -5,6 +5,7 @@ from node_monitor.node_monitor import NodeMonitor
 from node_monitor.server import create_server
 import node_monitor.load_config as c
 
+
 ## Initialize
 ## Objects are passed by reference, so we can pass around the NodeMonitor
 ## instance and work on the same data in different functions/threads
