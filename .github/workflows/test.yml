@@ -12,5 +12,8 @@ jobs:
       - name: Create fake temp_prod_db.json file
         run: touch tmp_prod_db.json
 
+      - name: Create fake .env file
+        run: touch .env
+
       - name: Build and Test Docker Container
         run: TEST=true docker compose up --build
