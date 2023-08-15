@@ -15,17 +15,16 @@ def node_details(node: ic_api.Node, label: str) -> str:
 
 def multiple_node_details(nodes: List[ic_api.Node], 
                           labels: Dict[Principal, str]) -> str:
-    s = ""
-    for node in nodes:
-        s += node_details(node, labels[node.node_provider_id]) + '\n'
-    return s
+    msgs = [node_details(node, labels[node.node_provider_id]) for node in nodes]
+    return '\n'.join(msgs)
 
 
-def node_down_message(nodes: List[ic_api.Node]) -> str:
-    s = ', '.join([node.node_id for node in nodes])
+def node_down_message(nodes: List[ic_api.Node], 
+                      labels: Dict[Principal, str]) -> str:
+    formatted_nodes_down = multiple_node_details(nodes, labels)
     return (
         f"The following Nodes are compromised:\n"
-        f"{s}"
+        f"{formatted_nodes_down}"
     )
 
 
