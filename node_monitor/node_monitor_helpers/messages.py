@@ -5,11 +5,12 @@ import node_monitor.ic_api as ic_api
 Principal = str
 
 def node_details(node: ic_api.Node, label: str) -> str:
+    status_url = "https://dashboard.internetcomputer.org/node/{node.node_id}"
     return (
-        f"Node ID:     {node.node_id}\n"
-        f"Node Label:  {label}\n"
-        f"Node Status: {node.status}\n"
-        f"Live Node Status: https://dashboard.internetcomputer.org/node/{node.node_id}\n"
+        f"Node ID:          {node.node_id}\n"
+        f"Node Label:       {label}\n"
+        f"Node Status:      {node.status}\n"
+        f"Live Node Status: {status_url}\n"
     )
 
 def multiple_node_details(nodes: List[ic_api.Node], 
