@@ -8,6 +8,7 @@ from node_monitor.bot_email import EmailBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
+from node_monitor.node_monitor_helpers.messages import _represent
 
 Seconds = int
 sync_interval: Seconds = 60 * 4
@@ -60,9 +61,6 @@ class NodeMonitor:
         labels = self.node_provider_db.get_node_labels()
         for node_provider_id, nodes in self.actionables.items():
             # - - - - - - - - - - - - - - - - -
-            def _represent(nodes: List[ic_api.Node]) -> str:
-                # TODO: Move this into its own helper function
-                return ', '.join([node.node_id for node in nodes])
             pref = preferences[node_provider_id]
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
