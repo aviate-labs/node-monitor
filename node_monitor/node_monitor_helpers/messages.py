@@ -39,9 +39,3 @@ def node_down_message(nodes: List[ic_api.Node],
         f"The following nodes are compromised:\n\n"
         f"{formatted_nodes_down}"
     )
-
-
-def _represent(nodes: List[ic_api.Node]) -> str:
-    """Deprecated. Do not use."""
-    # TODO: Move this into its own helper function
-    return ', '.join([node.node_id for node in nodes])
