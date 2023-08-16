@@ -9,8 +9,8 @@ load_dotenv()
 
 EMAIL_USERNAME  = os.environ.get('EMAIL_USERNAME',   '')
 EMAIL_PASSWORD  = os.environ.get('EMAIL_PASSWORD',   '')
-TOKEN_DISCORD   = os.environ.get('TOKEN_DISCORD', '')  # Not implemented
-TOKEN_SLACK     = os.environ.get('TOKEN_SLACK',   '')
+TOKEN_DISCORD   = os.environ.get('TOKEN_DISCORD',    '')  # Not implemented
+TOKEN_SLACK     = os.environ.get('TOKEN_SLACK',      '')
 
 ## Pre-flight check
 # We assert that the secrets are not empty so that
