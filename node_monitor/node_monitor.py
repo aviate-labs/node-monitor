@@ -8,7 +8,7 @@ from node_monitor.bot_email import EmailBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
-from node_monitor.node_monitor_helpers.messages import _represent
+import node_monitor.node_monitor_helpers.messages as messages
 
 Seconds = int
 sync_interval: Seconds = 60 * 4
@@ -63,7 +63,7 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             pref = preferences[node_provider_id]
             subject = f"""Node Down Alert"""
-            msg = f"""The following nodes are down: {_represent(nodes)}"""
+            msg = messages.node_down_message(nodes, labels)
             # - - - - - - - - - - - - - - - - -
             if pref['notify_email'] == True:
                 recipients = \
