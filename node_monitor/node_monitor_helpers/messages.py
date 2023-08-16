@@ -13,9 +13,9 @@ def detailnode(node: ic_api.Node, label: str) -> str:
     """
     status_url = f"https://dashboard.internetcomputer.org/node/{node.node_id}"
     return (
-        f"Node ID:          {node.node_id}\n"
-        f"Node Label:       {label}\n"
-        f"Node Status:      {node.status}\n"
+        f"Node ID: {node.node_id}\n"
+        f"Node Label: {label}\n"
+        f"Node Status: {node.status}\n"
         f"Live Node Status: {status_url}\n"
     )
 
@@ -35,7 +35,8 @@ def node_down_message(nodes: List[ic_api.Node],
     """
     formatted_nodes_down = detailnodes(nodes, labels)
     return (
-        f"The following Nodes are compromised:\n"
+        f"🛑 Node/s Down:\n"
+        f"The following nodes are compromised:\n\n"
         f"{formatted_nodes_down}"
     )
 
