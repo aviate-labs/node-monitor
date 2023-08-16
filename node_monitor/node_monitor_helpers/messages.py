@@ -28,7 +28,7 @@ def detailnodes(nodes: List[ic_api.Node],
     return '\n'.join(msgs)
 
 
-def node_down_message(nodes: List[ic_api.Node], 
+def nodes_down_message(nodes: List[ic_api.Node], 
                       labels: Dict[Principal, str]) -> str:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.

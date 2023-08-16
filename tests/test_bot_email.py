@@ -62,7 +62,7 @@ def test_send_emails_network():
     ## Set paramaters (uses an anonymous email inbox for testing)
     recipients = ['nodemonitortest@mailnesia.com']
     subject = str(time.time())
-    body = messages.node_down_message([fakenode], fakelabel)
+    body = messages.nodes_down_message([fakenode], fakelabel)
     email_bot.send_emails(recipients, subject, body)
 
     ## Automatically check the email inbox

@@ -63,7 +63,7 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             pref = preferences[node_provider_id]
             subject = f"""Node Down Alert"""
-            msg = messages.node_down_message(nodes, labels)
+            msg = messages.nodes_down_message(nodes, labels)
             # - - - - - - - - - - - - - - - - -
             if pref['notify_email'] == True:
                 recipients = \
