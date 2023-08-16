@@ -5,6 +5,12 @@ import node_monitor.ic_api as ic_api
 Principal = str
 
 def detailnode(node: ic_api.Node, label: str) -> str:
+    """Returns:
+        Node ID:          <node_id>
+        Node Label:       <label>
+        Node Status:      <status>
+        Live Node Status: <status_url>
+    """
     status_url = "https://dashboard.internetcomputer.org/node/{node.node_id}"
     return (
         f"Node ID:          {node.node_id}\n"
@@ -15,12 +21,18 @@ def detailnode(node: ic_api.Node, label: str) -> str:
 
 def detailnodes(nodes: List[ic_api.Node], 
                           labels: Dict[Principal, str]) -> str:
+    """Runs detailnode on each node in nodes and returns a string of the
+    results, separated by newlines.
+    """
     msgs = [detailnode(node, labels[node.node_provider_id]) for node in nodes]
     return '\n'.join(msgs)
 
 
 def node_down_message(nodes: List[ic_api.Node], 
                       labels: Dict[Principal, str]) -> str:
+    """Returns a message that describes the nodes that are down, in the
+    format of an email or message for a comprable communication channel.
+    """
     formatted_nodes_down = detailnodes(nodes, labels)
     return (
         f"The following Nodes are compromised:\n"
