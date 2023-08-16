@@ -59,6 +59,9 @@ mock_node_provider_db.get_preferences.return_value = \
       'notify_slack': False,
       'notify_telegram_chat': False,
       'notify_telegram_channel': False}}
+mock_node_provider_db.get_node_labels.return_value = \
+    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
+        'an1-abcd'}
 
 
 
