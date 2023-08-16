@@ -23,7 +23,7 @@ class EmailBot:
         recipients are specified."""
         email_message = EmailMessage()
         email_message['Subject'] = subject
-        email_message['From'] = self.gmail_username
+        email_message['From'] = "Node Monitor"
         email_message['To'] = 'will-be-overwritten'
         email_message.set_content(body)
         # # # #
