@@ -5,13 +5,13 @@ from typing import List
 
 class EmailBot:
     def __init__(
-            self, gmail_username: str, gmail_password: str, 
+            self, email_username: str, email_password: str, 
             smtp_server: str = 'smtp.gmail.com', smtp_port: int = 587) -> None:
         """Create an EmailBot object that can send emails from the given
         email account. The default SMTP server is gmail, but this can be
         changed if desired."""
-        self.gmail_username = gmail_username
-        self.gmail_password = gmail_password
+        self.email_username = email_username
+        self.email_password = email_password
         self.smtp_server = smtp_server
         self.smtp_port = smtp_port
 
@@ -23,7 +23,7 @@ class EmailBot:
         recipients are specified."""
         email_message = EmailMessage()
         email_message['Subject'] = subject
-        email_message['From'] = self.gmail_username
+        email_message['From'] = self.email_username
         email_message['To'] = 'will-be-overwritten'
         email_message.set_content(body)
         # # # #
@@ -31,7 +31,7 @@ class EmailBot:
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(self.gmail_username, self.gmail_password)
+            server.login(self.email_username, self.email_password)
             # Note: You can pass a list to 'To'
             # I chose not to do this to keep recipients mutually blind:
             for recipient in recipients:
