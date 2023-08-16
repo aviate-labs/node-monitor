@@ -7,14 +7,14 @@ load_dotenv()
 ##############################################
 ## Secrets
 
-gmailUsername    = os.environ.get('gmailUsername',   '')
-gmailPassword    = os.environ.get('gmailPassword',   '')
-discordBotToken  = os.environ.get('discordBotToken', '')  # Not implemented
-slackBotToken    = os.environ.get('slackBotToken',   '')
+EMAIL_USERNAME  = os.environ.get('EMAIL_USERNAME',   '')
+EMAIL_PASSWORD  = os.environ.get('EMAIL_PASSWORD',   '')
+TOKEN_DISCORD   = os.environ.get('TOKEN_DISCORD',    '')  # Not implemented
+TOKEN_SLACK     = os.environ.get('TOKEN_SLACK',      '')
 
 ## Pre-flight check
 # We assert that the secrets are not empty so that
 # Node Monitor will fail when run incorrectly
 # Note: it may be wise to move this into `__main__.py` instead
-assert gmailUsername != '', "Please set credentials in .env"
-assert gmailPassword != '', "Please set credentials in .env"
+assert EMAIL_USERNAME != '', "Please set credentials in .env"
+assert EMAIL_PASSWORD != '', "Please set credentials in .env"

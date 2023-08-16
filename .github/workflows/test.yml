@@ -17,8 +17,8 @@ jobs:
       - name: Create fake .env file to pass assertions
         run: |
           touch .env
-          echo "gmailUsername=test@email.com" >> .env
-          echo "gmailPassword=testPassword" >> .env
+          echo "EMAIL_USERNAME=test@email.com" >> .env
+          echo "EMAIL_PASSWORD=testPassword" >> .env
 
 
       - name: Build and Test Docker Container

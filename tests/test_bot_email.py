@@ -57,7 +57,7 @@ def test_send_emails_network():
     fakelabel = {'fake_node_provider_id': 'fake_label'}
 
     ## Init the authenticated email bot instance
-    email_bot = EmailBot(c.gmailUsername, c.gmailPassword)
+    email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 
     ## Set paramaters (uses an anonymous email inbox for testing)
     recipients = ['nodemonitortest@mailnesia.com']
