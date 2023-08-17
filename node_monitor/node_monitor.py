@@ -86,8 +86,8 @@ class NodeMonitor:
 
 
     def broadcast_status_report(self) -> None:
-        """Sends a daily Node Status Report to all Node Providers through
-        email."""
+        """Sends a Node Status Report to all Node Providers through
+        email. To be triggered once daily."""
         subscribers = self.node_provider_db.get_subscribers()
         for node_provider_id in subscribers:
             recipients = \
