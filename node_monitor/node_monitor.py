@@ -22,6 +22,7 @@ class NodeMonitor:
         self.node_provider_db = NodeProviderDB()
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
+        self.last_status_report: float = 0
         self.compromised_nodes: List[ic_api.Node] = []
         self.compromised_nodes_by_provider: \
             Dict[Principal, List[ic_api.Node]] = {}
@@ -96,7 +97,9 @@ class NodeMonitor:
         self._resync()
         self._analyze()
         self.broadcast()
-        self.broadcast_status_report()
+        if (self.last_status_report + status_report_interval) <= time.time():
+            self.broadcast_status_report()
+            self.last_status_report = time.time()
 
 
     def mainloop(self) -> None:
