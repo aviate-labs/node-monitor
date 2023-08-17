@@ -10,7 +10,8 @@ from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 
 Seconds = int
-sync_interval: Seconds = 60 * 4
+sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
+status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
 Principal = str
 
 class NodeMonitor:
@@ -83,10 +84,19 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
 
 
+    def broadcast_status_report(self) -> None:
+        """Sends a daily Node Status Report to all Node Providers through
+        email."""
+        pass
+
+
+
+
     def step(self) -> None:
         self._resync()
         self._analyze()
         self.broadcast()
+        self.broadcast_status_report()
 
 
     def mainloop(self) -> None:
