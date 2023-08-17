@@ -88,8 +88,13 @@ class NodeMonitor:
     def broadcast_status_report(self) -> None:
         """Sends a daily Node Status Report to all Node Providers through
         email."""
-        pass
-
+        subscribers = self.node_provider_db.get_subscribers()
+        for node_provider_id in subscribers:
+            recipients = \
+                self.node_provider_db.get_email_recipients(node_provider_id)
+            subject = f"""Node Status Report"""
+            msg = f"""Not Yet Implemented"""
+            self.email_bot.send_emails(recipients, subject, msg)
 
 
 
