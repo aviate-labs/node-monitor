@@ -288,6 +288,32 @@ class NodeProviderDB:
 
         return node_dict
     
+    def get_channel_detail(self) -> Dict[Principal, Dict[str, str]]:
+        select_query = "SELECT * FROM channel_detail;"
+
+        self.setup_conn()
+
+        with self.conn.cursor() as cur:
+            cur.execute(select_query)
+            rows = cur.fetchall()
+
+        channel_detail_dict = {}
+        for row in rows:
+            channel_detail_id, node_provider_principal, slack_channel_name, telegram_chat_id, telegram_channel_id = row
+            channel_detail_dict[node_provider_principal] = {
+                'channel_detail_id': channel_detail_id,
+                'node_provider_principal': node_provider_principal,
+                'slack_channel_name': slack_channel_name,
+                'telegram_chat_id': telegram_chat_id,
+                'telegram_channel_id': telegram_channel_id
+            }
+        
+        self.teardown_conn()
+
+        return channel_detail_dict
+
+    
+   
     
 
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
