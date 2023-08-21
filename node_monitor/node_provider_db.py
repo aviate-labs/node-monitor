@@ -25,7 +25,6 @@ class NodeProviderDB:
             if entry['node_provider_principal'] == node_provider]
         return emails
 
-
     def get_subscribers(self) -> List[Principal]:
         subs = [entry["node_provider_principal"] 
                 for entry in tmp_db['preference']]
@@ -41,8 +40,6 @@ class NodeProviderDB:
         labels: Dict[Principal, str] = tmp_db['node_labels']
         return labels
     
-    from typing import Dict
-
     def get_channel_details(self) -> Dict[str, Dict[str, str]]:
         channel_details: Dict[str, Dict[str, str]] = {
             entry['node_provider_principal']: {
@@ -55,12 +52,6 @@ class NodeProviderDB:
             for entry in tmp_db['channel_detail']
         }
         return channel_details
-
-    
-    
-
-
-print(NodeProviderDB().get_channel_details())
 
 if __name__ == '__main__':
     pass
