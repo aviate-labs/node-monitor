@@ -31,6 +31,15 @@ class NodeProviderDB:
 
         self._create_tables()
 
+        ## For Development - Insert dummy data into database
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.setup_conn()
+        self._insert_channel_detail_from_csv('data/channel_detail.csv')
+        self._insert_node_from_csv('data/node.csv')
+        self._insert_email_recipients_from_csv('data/email_recipient.csv')
+        self._insert_preferences_from_csv('data/preference.csv')
+        self.teardown_conn()
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def setup_conn(self) -> None:
         self.conn = psycopg2.connect(
@@ -94,6 +103,58 @@ class NodeProviderDB:
 
         self.teardown_conn()
 
+
+    def _insert_channel_detail_from_csv(self, file_path: str) -> None:
+        with open(file_path, 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                self.insert_channel_detail(
+                    row['node_provider_principal'],
+                    row['slack_channel_name'],
+                    row['telegram_chat_id'],
+                    row['telegram_channel_id']
+                )
+    
+    def _insert_node_from_csv(self, file_path: str) -> None:
+        with open(file_path, 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                self.insert_node(
+                    row['node_provider_principal'],
+                    row['node_machine_id'],
+                    row['node_machine_label']
+                )
+    
+    def _insert_email_recipients_from_csv(self, file_path: str) -> None:
+        with open(file_path, 'r') as csvfile:
+            csv_reader = csv.DictReader(csvfile)
+            for row in csv_reader:
+                node_provider_principal = row['node_provider_principal']
+                email_address = row['email_address']
+                self.insert_email_recipient(
+                    node_provider_principal, 
+                    email_address
+                )
+
+    def _insert_preferences_from_csv(self, file_path: str) -> None:
+        with open(file_path, 'r') as csvfile:
+            csvreader = csv.DictReader(csvfile)
+            for row in csvreader:
+                node_provider_principal = row['node_provider_principal']
+                notify_on_status_change = row['notify_on_status_change'] == '1'
+                notify_email = row['notify_email'] == '1'
+                notify_slack = row['notify_slack'] == '1'
+                notify_telegram_chat = row['notify_telegram_chat'] == '1'
+                notify_telegram_channel = row['notify_telegram_channel'] == '1'
+                
+                self.insert_preference(
+                    node_provider_principal,
+                    notify_on_status_change,
+                    notify_email,
+                    notify_slack,
+                    notify_telegram_chat,
+                    notify_telegram_channel
+                )
     
     def insert_channel_detail(
         self,
