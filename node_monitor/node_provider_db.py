@@ -40,7 +40,27 @@ class NodeProviderDB:
     def get_node_labels(self) -> Dict[Principal, str]:
         labels: Dict[Principal, str] = tmp_db['node_labels']
         return labels
+    
+    from typing import Dict
 
+    def get_channel_details(self) -> Dict[str, Dict[str, str]]:
+        channel_details: Dict[str, Dict[str, str]] = {
+            entry['node_provider_principal']: {
+                'channel_detail_id': entry['channel_detail_id'],
+                'node_provider_principal': entry['node_provider_principal'],
+                'slack_channel_name': entry['slack_channel_name'],
+                'telegram_chat_id': entry['telegram_chat_id'],
+                'telegram_channel_id': entry['telegram_channel_id']
+            }
+            for entry in tmp_db['channel_detail']
+        }
+        return channel_details
+
+    
+    
+
+
+print(NodeProviderDB().get_channel_details())
 
 if __name__ == '__main__':
     pass

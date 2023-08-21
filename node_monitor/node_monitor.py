@@ -5,6 +5,7 @@ from toolz import groupby # type: ignore
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
+from node_monitor.bot_slack import SlackBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
@@ -15,10 +16,11 @@ Principal = str
 
 class NodeMonitor:
 
-    def __init__(self, email_bot: EmailBot) -> None:
+    def __init__(self, email_bot: EmailBot, slack_bot: SlackBot) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.email_bot = email_bot
         self.node_provider_db = NodeProviderDB()
+        self.slack_bot = slack_bot
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.compromised_nodes: List[ic_api.Node] = []
@@ -57,6 +59,7 @@ class NodeMonitor:
     def broadcast(self) -> None:
         """Broadcast relevant information to the appropriate channels."""
         preferences = self.node_provider_db.get_preferences()
+        channels = self.node_provider_db.get_channel_details()
         labels = self.node_provider_db.get_node_labels()
         for node_provider_id, nodes in self.actionables.items():
             # - - - - - - - - - - - - - - - - -
@@ -64,6 +67,7 @@ class NodeMonitor:
                 # TODO: Move this into its own helper function
                 return ', '.join([node.node_id for node in nodes])
             pref = preferences[node_provider_id]
+            chan = channels[node_provider_id]
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
             # - - - - - - - - - - - - - - - - -
@@ -72,8 +76,7 @@ class NodeMonitor:
                     self.node_provider_db.get_email_recipients(node_provider_id)
                 self.email_bot.send_emails(recipients, subject, msg)
             if pref['notify_slack'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                self.slack_bot.send_message(chan['slack_channel_name'], msg)
             if pref['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
