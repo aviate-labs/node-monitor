@@ -31,6 +31,7 @@ class NodeProviderDB:
 
         self._create_tables()
 
+
     def setup_conn(self) -> None:
         self.conn = psycopg2.connect(
             host=self.host,
@@ -93,8 +94,124 @@ class NodeProviderDB:
 
         self.teardown_conn()
 
+    
+    def insert_channel_detail(
+        self,
+        node_provider_principal: str,
+        slack_channel_name: str,
+        telegram_chat_id: str,
+        telegram_channel_id: str
+    ) -> None:
+
+        insert_sql = '''
+            INSERT INTO channel_detail (
+                node_provider_principal,
+                slack_channel_name,
+                telegram_chat_id,
+                telegram_channel_id
+            ) VALUES (%s, %s, %s, %s)
+        '''
+        values = (
+            node_provider_principal,
+            slack_channel_name,
+            telegram_chat_id,
+            telegram_channel_id
+        )
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(insert_sql, values)
+                self.conn.commit() 
+            except psycopg2.Error as e:
+                logging.error(f'Error occurred while inserting channel detail - {e}')
+                self.conn.rollback()
 
 
+    def insert_node(
+        self,
+        node_provider_principal: str,
+        node_machine_id: str,
+        node_machine_label: str
+    ) -> None:
+
+        insert_sql = '''
+            INSERT INTO node (
+                node_provider_principal, 
+                node_machine_id, 
+                node_machine_label
+            ) VALUES (%s, %s, %s)
+        '''
+        values = (
+            node_provider_principal,
+            node_machine_id,
+            node_machine_label
+        )
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(insert_sql, values)
+                self.conn.commit()
+            except psycopg2.Error as e:
+                logging.error(f'Error occurred while inserting node - {e}')
+                self.conn.rollback()
+
+    
+    def insert_email_recipient(
+            self, 
+            node_provider_principal: str, 
+            email_address: str
+        ) -> None:
+
+        insert_sql = '''
+            INSERT INTO email_recipient (node_provider_principal, email_address)
+            VALUES (%s, %s)
+        '''
+        
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(insert_sql, (node_provider_principal, email_address))
+                self.conn.commit()
+            except psycopg2.Error as e:
+                logging.error(f'Error occurred while inserting email recipient - {e}')
+                self.conn.rollback()
+
+
+    def insert_preference(
+        self,
+        node_provider_principal: str,
+        notify_on_status_change: bool,
+        notify_email: bool,
+        notify_slack: bool,
+        notify_telegram_chat: bool,
+        notify_telegram_channel: bool
+    ) -> None:
+
+        insert_sql = '''
+            INSERT INTO preference (
+                node_provider_principal, 
+                notify_on_status_change, 
+                notify_email, 
+                notify_slack, 
+                notify_telegram_chat, 
+                notify_telegram_channel
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+        '''
+        values = (
+            node_provider_principal,
+            notify_on_status_change,
+            notify_email,
+            notify_slack,
+            notify_telegram_chat,
+            notify_telegram_channel
+        )
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(insert_sql, values)
+                self.conn.commit()
+            except psycopg2.Error as e:
+                logging.error(f'Error occurred while inserting preference - {e}')
+            self.conn.rollback()
 
 
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
