@@ -339,6 +339,21 @@ class NodeProviderDB:
             
         return preference_dict
 
+    def get_email_recipients(self, node_provider: Principal) -> List[str]:
+        select_query = "SELECT email_address FROM email_recipient WHERE node_provider_principal = %s;"
+
+        self.setup_conn()
+
+        with self.conn.cursor() as cur:
+            cur.execute(select_query, (node_provider,))
+            rows = cur.fetchall()
+        
+        self.teardown_conn()
+        
+        emails = [row[0] for row in rows]
+        return emails
+    
+
     
 
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
