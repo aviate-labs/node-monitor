@@ -15,10 +15,10 @@ Principal = str
 
 class NodeMonitor:
 
-    def __init__(self, email_bot: EmailBot) -> None:
+    def __init__(self, email_bot: EmailBot, node_provider_db: NodeProviderDB) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.email_bot = email_bot
-        self.node_provider_db = NodeProviderDB()
+        self.node_provider_db = node_provider_db
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.compromised_nodes: List[ic_api.Node] = []
