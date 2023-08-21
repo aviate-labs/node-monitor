@@ -3,7 +3,6 @@ import csv
 import psycopg2
 import logging
 
-
 # with open('./tmp_prod_db.json') as f:
 #     tmp_db: Dict[Any, Any] = json.load(f)
 # # channel_detail
@@ -33,12 +32,12 @@ class NodeProviderDB:
 
         ## For Development - Insert dummy data into database
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        self.setup_conn()
-        self._insert_channel_detail_from_csv('data/channel_detail.csv')
-        self._insert_node_from_csv('data/node.csv')
-        self._insert_email_recipients_from_csv('data/email_recipient.csv')
-        self._insert_preferences_from_csv('data/preference.csv')
-        self.teardown_conn()
+        # self.setup_conn()
+        # self._insert_channel_detail_from_csv('data/channel_detail.csv')
+        # self._insert_node_from_csv('data/node.csv')
+        # self._insert_email_recipients_from_csv('data/email_recipient.csv')
+        # self._insert_preferences_from_csv('data/preference.csv')
+        # self.teardown_conn()
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def setup_conn(self) -> None:
@@ -275,6 +274,22 @@ class NodeProviderDB:
             self.conn.rollback()
 
 
+    def get_node_labels(self) -> Dict[Principal, str]:
+        select_query = "SELECT node_machine_id, node_machine_label FROM node;"
+        
+        self.setup_conn()
+        with self.conn.cursor() as cur:
+            cur.execute(select_query)
+            rows = cur.fetchall()
+
+        self.teardown_conn()
+        
+        node_dict = {row[0]: row[1] for row in rows}
+
+        return node_dict
+    
+    
+
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
     #     emails: List[str] = [
     #         entry['email_address'] 
@@ -297,6 +312,8 @@ class NodeProviderDB:
     # def get_node_labels(self) -> Dict[Principal, str]:
     #     labels: Dict[Principal, str] = tmp_db['node_labels']
     #     return labels
+
+
 
 
 if __name__ == '__main__':
