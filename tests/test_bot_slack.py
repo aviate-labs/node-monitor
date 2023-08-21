@@ -10,7 +10,7 @@ def mock_slack_client(mocker):
     return mock_client
 
 def test_send_message(mock_slack_client):
-    slack_bot = SlackBot(slack_token=c.TOKEN_SLACK)
+    slack_bot = SlackBot(c.TOKEN_SLACK)
 
     expected_message = "Hello, Slack!"
     expected_chanel = "#node-monitor"
@@ -21,10 +21,12 @@ def test_send_message(mock_slack_client):
         text=expected_message,
     )
 
+
+
 @pytest.mark.live_email
 def test_send_message_slack():
     """Send real messages to a test Slack workspace"""
-    slack_bot = SlackBot(slack_token=c.TOKEN_SLACK)
+    slack_bot = SlackBot(c.TOKEN_SLACK)
     
     slack_channel_name = "#node-monitor"
     message = "Hello from test_send_message_slack()"

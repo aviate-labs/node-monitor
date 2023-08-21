@@ -71,11 +71,14 @@ class NodeMonitor:
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
             # - - - - - - - - - - - - - - - - -
+            
             if pref['notify_email'] == True:
                 recipients = \
                     self.node_provider_db.get_email_recipients(node_provider_id)
                 self.email_bot.send_emails(recipients, subject, msg)
             if pref['notify_slack'] == True:
+                print("HELLOOOOO")
+                print(chan['slack_channel_name'])
                 self.slack_bot.send_message(chan['slack_channel_name'], msg)
             if pref['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented

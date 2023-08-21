@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock
 
 from node_monitor.node_monitor import NodeMonitor
 import node_monitor.ic_api as ic_api
+import node_monitor.load_config as c
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.node_provider_db import NodeProviderDB
@@ -58,7 +59,7 @@ mock_node_provider_db.get_subscribers.return_value = \
 mock_node_provider_db.get_preferences.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      {'notify_email': True,
-      'notify_slack': False,
+      'notify_slack': True,
       'notify_telegram_chat': False,
       'notify_telegram_channel': False}}
 mock_node_provider_db.get_channel_details.return_value = \
@@ -69,8 +70,6 @@ mock_node_provider_db.get_channel_details.return_value = \
       'slack_channel_name': '#node-monitor', 
       'telegram_chat_id': 'N/A', 
       'telegram_channel_id': 'N/A'}}
-
-
 
 
 
@@ -143,5 +142,6 @@ def test_two_nodes_down():
     # test broadcast()
     nm.broadcast()
     assert mock_email_bot.send_emails.call_count == 1
+    assert mock_slack_bot.send_message.call_count == 1
     mock_node_provider_db.reset_mock()
 
