@@ -313,7 +313,32 @@ class NodeProviderDB:
         return channel_detail_dict
 
     
-   
+    def get_preferences(self) -> Dict[Principal, Dict[str, bool]]:
+        select_query = "SELECT * FROM preference;"
+
+        self.setup_conn()
+
+        with self.conn.cursor() as cur:
+            cur.execute(select_query)
+            rows = cur.fetchall()
+
+        self.teardown_conn()
+
+        preference_dict = {}
+        for row in rows:
+            preference_id, node_provider_principal, notify_on_status_change, notify_email, notify_slack, notify_telegram_chat, notify_telegram_channel = row
+            preference_dict[node_provider_principal] = {
+                'preference_id': preference_id,
+                'node_provider_principal': node_provider_principal,
+                'notify_on_status_change': bool(notify_on_status_change),
+                'notify_email': bool(notify_email),
+                'notify_slack': bool(notify_slack),
+                'notify_telegram_chat': bool(notify_telegram_chat),
+                'notify_telegram_channel': bool(notify_telegram_channel)
+            }
+            
+        return preference_dict
+
     
 
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
