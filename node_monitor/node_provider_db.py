@@ -353,7 +353,20 @@ class NodeProviderDB:
         emails = [row[0] for row in rows]
         return emails
     
+    def get_subscribers(self) -> List[Principal]:
+        select_query = "SELECT node_provider_principal FROM preference;"
 
+        self.setup_conn()
+
+        with self.conn.cursor() as cur:
+            cur.execute(select_query)
+            rows = cur.fetchall()
+
+        self.teardown_conn()
+
+        subscribers = [row[0] for row in rows]
+            
+        return subscribers
     
 
     # def get_email_recipients(self, node_provider: Principal) -> List[str]:
