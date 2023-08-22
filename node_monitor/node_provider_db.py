@@ -114,7 +114,7 @@ class NodeProviderDB:
     def _create_tables(self) -> None:
         """Automatically creates the tables if they don't already exist."""
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(self.create_table_subscribers)
             cur.execute(self.create_table_email_lookup)
@@ -132,7 +132,7 @@ class NodeProviderDB:
             WHERE table_schema = 'public'
         """
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(select_query)
             rows = cur.fetchall()
@@ -177,7 +177,7 @@ class NodeProviderDB:
             notify_telegram_channel
         )
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, values)
         self.disconnect()
@@ -190,7 +190,7 @@ class NodeProviderDB:
             WHERE node_provider_id = %s
         """
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, (node_provider_id,))
         self.disconnect()
@@ -200,7 +200,7 @@ class NodeProviderDB:
         """Returns the table of all subscribers."""
         query = "SELECT * FROM subscribers"
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
@@ -225,7 +225,7 @@ class NodeProviderDB:
             email_address
         )
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, values)
         self.disconnect()
@@ -238,7 +238,7 @@ class NodeProviderDB:
             WHERE email_address = %s
         """
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, (email_address,))
         self.disconnect()
@@ -248,7 +248,7 @@ class NodeProviderDB:
         """Returns the table of all emails."""
         query = "SELECT * FROM email_lookup"
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
@@ -280,7 +280,7 @@ class NodeProviderDB:
             telegram_channel_id,
         )
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, values)
         self.disconnect()
@@ -293,7 +293,7 @@ class NodeProviderDB:
             WHERE node_provider_id = %s
         """
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, (node_provider_id,))
         self.disconnect()
