@@ -221,7 +221,6 @@ class NodeProviderDB:
         query = """
             INSERT INTO email_lookup (node_provider_id, email_address)
             VALUES (%s, %s)
-            ON CONFLICT (email_address) DO NOTHING
         """
         values = (
             node_provider_id,
@@ -276,10 +275,6 @@ class NodeProviderDB:
                 telegram_chat_id,
                 telegram_channel_id
             ) VALUES (%s, %s, %s, %s)
-            ON CONFLICT (node_provider_id) DO UPDATE SET
-                slack_channel_name = EXCLUDED.slack_channel_name,
-                telegram_chat_id = EXCLUDED.telegram_chat_id,
-                telegram_channel_id = EXCLUDED.telegram_channel_id
         """
         values = (
             node_provider_id,
