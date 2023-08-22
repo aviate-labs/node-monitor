@@ -65,15 +65,9 @@ def test_insert_and_get_and_delete_email():
     # Get and check emails
     emails = node_provider_db.get_emails()
 
-    expected_values = [
-        ('test-dummy-principal-1', 'email1@example.com'),
-        ('test-dummy-principal-2', 'email2@example.com')
-    ]
-
-    # Check that the values match, ignoring the primary key
-    for expected in expected_values:
-        assert any(expected == item[1:] for item in emails)
-    print(expected[1:])
+    # Check for specific content in the emails
+    assert (1, 'test-dummy-principal-1', 'email1@example.com') in emails
+    assert (2, 'test-dummy-principal-2', 'email2@example.com') in emails
 
     # Delete emails
     node_provider_db._delete_email('email1@example.com')
@@ -83,8 +77,8 @@ def test_insert_and_get_and_delete_email():
     emails = node_provider_db.get_emails()
 
     # Check that the specific content is no longer present
-    for expected in expected_values:
-        assert not any(expected == item[1:] for item in emails)
+    assert (1, 'test-dummy-principal-1', 'email1@example.com') not in emails
+    assert (2, 'test-dummy-principal-2', 'email2@example.com') not in emails
 
 
 
@@ -93,57 +87,65 @@ def test_insert_and_get_and_delete_email():
 ## TEST CRUD :: TABLE channel_lookup
 
 def test_insert_and_get_and_delete_channel():
-    dummy_channel_1 = (
-        'test-dummy-principal-1', 
-        'slack_channel_1', 
-        'telegram_chat_1', 
+    # Insert new channels
+    node_provider_db._insert_channel(
+        'test-dummy-principal-1',
+        'slack_channel_1',
+        'telegram_chat_1',
         'telegram_channel_1'
     )
-
-    dummy_channel_2 = (
-        'test-dummy-principal-2', 
-        'slack_channel_2', 
-        'telegram_chat_2', 
+    node_provider_db._insert_channel(
+        'test-dummy-principal-2',
+        'slack_channel_2',
+        'telegram_chat_2',
         'telegram_channel_2'
     )
-
-    dummy_channel_3 = (
-        'test-dummy-principal-1', 
-        'slack_channel_3', 
-        'telegram_chat_3', 
-        'telegram_channel_3'
-    )
-
-
-    # Insert new channels
-    node_provider_db._insert_channel(*dummy_channel_1)
-    node_provider_db._insert_channel(*dummy_channel_2)
 
     # Get and check channels
     channels = node_provider_db.get_channels()
 
-    # Define the expected content for each channel
-    expected_channels = [dummy_channel_1, dummy_channel_2]
+    # Check for specific content in the channels
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_1', 
+        'telegram_chat_1', 
+        'telegram_channel_1'
+    ) in channels
+    assert (
+        2,
+        'test-dummy-principal-2', 
+        'slack_channel_2', 
+        'telegram_chat_2', 
+        'telegram_channel_2'
+    ) in channels
 
-    # Check that the expected content is in the channels
-    for expected_channel in expected_channels:
-        assert any(expected_channel == channel[1:] for channel in channels)
+    # Overwrite exisiting channel
+    node_provider_db._insert_channel(
+        'test-dummy-principal-1',
+        'slack_channel_3',
+        'telegram_chat_3',
+        'telegram_channel_3'
+    )
 
-    # Overwrite existing channel
-    node_provider_db._insert_channel(*dummy_channel_3)
-
-    # Get the new set of channels
     channels = node_provider_db.get_channels()
 
-    # Define the new expected content for each channel
-    new_expected_channels = [dummy_channel_3, dummy_channel_2]
+    # Check the overwrite was correct
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_1', 
+        'telegram_chat_1', 
+        'telegram_channel_1'
+    ) not in channels
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_3', 
+        'telegram_chat_3', 
+        'telegram_channel_3'
+    ) in channels
 
-    # Check that the old value is not there
-    assert not any ( dummy_channel_1 == channel[1:] for channel in channels)
-
-    # Check that the overwritten value and old values are present
-    for expected_channel in new_expected_channels:
-        assert any(expected_channel == channel[1:] for channel in channels)
 
     # Delete channels
     node_provider_db._delete_channel_lookup('test-dummy-principal-1')
@@ -153,8 +155,21 @@ def test_insert_and_get_and_delete_channel():
     channels = node_provider_db.get_channels()
 
     # Check that the specific content is no longer present
-    for expected_channel in new_expected_channels:
-        assert not any(expected_channel == channel[1:] for channel in channels)
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_3', 
+        'telegram_chat_3', 
+        'telegram_channel_3'
+    ) not in channels
+    assert (
+        2,
+        'test-dummy-principal-2', 
+        'slack_channel_2', 
+        'telegram_chat_2', 
+        'telegram_channel_2'
+    ) not in channels
+
 
 
 
