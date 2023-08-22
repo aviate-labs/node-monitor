@@ -57,7 +57,7 @@ def test_insert_and_get_and_delete_subscriber():
 ## TEST CRUD :: TABLE email_lookup
 
 def test_insert_and_get_and_delete_email():
-    # Insert new emails
+    # Insert new emails, including multiple for the same principal
     node_provider_db._insert_email('test-dummy-principal-1', 'foo@mail.com')
     node_provider_db._insert_email('test-dummy-principal-1', 'bar@mail.com')
     node_provider_db._insert_email('test-dummy-principal-2', 'baz@mail.com')
