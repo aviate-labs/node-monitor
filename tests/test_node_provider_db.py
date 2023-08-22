@@ -78,7 +78,7 @@ def test_insert_and_get_and_delete_email():
 
     # Get the emails again, remove surrogate id column
     emails = node_provider_db.get_emails()
-    emails = [(e[1], e[2]) for e in emails]
+    emails = [(row[1], row[2]) for row in emails]
 
     # Check that the emails were deleted correctly
     assert ('test-dummy-principal-1', 'foo@mail.com') not in emails
