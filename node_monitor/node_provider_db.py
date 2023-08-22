@@ -209,14 +209,12 @@ class NodeProviderDB:
     
 
 
+
     ##############################################
     ## CRUD :: TABLE email_lookup
 
     def _insert_email(
-        self, 
-        node_provider_id: Principal, 
-        email_address: str
-    ) -> None:
+        self, node_provider_id: Principal, email_address: str) -> None:
         """Inserts an email address into the email_lookup table."""
         query = """
             INSERT INTO email_lookup (node_provider_id, email_address)
@@ -232,6 +230,7 @@ class NodeProviderDB:
             cur.execute(query, values)
         self.disconnect()
     
+
     def _delete_email(self, email_address: str) -> None:
         """Deletes an email address from the email_lookup table."""
         query = """
@@ -244,6 +243,7 @@ class NodeProviderDB:
             cur.execute(query, (email_address,))
         self.disconnect()
     
+
     def get_emails(self) -> Any:
         """Returns the table of all emails."""
         query = "SELECT * FROM email_lookup"
@@ -257,16 +257,13 @@ class NodeProviderDB:
     
 
 
+
     ##############################################
     ## CRUD :: TABLE channel_lookup
     
     def _insert_channel(
-        self,
-        node_provider_id: Principal,
-        slack_channel_name: str,
-        telegram_chat_id: str,
-        telegram_channel_id: str
-    ) -> None:
+        self, node_provider_id: Principal, slack_channel_name: str,
+        telegram_chat_id: str, telegram_channel_id: str) -> None:
         """Inserts or updates a record in the channel_lookup table."""
         query = """
             INSERT INTO channel_lookup (
