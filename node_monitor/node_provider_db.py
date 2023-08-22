@@ -303,7 +303,7 @@ class NodeProviderDB:
         """Returns the table of all channels."""
         query = "SELECT * FROM channel_lookup"
         self.connect()
-        assert self.conn is not None   # needed for mypy --strict
+        assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
