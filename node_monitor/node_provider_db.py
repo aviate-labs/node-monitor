@@ -228,17 +228,62 @@ class NodeProviderDB:
     ##############################################
     ## CRUD :: TABLE channel_lookup
     
-    def _insert_channel(self) -> None:
-        """Inserts a channel into the channel_lookup table."""
-        raise NotImplementedError
+    def _insert_channel(
+        self,
+        node_provider_id: Principal,
+        slack_channel_name: str,
+        telegram_chat_id: str,
+        telegram_channel_id: str
+    ) -> None:
+        """Inserts or updates a record in the channel_lookup table."""
+        query = """
+            INSERT INTO channel_lookup (
+                node_provider_id,
+                slack_channel_name,
+                telegram_chat_id,
+                telegram_channel_id
+            ) VALUES (%s, %s, %s, %s)
+            ON CONFLICT (node_provider_id) DO UPDATE SET
+                slack_channel_name = EXCLUDED.slack_channel_name,
+                telegram_chat_id = EXCLUDED.telegram_chat_id,
+                telegram_channel_id = EXCLUDED.telegram_channel_id
+        """
+        values = (
+            node_provider_id,
+            slack_channel_name,
+            telegram_chat_id,
+            telegram_channel_id,
+        )
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query, values)
+        self.disconnect()
+
     
-    def _delete_channel(self) -> None:
-        """Deletes a channel from the channel_lookup table."""
-        raise NotImplementedError
+    def _delete_channel_lookup(self, node_provider_id: str) -> None:
+        """Delete record from the channel_lookup table by node_provider_id."""
+        query = """
+            DELETE FROM channel_lookup
+            WHERE node_provider_id = %s
+        """
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query, (node_provider_id,))
+        self.disconnect()
+
     
-    def get_channels(self) -> Any:
+    def get_channels(self) -> List[Tuple[Any, ...]]: 
         """Returns the table of all channels."""
-        raise NotImplementedError
+        query = "SELECT * FROM channel_lookup"
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+        self.disconnect()
+        return rows
     
 
 

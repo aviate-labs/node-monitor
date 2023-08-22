@@ -67,7 +67,89 @@ def test_insert_and_get_and_delete_email():
 ## TEST CRUD :: TABLE channel_lookup
 
 def test_insert_and_get_and_delete_channel():
-    raise NotImplementedError
+    # Insert new channels
+    node_provider_db._insert_channel(
+        'test-dummy-principal-1',
+        'slack_channel_1',
+        'telegram_chat_1',
+        'telegram_channel_1'
+    )
+    node_provider_db._insert_channel(
+        'test-dummy-principal-2',
+        'slack_channel_2',
+        'telegram_chat_2',
+        'telegram_channel_2'
+    )
+
+    # Get and check channels
+    channels = node_provider_db.get_channels()
+
+    # Check for specific content in the channels
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_1', 
+        'telegram_chat_1', 
+        'telegram_channel_1'
+    ) in channels
+    assert (
+        2,
+        'test-dummy-principal-2', 
+        'slack_channel_2', 
+        'telegram_chat_2', 
+        'telegram_channel_2'
+    ) in channels
+
+    # Overwrite exisiting channel
+    node_provider_db._insert_channel(
+        'test-dummy-principal-1',
+        'slack_channel_3',
+        'telegram_chat_3',
+        'telegram_channel_3'
+    )
+
+    channels = node_provider_db.get_channels()
+
+    # Check the overwrite was correct
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_1', 
+        'telegram_chat_1', 
+        'telegram_channel_1'
+    ) not in channels
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_3', 
+        'telegram_chat_3', 
+        'telegram_channel_3'
+    ) in channels
+
+
+    # Delete channels
+    node_provider_db._delete_channel_lookup('test-dummy-principal-1')
+    node_provider_db._delete_channel_lookup('test-dummy-principal-2')
+
+    # Get and check channels again
+    channels = node_provider_db.get_channels()
+
+    # Check that the specific content is no longer present
+    assert (
+        1,
+        'test-dummy-principal-1', 
+        'slack_channel_3', 
+        'telegram_chat_3', 
+        'telegram_channel_3'
+    ) not in channels
+    assert (
+        2,
+        'test-dummy-principal-2', 
+        'slack_channel_2', 
+        'telegram_chat_2', 
+        'telegram_channel_2'
+    ) not in channels
+
 
 
 
