@@ -24,14 +24,13 @@ def test_get_public_schema_tables():
 ## TEST CRUD :: TABLE subscribers
 
 def test_insert_and_get_and_delete_subscriber():
-    ## Create new subscribers
+    ## Create new subscribers / overwrite subscriber 1
     node_provider_db._insert_subscriber(
         'test-dummy-principal-1', 
         True, True, False, False, False)
     node_provider_db._insert_subscriber(
         'test-dummy-principal-2', 
         True, True, False, False, False)
-    ## Overwrite existing subscriber
     node_provider_db._insert_subscriber(
         'test-dummy-principal-1',
         True, True, True, True, True)
@@ -59,26 +58,32 @@ def test_insert_and_get_and_delete_subscriber():
 
 def test_insert_and_get_and_delete_email():
     # Insert new emails
-    node_provider_db._insert_email('test-dummy-principal-1', 'email1@example.com')
-    node_provider_db._insert_email('test-dummy-principal-2', 'email2@example.com')
+    node_provider_db._insert_email('test-dummy-principal-1', 'foo@mail.com')
+    node_provider_db._insert_email('test-dummy-principal-1', 'bar@mail.com')
+    node_provider_db._insert_email('test-dummy-principal-2', 'baz@mail.com')
 
-    # Get and check emails
+    # Get the emails, remove surrogate id column
     emails = node_provider_db.get_emails()
+    emails = [(e[1], e[2]) for e in emails]
 
-    # Check for specific content in the emails
-    assert (1, 'test-dummy-principal-1', 'email1@example.com') in emails
-    assert (2, 'test-dummy-principal-2', 'email2@example.com') in emails
+    # Check that the emails were inserted correctly
+    assert ('test-dummy-principal-1', 'foo@mail.com') in emails
+    assert ('test-dummy-principal-1', 'bar@mail.com') in emails
+    assert ('test-dummy-principal-2', 'baz@mail.com') in emails
 
     # Delete emails
-    node_provider_db._delete_email('email1@example.com')
-    node_provider_db._delete_email('email2@example.com')
+    node_provider_db._delete_email('foo@mail.com')
+    node_provider_db._delete_email('bar@mail.com')
+    node_provider_db._delete_email('baz@mail.com')
 
-    # Get and check emails again
+    # Get the emails again, remove surrogate id column
     emails = node_provider_db.get_emails()
+    emails = [(e[1], e[2]) for e in emails]
 
-    # Check that the specific content is no longer present
-    assert (1, 'test-dummy-principal-1', 'email1@example.com') not in emails
-    assert (2, 'test-dummy-principal-2', 'email2@example.com') not in emails
+    # Check that the emails were deleted correctly
+    assert ('test-dummy-principal-1', 'foo@mail.com') not in emails
+    assert ('test-dummy-principal-1', 'bar@mail.com') not in emails
+    assert ('test-dummy-principal-2', 'baz@mail.com') not in emails
 
 
 
