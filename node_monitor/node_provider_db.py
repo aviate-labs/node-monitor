@@ -49,7 +49,7 @@ class NodeProviderDB:
         CREATE TABLE IF NOT EXISTS email_lookup (
             id SERIAL PRIMARY KEY,
             node_provider_id TEXT,
-            email_address TEXT UNIQUE
+            email_address TEXT
         );
     """
 
@@ -57,10 +57,10 @@ class NodeProviderDB:
     create_table_channel_lookup = """
         CREATE TABLE IF NOT EXISTS channel_lookup (
             id SERIAL PRIMARY KEY,
-            node_provider_id TEXT UNIQUE,
-            slack_channel_name TEXT UNIQUE,
-            telegram_chat_id TEXT UNIQUE,
-            telegram_channel_id TEXT UNIQUE
+            node_provider_id TEXT,
+            slack_channel_name TEXT,
+            telegram_chat_id TEXT,
+            telegram_channel_id TEXT
         );
     """
 
@@ -70,7 +70,7 @@ class NodeProviderDB:
     create_table_node_label_lookup = """
         CREATE TABLE IF NOT EXISTS node_label_lookup (
             node_id TEXT PRIMARY KEY,
-            node_label TEXT UNIQUE
+            node_label TEXT
         );
     """
 
