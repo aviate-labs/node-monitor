@@ -58,7 +58,27 @@ def test_insert_and_get_and_delete_subscriber():
 ## TEST CRUD :: TABLE email_lookup
 
 def test_insert_and_get_and_delete_email():
-    raise NotImplementedError
+    # Insert new emails
+    node_provider_db._insert_email('test-dummy-principal-1', 'email1@example.com')
+    node_provider_db._insert_email('test-dummy-principal-2', 'email2@example.com')
+
+    # Get and check emails
+    emails = node_provider_db.get_emails()
+
+    # Check for specific content in the emails
+    assert (1, 'test-dummy-principal-1', 'email1@example.com') in emails
+    assert (2, 'test-dummy-principal-2', 'email2@example.com') in emails
+
+    # Delete emails
+    node_provider_db._delete_email('email1@example.com')
+    node_provider_db._delete_email('email2@example.com')
+
+    # Get and check emails again
+    emails = node_provider_db.get_emails()
+
+    # Check that the specific content is no longer present
+    assert (1, 'test-dummy-principal-1', 'email1@example.com') not in emails
+    assert (2, 'test-dummy-principal-2', 'email2@example.com') not in emails
 
 
 

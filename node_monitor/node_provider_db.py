@@ -150,7 +150,8 @@ class NodeProviderDB:
             notify_email: bool, notify_slack: bool, notify_telegram_chat: bool,
             notify_telegram_channel: bool) -> None:
         """Inserts a subscriber into the subscribers table. Overwrites if
-        subscriber already exists."""
+        subscriber already exists.
+        """
         query = """
             INSERT INTO subscribers (
                 node_provider_id,
@@ -211,17 +212,49 @@ class NodeProviderDB:
     ##############################################
     ## CRUD :: TABLE email_lookup
 
-    def _insert_email(self) -> None:
+    def _insert_email(
+        self, 
+        node_provider_id: Principal, 
+        email_address: str
+    ) -> None:
         """Inserts an email address into the email_lookup table."""
-        raise NotImplementedError
+        query = """
+            INSERT INTO email_lookup (node_provider_id, email_address)
+            VALUES (%s, %s)
+            ON CONFLICT (email_address) DO NOTHING
+        """
+        values = (
+            node_provider_id,
+            email_address
+        )
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query, values)
+        self.disconnect()
     
-    def _delete_email(self) -> None:
+    def _delete_email(self, email_address: str) -> None:
         """Deletes an email address from the email_lookup table."""
-        raise NotImplementedError
+        query = """
+            DELETE FROM email_lookup
+            WHERE email_address = %s
+        """
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query, (email_address,))
+        self.disconnect()
     
     def get_emails(self) -> Any:
         """Returns the table of all emails."""
-        raise NotImplementedError 
+        query = "SELECT * FROM email_lookup"
+        self.connect()
+        assert self.conn is not None   # needed for mypy --strict
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+        self.disconnect()
+        return rows
     
 
 
