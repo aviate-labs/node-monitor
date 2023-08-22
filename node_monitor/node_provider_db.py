@@ -244,7 +244,7 @@ class NodeProviderDB:
         self.disconnect()
     
 
-    def get_emails(self) -> Any:
+    def get_emails(self) -> List[Tuple[Any, ...]]:
         """Returns the table of all emails."""
         query = "SELECT * FROM email_lookup"
         self.connect()
