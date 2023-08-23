@@ -34,6 +34,4 @@ class TelegramBot:
                 f"Check that the Telegram chat id and/or Telegram bot API token is correct"
             )
 
-## For debugging
-# TelegramBot('5761867267:AAFQk2M21GraRCIzIJMxdKkPXej1_0BM5Es').send_message_to_channel("-1001925583150", "Testingm telegram channel")
-# TelegramBot('5761867267:AAFQk2M21GraRCIzIJMxdKkPXej1_0BM5Es').send_message_to_channel("5734534558", "Testing telegram chat")
+            
