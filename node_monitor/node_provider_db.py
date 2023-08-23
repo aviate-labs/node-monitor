@@ -343,7 +343,7 @@ class NodeProviderDB:
         self.disconnect()
         
     
-    def get_node_labels(self) -> Dict[Principal, str]:
+    def get_node_labels(self) -> List[Tuple[Any, ...]]:
         """Returns the table of all node labels."""
         query = "SELECT * FROM node_label_lookup"
         self.connect()
