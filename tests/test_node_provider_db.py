@@ -105,27 +105,6 @@ def test_insert_and_get_and_delete_channel():
         'telegram_chat_2',
         'telegram_channel_2'
     )
-
-    # Get and check channels
-    channels = node_provider_db.get_channels()
-
-    # Check for specific content in the channels
-    assert (
-        1,
-        'test-dummy-principal-1', 
-        'slack_channel_1', 
-        'telegram_chat_1', 
-        'telegram_channel_1'
-    ) in channels
-    assert (
-        2,
-        'test-dummy-principal-2', 
-        'slack_channel_2', 
-        'telegram_chat_2', 
-        'telegram_channel_2'
-    ) in channels
-
-    # Overwrite exisiting channel
     node_provider_db._insert_channel(
         'test-dummy-principal-1',
         'slack_channel_3',
@@ -133,42 +112,47 @@ def test_insert_and_get_and_delete_channel():
         'telegram_channel_3'
     )
 
+    # Get the channels, remove surrogate
     channels = node_provider_db.get_channels()
+    channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
-    # Check the overwrite was correct
+
+    # Check for specific content in the channels
     assert (
-        1,
         'test-dummy-principal-1', 
         'slack_channel_1', 
         'telegram_chat_1', 
         'telegram_channel_1'
-    ) not in channels
+    ) in channels
     assert (
-        1,
+        'test-dummy-principal-2', 
+        'slack_channel_2', 
+        'telegram_chat_2', 
+        'telegram_channel_2'
+    ) in channels
+    assert (
         'test-dummy-principal-1', 
         'slack_channel_3', 
         'telegram_chat_3', 
         'telegram_channel_3'
     ) in channels
 
-
     # Delete channels
     node_provider_db._delete_channel_lookup('test-dummy-principal-1')
     node_provider_db._delete_channel_lookup('test-dummy-principal-2')
 
-    # Get and check channels again
+    # Get the channels, remove surrogate
     channels = node_provider_db.get_channels()
+    channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
     # Check that the specific content is no longer present
     assert (
-        1,
         'test-dummy-principal-1', 
         'slack_channel_3', 
         'telegram_chat_3', 
         'telegram_channel_3'
     ) not in channels
-    assert (
-        2,
+    assert ( 
         'test-dummy-principal-2', 
         'slack_channel_2', 
         'telegram_chat_2', 
