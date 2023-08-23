@@ -315,17 +315,44 @@ class NodeProviderDB:
     ##############################################
     ## CRUD :: TABLE node_label_lookup
     
-    def _insert_node_label(self) -> None:
-        """Inserts a node label into the node_label_lookup table."""
-        raise NotImplementedError
+    def _insert_node_label(self, node_id: str, node_label: str) -> None:            
+        """Inserts or updates a node label into the node_label_lookup table."""
+        query = """
+            INSERT INTO node_label_lookup (node_id, node_label)
+            VALUES (%s, %s)  
+            ON CONFLICT (node_id) DO UPDATE SET
+                node_label = EXCLUDED.node_label
+        """
+        values = (node_label, node_id)
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query, values)
+        self.disconnect()
     
-    def _delete_node_label(self) -> None:
+    def _delete_node_label(self, node_label: str) -> None:
         """Deletes a node label from the node_label_lookup table."""
-        raise NotImplementedError
+        query = """
+            DELETE FROM node_label_lookup
+            WHERE node_label = %s
+        """
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query, (node_label,))
+        self.disconnect()
+        
     
     def get_node_labels(self) -> Dict[Principal, str]:
         """Returns the table of all node labels."""
-        raise NotImplementedError
+        query = "SELECT * FROM node_label_lookup"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+        self.disconnect()
+        return rows
     
 
 
