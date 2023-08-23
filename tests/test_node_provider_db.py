@@ -24,7 +24,7 @@ def test_get_public_schema_tables():
 ## TEST CRUD :: TABLE subscribers
 
 def test_insert_and_get_and_delete_subscriber():
-    ## Create new subscribers / overwrite subscriber 1
+    # Create new subscribers / overwrite subscriber 1
     node_provider_db._insert_subscriber(
         'test-dummy-principal-1', 
         True, True, False, False, False)
@@ -35,20 +35,21 @@ def test_insert_and_get_and_delete_subscriber():
         'test-dummy-principal-1',
         True, True, True, True, True)
 
-    ## Get and check subscribers
+    # Get and check subscribers
     subs = node_provider_db.get_subscribers()
-    # debug(subs)
-    # TODO: This will break. Please update to not check by length.
-    assert len(subs) == 2
 
-    ## Delete subscribers
+    assert ('test-dummy-principal-1', True, True, True, True, True) in subs
+    assert ('test-dummy-principal-2', True, True, False, False, False) in subs
+
+
+    # Delete subscribers
     node_provider_db._delete_subscriber('test-dummy-principal-1')
     node_provider_db._delete_subscriber('test-dummy-principal-2')
 
-    ## Get and check subscribers
+    # Get and check subscribers
     subs = node_provider_db.get_subscribers()
-    # TODO: This will break. Please update to not check by length.
-    assert len(subs) == 0
+    assert ('test-dummy-principal-1', True, True, True, True, True) not in subs
+    assert ('test-dummy-principal-2', True, True, False, False, False) not in subs
 
 
 
@@ -171,7 +172,6 @@ def test_insert_and_get_and_delete_node_label():
     node_provider_db._insert_node_label('node_id_1', 'label_1')
     node_provider_db._insert_node_label('node_id_2', 'label_2')
     
-
     # Get the node labels
     node_labels = node_provider_db.get_node_labels()
 
