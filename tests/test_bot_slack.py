@@ -23,7 +23,7 @@ def test_send_message(mock_slack_client):
 
 
 
-@pytest.mark.live_email
+@pytest.mark.skip(reason="sends live message")
 def test_send_message_slack():
     """Send real messages to a test Slack workspace"""
     slack_bot = SlackBot(c.TOKEN_SLACK)

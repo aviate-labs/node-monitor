@@ -38,3 +38,22 @@ def test_send_message_to_chat(mock_get):
         f"https://api.telegram.org/bot{telegram_bot.telegram_token}/sendMessage?chat_id={chat_id}&text={message}"
     )
     mock_response.raise_for_status.assert_called_once()
+
+
+@pytest.mark.skip(reason="sends live message")
+def test_send_message_to_channel():
+    telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
+    channel_id = "-1001925583150"  
+    message = "Test message"
+
+    telegram_bot.send_message_to_channel(channel_id, message)
+
+
+
+@pytest.mark.skip(reason="sends live message")
+def test_send_live_message_to_chat():
+    telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
+    chat_id = "5734534558"  
+    message = "Test message"
+    telegram_bot.send_message_to_chat(chat_id, message)
+
