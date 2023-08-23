@@ -1,5 +1,4 @@
 import time
-import Optional
 from collections import deque
 from typing import Deque, List, Dict
 from toolz import groupby # type: ignore
@@ -21,8 +20,8 @@ class NodeMonitor:
     def __init__(
             self, 
             email_bot: EmailBot, 
-            slack_bot: Optional[SlackBot] = None,
-            telegram_bot: Optional[TelegramBot] = None
+            slack_bot: SlackBot = None,
+            telegram_bot: TelegramBot = None
         ) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.email_bot = email_bot
@@ -35,7 +34,7 @@ class NodeMonitor:
         self.compromised_nodes_by_provider: \
             Dict[Principal, List[ic_api.Node]] = {}
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
-
+        
 
     def _resync(self, override_data: ic_api.Nodes | None = None) -> None:
         """

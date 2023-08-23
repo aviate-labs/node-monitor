@@ -2,6 +2,7 @@ import threading
 
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
+from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_monitor import NodeMonitor
 from node_monitor.server import create_server
 import node_monitor.load_config as c
@@ -12,7 +13,8 @@ import node_monitor.load_config as c
 ## instance and work on the same data in different functions/threads
 email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 slack_bot = SlackBot(c.TOKEN_SLACK)
-nm = NodeMonitor(email_bot, slack_bot)
+telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
+nm = NodeMonitor(email_bot, slack_bot, telegram_bot)
 
 
 ## Run NodeMonitor in a separate thread
