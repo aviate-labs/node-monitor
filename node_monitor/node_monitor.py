@@ -48,10 +48,10 @@ class NodeMonitor:
         self.compromised_nodes = get_compromised_nodes(self.snapshots)
         self.compromised_nodes_by_provider = \
             groupby(lambda node: node.node_provider_id, self.compromised_nodes)
-        subscribers = self.node_provider_db.get_subscribers_list()
+        subscribers = self.node_provider_db.get_subscribers()
         self.actionables = {k: v for k, v
                             in self.compromised_nodes_by_provider.items()
-                            if k in subscribers}
+                            if any(node[0] == k for node in subscribers)}
     
 
     def broadcast(self) -> None:
