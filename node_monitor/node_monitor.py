@@ -6,7 +6,6 @@ from toolz import groupby # type: ignore
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
-from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
@@ -27,7 +26,6 @@ class NodeMonitor:
         self.email_bot = email_bot
         self.node_provider_db = NodeProviderDB()
         self.slack_bot = slack_bot
-        self.telegram_bot = telegram_bot
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.compromised_nodes: List[ic_api.Node] = []
@@ -78,19 +76,19 @@ class NodeMonitor:
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
             # - - - - - - - - - - - - - - - - -
+            
             if pref['notify_email'] == True:
                 recipients = \
                     self.node_provider_db.get_email_recipients(node_provider_id)
                 self.email_bot.send_emails(recipients, subject, msg)
-            if (pref['notify_slack'] == True and 
-                    self.slack_bot is not None):
+            if pref['notify_slack'] == True:
                 self.slack_bot.send_message(chan['slack_channel_name'], msg)
-            if (pref['notify_telegram_chat'] == True and 
-                    self.telegram_bot is not None):
-                self.slack_bot.send_message(chan['telegram_chat_id'], msg)
-            if (pref['notify_telegram_channel'] == True 
-                    and self.telegram_bot is not None):
-                self.slack_bot.send_message(chan['telegram_channel_id'], msg)
+            if pref['notify_telegram_chat'] == True:
+                # TODO: Not Yet Implemented
+                raise NotImplementedError
+            if pref['notify_telegram_channel'] == True:
+                # TODO: Not Yet Implemented
+                raise NotImplementedError
             # - - - - - - - - - - - - - - - - -
 
 
