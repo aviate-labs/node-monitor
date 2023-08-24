@@ -20,7 +20,7 @@ class TelegramBot:
                 f"Check that the Telegram channel id and/or Telegram bot API token is correct"
             )
 
-    def send_message_to_chat(self, chat_id: str, message: str):
+    def send_message_to_chat(self, chat_id: str, message: str) -> None:
         try:
             request = requests.get(
                 f"https://api.telegram.org/bot{self.telegram_token}"
@@ -34,4 +34,3 @@ class TelegramBot:
                 f"Check that the Telegram chat id and/or Telegram bot API token is correct"
             )
 
-            

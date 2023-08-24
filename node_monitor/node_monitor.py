@@ -1,6 +1,6 @@
 import time
 from collections import deque
-from typing import Deque, List, Dict
+from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
 
 import node_monitor.ic_api as ic_api
@@ -20,8 +20,8 @@ class NodeMonitor:
     def __init__(
             self, 
             email_bot: EmailBot, 
-            slack_bot: SlackBot = None,
-            telegram_bot: TelegramBot = None
+            slack_bot: Optional[SlackBot] = None,
+            telegram_bot: Optional[TelegramBot] = None
         ) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.email_bot = email_bot

@@ -100,10 +100,14 @@ def test_control():
 
 def test_one_node_bounce():
     """Test the case where one node bounces.
-    Should not result in a false positive."""
+    Should not result in a false positive.
+    
+    This also tests that Node Monitor runs
+    correctly with optional arguments.
+    """
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    mock_slack_bot = Mock(spec=SlackBot)
+    mock_slack_bot = Mock(spec=SlackBot)       
     nm = NodeMonitor(mock_email_bot, mock_slack_bot)
     nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
