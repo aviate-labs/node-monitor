@@ -7,5 +7,6 @@ python-dotenv
 mypy
 types-requests
 slack_sdk
+slackeventsapi
 devtools
 pytest
