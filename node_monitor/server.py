@@ -25,8 +25,8 @@ def create_server(
     # - - - - - -
 
     @app.route('/slack-node-status', methods=['POST'])
-    def message():
-        """Slack endpoint which sends a node status report"""
+    def send_node_status_report_slack():
+        """Slack endpoint for sending a node status report"""
         # Get data from POST request
         data = request.form
         channel_id = data.get('channel_id')
