@@ -4,7 +4,6 @@ from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.node_monitor import NodeMonitor
 from node_monitor.server import create_server
-from slackeventsapi import SlackEventAdapter
 import node_monitor.load_config as c
 
 
@@ -29,14 +28,14 @@ print("Running.")
 ## Run Flask server in main thread
 app = create_server(nm, thread.is_alive)
 
-# Add adapter to handle all slack events
-slack_event_adapter = SlackEventAdapter(
-    c.SLACK_SIGNING_SECRET, '/slack/events', app
-)
+
 
 
 ## Run only during development
 if __name__ == "__main__":
     # debug=True will run two instances of the thread
-    app.run(debug=False)
+    app.run(debug=False, port=3000)
+    # There is an issue where the latest mac os as it uses the default 
+    # port for flask. To resolve it, change your default flask port to 
+    # something other than 5000.
 

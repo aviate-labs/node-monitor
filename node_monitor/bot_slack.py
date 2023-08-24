@@ -4,6 +4,7 @@ import logging
 class SlackBot:
     def __init__(self, slack_token: str) -> None:
         self.client = slack_sdk.WebClient(token=slack_token)
+        self.BOT_ID = self.client.api_call("auth.test")['user_id']
 
     def send_message(self, slack_channel_name: str, message: str) -> None:
         try:

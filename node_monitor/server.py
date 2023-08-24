@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, request, Response
 from typing import Dict, Callable
 from node_monitor.node_monitor import NodeMonitor
+import node_monitor.load_config as c
 
 
 def create_server(
@@ -22,6 +23,20 @@ def create_server(
         }
         return d
     # - - - - - -
+
+    @app.route('/slack-node-status', methods=['POST'])
+    def message():
+        """Slack endpoint which sends a node status report"""
+        # Get data from POST request
+        data = request.form
+        channel_id = data.get('channel_id')
+
+        #TODO: call function to generate a node_status_report here
+        text = "This is a node status report"
+
+        nm.slack_bot.send_message(channel_id, text)
+
+        return Response(), 200
 
     return app
 
