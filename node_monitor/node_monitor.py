@@ -87,10 +87,14 @@ class NodeMonitor:
                 self.slack_bot.send_message(chan['slack_channel_name'], msg)
             if (pref['notify_telegram_chat'] == True and 
                     self.telegram_bot is not None):
-                self.slack_bot.send_message(chan['telegram_chat_id'], msg)
+                self.telegram_bot.send_message_to_chat(
+                    chan['telegram_chat_id'], msg
+                )
             if (pref['notify_telegram_channel'] == True and
                     self.telegram_bot is not None):
-                self.slack_bot.send_message(chan['telegram_channel_id'], msg)
+                self.telegram_bot.send_message_to_channel(
+                    chan['telegram_channel_id'], msg
+                )
             # - - - - - - - - - - - - - - - - -
 
 
