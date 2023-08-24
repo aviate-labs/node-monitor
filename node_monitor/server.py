@@ -25,11 +25,13 @@ def create_server(
     # - - - - - -
 
     @app.route('/slack-node-status', methods=['POST'])
-    def send_node_status_report_slack():
+    def send_node_status_report_slack() -> tuple[Response, int]:
         """Slack endpoint for sending a node status report"""
         # Get data from POST request
         data = request.form
         channel_id = data.get('channel_id')
+
+        assert channel_id is not None   #needed for mypy --strict
 
         #TODO: call function to generate a node_status_report here
         text = "This is a node status report"
