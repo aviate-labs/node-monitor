@@ -12,6 +12,7 @@ EMAIL_PASSWORD          = os.environ.get('EMAIL_PASSWORD',          '')
 TOKEN_DISCORD           = os.environ.get('TOKEN_DISCORD',           '')  # Not implemented
 TOKEN_SLACK             = os.environ.get('TOKEN_SLACK',             '')
 SLACK_SIGNING_SECRET    = os.environ.get('SLACK_SIGNING_SECRET',    '')
+TOKEN_TELEGRAM  = os.environ.get('TOKEN_TELEGRAM',   '')
 
 ## Pre-flight check
 # We assert that the secrets are not empty so that

@@ -7,6 +7,7 @@ import node_monitor.ic_api as ic_api
 import node_monitor.load_config as c
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
+from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 
 from tests.conftest import cached
@@ -60,16 +61,16 @@ mock_node_provider_db.get_preferences.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      {'notify_email': True,
       'notify_slack': True,
-      'notify_telegram_chat': False,
-      'notify_telegram_channel': False}}
+      'notify_telegram_chat': True,
+      'notify_telegram_channel': True}}
 mock_node_provider_db.get_channel_details.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae': 
      {'channel_detail_id': 1, 
       'node_provider_principal': \
         'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 
       'slack_channel_name': '#node-monitor', 
-      'telegram_chat_id': 'N/A', 
-      'telegram_channel_id': 'N/A'}}
+      'telegram_chat_id': '5734534558', 
+      'telegram_channel_id': '-1001925583150'}}
 
 
 
@@ -99,10 +100,14 @@ def test_control():
 
 def test_one_node_bounce():
     """Test the case where one node bounces.
-    Should not result in a false positive."""
+    Should not result in a false positive.
+    
+    This also tests that Node Monitor runs
+    correctly with optional arguments.
+    """
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    mock_slack_bot = Mock(spec=SlackBot)
+    mock_slack_bot = Mock(spec=SlackBot)       
     nm = NodeMonitor(mock_email_bot, mock_slack_bot)
     nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
@@ -121,13 +126,13 @@ def test_one_node_bounce():
     mock_node_provider_db.reset_mock()
 
 
-
 def test_two_nodes_down():
     """Test the case where two nodes truly go down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot)
+    mock_telgram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_telgram_bot)
     nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
@@ -143,5 +148,7 @@ def test_two_nodes_down():
     nm.broadcast()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
+    assert mock_telgram_bot.send_message_to_chat.call_count == 1
+    assert mock_telgram_bot.send_message_to_channel.call_count == 1
     mock_node_provider_db.reset_mock()
 
