@@ -10,3 +10,4 @@ slack_sdk
 devtools
 pytest
 pytest-mock
+python-telegram-bot

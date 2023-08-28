@@ -1,4 +1,6 @@
 import time
+import threading
+import asyncio
 from collections import deque
 from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
@@ -34,8 +36,7 @@ class NodeMonitor:
         self.compromised_nodes_by_provider: \
             Dict[Principal, List[ic_api.Node]] = {}
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
-        
-
+    
     def _resync(self, override_data: ic_api.Nodes | None = None) -> None:
         """
         Fetches the current nodes from the ic-api and appends them to the

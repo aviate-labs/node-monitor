@@ -1,4 +1,5 @@
 import threading
+import queue  # Import the queue module for inter-thread communication
 
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
@@ -14,8 +15,8 @@ import node_monitor.load_config as c
 email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 slack_bot = SlackBot(c.TOKEN_SLACK)
 telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
-nm = NodeMonitor(email_bot, slack_bot, telegram_bot)
-
+telegram_bot.start()
+nm = NodeMonitor(email_bot, slack_bot, telegram_bot) # Pass None as the Telegram bot for now
 
 ## Run NodeMonitor in a separate thread
 ## daemon threads stop when the main thread stops
@@ -23,12 +24,12 @@ nm = NodeMonitor(email_bot, slack_bot, telegram_bot)
 def start_node_monitor() -> None:
     nm.mainloop()
 print("Starting NodeMonitor...", end=" ")
-thread = threading.Thread(target=start_node_monitor, daemon=True)
-thread.start()
+nm_thread = threading.Thread(target=start_node_monitor, daemon=True)
+nm_thread.start()
 print("Running.")
 
 ## Run Flask server in main thread
-app = create_server(nm, thread.is_alive)
+app = create_server(nm, nm_thread.is_alive)
 
 
 
