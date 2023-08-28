@@ -31,7 +31,9 @@ def create_server(
         data = request.form
         channel_id = data.get('channel_id')
 
-        assert channel_id is not None   #needed for mypy --strict
+        #needed for mypy --strict
+        assert channel_id is not None   
+        assert nm.slack_bot is not None 
 
         #TODO: call function to generate a node_status_report here
         text = "This is a node status report"
