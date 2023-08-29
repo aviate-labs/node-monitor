@@ -22,9 +22,7 @@ mock_node_provider_db = Mock(spec=NodeProviderDB)
 mock_node_provider_db.get_email_recipients.return_value = \
     ['test_recipient@gmail.com']
 mock_node_provider_db.get_subscribers.return_value = \
-    [('rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 
-        True, True, True, False, False)]
-
+    ['rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae']
 mock_node_provider_db.get_preferences.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      {'notify_email': True,

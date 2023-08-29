@@ -373,5 +373,3 @@ class NodeProviderDB:
         """Deprecated. Returns the table of all subscribers.
         Use get_subscribers() instead."""
         return [row[0] for row in self.get_subscribers()]
-
-
