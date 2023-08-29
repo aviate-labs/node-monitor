@@ -169,33 +169,33 @@ def test_insert_and_get_and_delete_channel():
 
 def test_insert_and_get_and_delete_node_label():
     # Insert new node labels
-    node_provider_db._insert_node_label('node_id_1', 'label_1')
-    node_provider_db._insert_node_label('node_id_2', 'label_2')
+    node_provider_db._insert_node_label('test-dummy-node-id-1', 'test-dummy-node-label-1')
+    node_provider_db._insert_node_label('test-dummy-node-id-2', 'test-dummy-node-label-2')
     
     # Get the node labels
     node_labels = node_provider_db.get_node_labels()
 
     # Check for specific content in the node labels
-    assert ('label_1', 'node_id_1') in node_labels
-    assert ('label_2', 'node_id_2') in node_labels
+    assert ('test-dummy-node-id-1', 'test-dummy-node-label-1') in node_labels
+    assert ('test-dummy-node-id-2', 'test-dummy-node-label-2') in node_labels
 
     # Overwrite a record
-    node_provider_db._insert_node_label('node_id_1', 'label_3')
+    node_provider_db._insert_node_label('test-dummy-node-id-2', 'test-dummy-node-label-b')
 
     # Get the new node labels
     node_labels = node_provider_db.get_node_labels()
 
-    assert ('label_3', 'node_id_1') in node_labels
+    assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') in node_labels
 
     # Delete node labels
-    node_provider_db._delete_node_label('node_id_1')
-    node_provider_db._delete_node_label('node_id_2')
+    node_provider_db._delete_node_label('test-dummy-node-id-1')
+    node_provider_db._delete_node_label('test-dummy-node-id-2')
 
     # Get the node labels again
     node_labels = node_provider_db.get_node_labels()
 
     # Check that the specific content is no longer present
-    assert ('label_3', 'node_id_1') not in node_labels
-    assert ('label_2', 'node_id_2') not in node_labels
+    assert ('test-dummy-node-id-1', 'test-dummy-node-label-1') not in node_labels
+    assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') not in node_labels
 
 
