@@ -286,7 +286,7 @@ class NodeProviderDB:
         self.disconnect()
 
     
-    def _delete_channel_lookup(self, node_provider_id: str) -> None:
+    def _delete_channel_lookup(self, node_provider_id: Principal) -> None:
         """Delete record from the channel_lookup table by node_provider_id."""
         query = """
             DELETE FROM channel_lookup
@@ -315,7 +315,7 @@ class NodeProviderDB:
     ##############################################
     ## CRUD :: TABLE node_label_lookup
     
-    def _insert_node_label(self, node_id: str, node_label: str) -> None:            
+    def _insert_node_label(self, node_id: Principal, node_label: str) -> None:            
         """Inserts or updates a node label into the node_label_lookup table."""
         query = """
             INSERT INTO node_label_lookup (node_id, node_label)
