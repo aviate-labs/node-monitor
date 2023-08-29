@@ -37,22 +37,14 @@ def test_get_public_schema_tables():
 @pytest.mark.db
 def test_insert_and_get_and_delete_subscriber():
     # Create new subscribers / overwrite subscriber 1
-    node_provider_db._insert_subscriber(
-        'test-dummy-principal-1', 
-        True, True, False, False, False)
-    node_provider_db._insert_subscriber(
-        'test-dummy-principal-2', 
-        True, True, False, False, False)
-    node_provider_db._insert_subscriber(
-        'test-dummy-principal-1',
-        True, True, True, True, True)
+    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False)
+    node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False)
+    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, True, True, True)
 
     # Get and check subscribers
     subs = node_provider_db.get_subscribers()
-
     assert ('test-dummy-principal-1', True, True, True, True, True) in subs
     assert ('test-dummy-principal-2', True, True, False, False, False) in subs
-
 
     # Delete subscribers
     node_provider_db._delete_subscriber('test-dummy-principal-1')
@@ -107,73 +99,35 @@ def test_insert_and_get_and_delete_email():
 
 @pytest.mark.db
 def test_insert_and_get_and_delete_channel():
-    # Insert new channels
+    # Insert new channels, including duplicate principals
     node_provider_db._insert_channel(
-        'test-dummy-principal-1',
-        'slack_channel_1',
-        'telegram_chat_1',
-        'telegram_channel_1'
-    )
+        'test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1')
     node_provider_db._insert_channel(
-        'test-dummy-principal-2',
-        'slack_channel_2',
-        'telegram_chat_2',
-        'telegram_channel_2'
-    )
+        'test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2')
     node_provider_db._insert_channel(
-        'test-dummy-principal-1',
-        'slack_channel_3',
-        'telegram_chat_3',
-        'telegram_channel_3'
-    )
+        'test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3')
 
-    # Get the channels, remove surrogate
+    # Get the channels, remove surrogate id column
     channels = node_provider_db.get_channels()
     channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
+    # Check that the proper channels were inserted correctly
+    assert ('test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1') in channels
+    assert ('test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2') in channels
+    assert ('test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3') in channels
 
-    # Check for specific content in the channels
-    assert (
-        'test-dummy-principal-1', 
-        'slack_channel_1', 
-        'telegram_chat_1', 
-        'telegram_channel_1'
-    ) in channels
-    assert (
-        'test-dummy-principal-2', 
-        'slack_channel_2', 
-        'telegram_chat_2', 
-        'telegram_channel_2'
-    ) in channels
-    assert (
-        'test-dummy-principal-1', 
-        'slack_channel_3', 
-        'telegram_chat_3', 
-        'telegram_channel_3'
-    ) in channels
-
-    # Delete channels
+    # Delete channels. This deletes all channels for a given principal
     node_provider_db._delete_channel_lookup('test-dummy-principal-1')
     node_provider_db._delete_channel_lookup('test-dummy-principal-2')
 
-    # Get the channels, remove surrogate
+    # Get the channels, remove surrogate id column
     channels = node_provider_db.get_channels()
     channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
-    # Check that the specific content is no longer present
-    assert (
-        'test-dummy-principal-1', 
-        'slack_channel_3', 
-        'telegram_chat_3', 
-        'telegram_channel_3'
-    ) not in channels
-    assert ( 
-        'test-dummy-principal-2', 
-        'slack_channel_2', 
-        'telegram_chat_2', 
-        'telegram_channel_2'
-    ) not in channels
-
+    # Check that the channel lookups were deleted correctly
+    assert ('test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1') not in channels
+    assert ('test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2') not in channels
+    assert ('test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3') not in channels
 
 
 
@@ -187,29 +141,24 @@ def test_insert_and_get_and_delete_node_label():
     node_provider_db._insert_node_label('test-dummy-node-id-1', 'test-dummy-node-label-1')
     node_provider_db._insert_node_label('test-dummy-node-id-2', 'test-dummy-node-label-2')
     
-    # Get the node labels
+    # Get the node labels, make sure they were inserted correctly
     node_labels = node_provider_db.get_node_labels()
-
-    # Check for specific content in the node labels
     assert ('test-dummy-node-id-1', 'test-dummy-node-label-1') in node_labels
     assert ('test-dummy-node-id-2', 'test-dummy-node-label-2') in node_labels
 
-    # Overwrite a record
+    # Overwrite a node label
     node_provider_db._insert_node_label('test-dummy-node-id-2', 'test-dummy-node-label-b')
 
-    # Get the new node labels
+    # Get the new node labels, make sure the value was overwritten
     node_labels = node_provider_db.get_node_labels()
-
     assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') in node_labels
 
     # Delete node labels
     node_provider_db._delete_node_label('test-dummy-node-id-1')
     node_provider_db._delete_node_label('test-dummy-node-id-2')
 
-    # Get the node labels again
+    # Get the node labels, make sure they were deleted correctly
     node_labels = node_provider_db.get_node_labels()
-
-    # Check that the specific content is no longer present
     assert ('test-dummy-node-id-1', 'test-dummy-node-label-1') not in node_labels
     assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') not in node_labels
 
