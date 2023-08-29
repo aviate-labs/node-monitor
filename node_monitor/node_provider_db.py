@@ -323,23 +323,23 @@ class NodeProviderDB:
             ON CONFLICT (node_id) DO UPDATE SET
                 node_label = EXCLUDED.node_label
         """
-        values = (node_label, node_id)
+        values = (node_id, node_label)
         self.connect()
         assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query, values)
         self.disconnect()
     
-    def _delete_node_label(self, node_label: str) -> None:
+    def _delete_node_label(self, node_id: Principal) -> None:
         """Deletes a node label from the node_label_lookup table."""
         query = """
             DELETE FROM node_label_lookup
-            WHERE node_label = %s
+            WHERE node_id = %s
         """
         self.connect()
         assert self.conn is not None
         with self.conn.cursor() as cur:
-            cur.execute(query, (node_label,))
+            cur.execute(query, (node_id,))
         self.disconnect()
         
     
