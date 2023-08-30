@@ -1,10 +1,13 @@
-.PHONY: check test dev prod
+.PHONY: check test testall dev prod
 
 check:
 	mypy --strict node_monitor
 
 test:
 	pytest tests/
+
+testall:
+	pytest -s --send_emails --db tests/
 
 # This runs it with the development WSGI Server
 dev:
