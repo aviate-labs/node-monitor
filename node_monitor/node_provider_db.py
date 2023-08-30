@@ -367,18 +367,3 @@ class NodeProviderDB:
     def get_node_labels_as_dict(self) -> Dict[Principal, str]:
         """Returns the table of all node labels as a dictionary."""
         raise NotImplementedError
-    
-
-
-    ##############################################
-    ## Deprecated Interface - Do Not Use (will be removed)
-
-    def get_email_recipients(self, node_provider: Principal) -> List[str]:
-        """Deprecated. Returns the table of all email recipients.
-        Use get_emails_as_dict() instead."""
-        raise NotImplementedError
-
-    def get_preferences(self) -> Dict[Principal, Dict[str, bool]]:
-        """Deprecated. Returns the table of all preferences.
-        Use get_subscribers_as_dict() instead."""
-        raise NotImplementedError
