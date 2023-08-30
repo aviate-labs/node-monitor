@@ -377,8 +377,3 @@ class NodeProviderDB:
         """Deprecated. Returns the table of all preferences.
         Use get_subscribers_as_dict() instead."""
         raise NotImplementedError
-    
-    def get_subscribers_list(self) -> List[Principal]:
-        """Deprecated. Returns the table of all subscribers.
-        Use get_subscribers() instead."""
-        return [row[0] for row in self.get_subscribers()]
