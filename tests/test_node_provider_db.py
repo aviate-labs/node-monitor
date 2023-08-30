@@ -175,6 +175,11 @@ def test_node_label_lookup_crud():
     node_labels = node_provider_db.get_node_labels()
     assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') in node_labels
 
+    # Get the node labels as dict, make sure they were inserted correctly
+    node_labels = node_provider_db.get_node_labels_as_dict()
+    assert node_labels['test-dummy-node-id-1'] == 'test-dummy-node-label-1'
+    assert node_labels['test-dummy-node-id-2'] == 'test-dummy-node-label-b'
+
     # Delete node labels
     node_provider_db._delete_node_label('test-dummy-node-id-1')
     node_provider_db._delete_node_label('test-dummy-node-id-2')
@@ -184,4 +189,7 @@ def test_node_label_lookup_crud():
     assert ('test-dummy-node-id-1', 'test-dummy-node-label-1') not in node_labels
     assert ('test-dummy-node-id-2', 'test-dummy-node-label-b') not in node_labels
 
-
+    # Get the node labels as dict, make sure they were deleted correctly
+    node_labels = node_provider_db.get_node_labels_as_dict()
+    assert 'test-dummy-node-id-1' not in node_labels
+    assert 'test-dummy-node-id-2' not in node_labels
