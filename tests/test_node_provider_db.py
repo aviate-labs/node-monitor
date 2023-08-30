@@ -35,7 +35,7 @@ def test_get_public_schema_tables():
 ## TEST CRUD :: TABLE subscribers
 
 @pytest.mark.db
-def test_insert_and_get_and_delete_subscriber():
+def test_subscribers_crud():
     # Create new subscribers / overwrite subscriber 1
     node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False)
     node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False)
@@ -62,7 +62,7 @@ def test_insert_and_get_and_delete_subscriber():
 ## TEST CRUD :: TABLE email_lookup
 
 @pytest.mark.db
-def test_insert_and_get_and_delete_email():
+def test_email_lookup_crud():
     # Insert new emails, including multiple for the same principal
     node_provider_db._insert_email('test-dummy-principal-1', 'foo@mail.com')
     node_provider_db._insert_email('test-dummy-principal-1', 'bar@mail.com')
@@ -98,7 +98,7 @@ def test_insert_and_get_and_delete_email():
 ## TEST CRUD :: TABLE channel_lookup
 
 @pytest.mark.db
-def test_insert_and_get_and_delete_channel():
+def test_channel_lookup_crud():
     # Insert new channels, including duplicate principals
     node_provider_db._insert_channel(
         'test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1')
@@ -136,7 +136,7 @@ def test_insert_and_get_and_delete_channel():
 ## TEST CRUD :: TABLE node_label_lookup
 
 @pytest.mark.db
-def test_insert_and_get_and_delete_node_label():
+def test_node_label_lookup_crud():
     # Insert new node labels
     node_provider_db._insert_node_label('test-dummy-node-id-1', 'test-dummy-node-label-1')
     node_provider_db._insert_node_label('test-dummy-node-id-2', 'test-dummy-node-label-2')
