@@ -46,6 +46,15 @@ def test_subscribers_crud():
     assert ('test-dummy-principal-1', True, True, True, True, True) in subs
     assert ('test-dummy-principal-2', True, True, False, False, False) in subs
 
+    # Get and check subscribers as dict
+    subs = node_provider_db.get_subscribers_as_dict()
+    assert subs['test-dummy-principal-1'] == \
+        {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': True, 'notify_email': True,
+         'notify_slack': True, 'notify_telegram_chat': True, 'notify_telegram_channel': True}
+    assert subs['test-dummy-principal-2'] == \
+        {'node_provider_id': 'test-dummy-principal-2', 'notify_on_status_change': True, 'notify_email': True,
+         'notify_slack': False, 'notify_telegram_chat': False, 'notify_telegram_channel': False}
+
     # Delete subscribers
     node_provider_db._delete_subscriber('test-dummy-principal-1')
     node_provider_db._delete_subscriber('test-dummy-principal-2')
@@ -54,6 +63,11 @@ def test_subscribers_crud():
     subs = node_provider_db.get_subscribers()
     assert ('test-dummy-principal-1', True, True, True, True, True) not in subs
     assert ('test-dummy-principal-2', True, True, False, False, False) not in subs
+
+    # Get and check subscribers as dict
+    subs = node_provider_db.get_subscribers_as_dict()
+    assert 'test-dummy-principal-1' not in subs
+    assert 'test-dummy-principal-2' not in subs
 
 
 
