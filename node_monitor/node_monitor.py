@@ -57,28 +57,28 @@ class NodeMonitor:
 
     def broadcast(self) -> None:
         """Broadcast relevant information to the appropriate channels."""
-        preferences = self.node_provider_db.get_preferences()
-        labels = self.node_provider_db.get_node_labels()
+        subscribers = self.node_provider_db.get_subscribers_as_dict()
+        node_labels = self.node_provider_db.get_node_labels_as_dict()
+        email_recipients = self.node_provider_db.get_emails_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             # - - - - - - - - - - - - - - - - -
             def _represent(nodes: List[ic_api.Node]) -> str:
                 # TODO: Move this into its own helper function
                 return ', '.join([node.node_id for node in nodes])
-            pref = preferences[node_provider_id]
+            preferences = subscribers[node_provider_id]
             subject = f"""Node Down Alert"""
             msg = f"""The following nodes are down: {_represent(nodes)}"""
             # - - - - - - - - - - - - - - - - -
-            if pref['notify_email'] == True:
-                recipients = \
-                    self.node_provider_db.get_email_recipients(node_provider_id)
+            if preferences['notify_email'] == True:
+                recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
-            if pref['notify_slack'] == True:
+            if preferences['notify_slack'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
-            if pref['notify_telegram_chat'] == True:
+            if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
-            if pref['notify_telegram_channel'] == True:
+            if preferences['notify_telegram_channel'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
             # - - - - - - - - - - - - - - - - -
