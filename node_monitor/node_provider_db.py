@@ -208,6 +208,10 @@ class NodeProviderDB:
         return rows
     
 
+    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
+        """Returns the table of all subscribers as a dictionary."""
+        raise NotImplementedError
+
 
 
     ##############################################
@@ -254,6 +258,11 @@ class NodeProviderDB:
             rows = cur.fetchall()
         self.disconnect()
         return rows
+    
+
+    def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all emails as a dictionary."""
+        raise NotImplementedError
     
 
 
@@ -361,12 +370,12 @@ class NodeProviderDB:
 
     def get_email_recipients(self, node_provider: Principal) -> List[str]:
         """Deprecated. Returns the table of all email recipients.
-        Use get_emails() instead."""
+        Use get_emails_as_dict() instead."""
         raise NotImplementedError
 
     def get_preferences(self) -> Dict[Principal, Dict[str, bool]]:
         """Deprecated. Returns the table of all preferences.
-        Use get_subscribers() instead."""
+        Use get_subscribers_as_dict() instead."""
         raise NotImplementedError
     
     def get_subscribers_list(self) -> List[Principal]:
