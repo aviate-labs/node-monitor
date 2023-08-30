@@ -363,6 +363,11 @@ class NodeProviderDB:
         self.disconnect()
         return rows
     
+    
+    def get_node_labels_as_dict(self) -> Dict[Principal, str]:
+        """Returns the table of all node labels as a dictionary."""
+        raise NotImplementedError
+    
 
 
     ##############################################
