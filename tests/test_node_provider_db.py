@@ -83,13 +83,17 @@ def test_email_lookup_crud():
     node_provider_db._insert_email('test-dummy-principal-2', 'baz@mail.com')
 
     # Get the emails, remove surrogate id column
+    # Check that the emails were inserted correctly
     emails = node_provider_db.get_emails()
     emails = [(row[1], row[2]) for row in emails]
-
-    # Check that the emails were inserted correctly
     assert ('test-dummy-principal-1', 'foo@mail.com') in emails
     assert ('test-dummy-principal-1', 'bar@mail.com') in emails
     assert ('test-dummy-principal-2', 'baz@mail.com') in emails
+
+    # Get and check emails as dict
+    emails = node_provider_db.get_emails_as_dict()
+    assert emails['test-dummy-principal-1'] == ['foo@mail.com', 'bar@mail.com']
+    assert emails['test-dummy-principal-2'] == ['baz@mail.com']
 
     # Delete emails
     node_provider_db._delete_email('foo@mail.com')
@@ -97,13 +101,17 @@ def test_email_lookup_crud():
     node_provider_db._delete_email('baz@mail.com')
 
     # Get the emails again, remove surrogate id column
+    # Check that the emails were deleted correctly
     emails = node_provider_db.get_emails()
     emails = [(row[1], row[2]) for row in emails]
-
-    # Check that the emails were deleted correctly
     assert ('test-dummy-principal-1', 'foo@mail.com') not in emails
     assert ('test-dummy-principal-1', 'bar@mail.com') not in emails
     assert ('test-dummy-principal-2', 'baz@mail.com') not in emails
+
+    # Get and check emails as dict
+    emails = node_provider_db.get_emails_as_dict()
+    assert 'test-dummy-principal-1' not in emails
+    assert 'test-dummy-principal-2' not in emails
 
 
 
