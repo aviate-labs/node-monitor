@@ -78,35 +78,36 @@ def test_subscribers_crud():
 @pytest.mark.db
 def test_email_lookup_crud():
     # Insert new emails, including multiple for the same principal
-    node_provider_db._insert_email('test-dummy-principal-1', 'foo@mail.com')
-    node_provider_db._insert_email('test-dummy-principal-1', 'bar@mail.com')
-    node_provider_db._insert_email('test-dummy-principal-2', 'baz@mail.com')
+    node_provider_db._insert_email('test-dummy-principal-1', 'a@mail.com')
+    node_provider_db._insert_email('test-dummy-principal-1', 'b@mail.com')
+    node_provider_db._insert_email('test-dummy-principal-2', 'c@mail.com')
 
     # Get the emails, remove surrogate id column
     # Check that the emails were inserted correctly
     emails = node_provider_db.get_emails()
     emails = [(row[1], row[2]) for row in emails]
-    assert ('test-dummy-principal-1', 'foo@mail.com') in emails
-    assert ('test-dummy-principal-1', 'bar@mail.com') in emails
-    assert ('test-dummy-principal-2', 'baz@mail.com') in emails
+    assert ('test-dummy-principal-1', 'a@mail.com') in emails
+    assert ('test-dummy-principal-1', 'b@mail.com') in emails
+    assert ('test-dummy-principal-2', 'c@mail.com') in emails
 
-    # Get and check emails as dict
+    # Get and check emails as dict, any order is fine
     emails = node_provider_db.get_emails_as_dict()
-    assert emails['test-dummy-principal-1'] == ['foo@mail.com', 'bar@mail.com']
-    assert emails['test-dummy-principal-2'] == ['baz@mail.com']
+    assert emails['test-dummy-principal-1'] == ['b@mail.com', 'a@mail.com'] \
+        or emails['test-dummy-principal-1'] == ['a@mail.com', 'b@mail.com']
+    assert emails['test-dummy-principal-2'] == ['c@mail.com']
 
     # Delete emails
-    node_provider_db._delete_email('foo@mail.com')
-    node_provider_db._delete_email('bar@mail.com')
-    node_provider_db._delete_email('baz@mail.com')
+    node_provider_db._delete_email('a@mail.com')
+    node_provider_db._delete_email('b@mail.com')
+    node_provider_db._delete_email('c@mail.com')
 
     # Get the emails again, remove surrogate id column
     # Check that the emails were deleted correctly
     emails = node_provider_db.get_emails()
     emails = [(row[1], row[2]) for row in emails]
-    assert ('test-dummy-principal-1', 'foo@mail.com') not in emails
-    assert ('test-dummy-principal-1', 'bar@mail.com') not in emails
-    assert ('test-dummy-principal-2', 'baz@mail.com') not in emails
+    assert ('test-dummy-principal-1', 'a@mail.com') not in emails
+    assert ('test-dummy-principal-1', 'b@mail.com') not in emails
+    assert ('test-dummy-principal-2', 'c@mail.com') not in emails
 
     # Get and check emails as dict
     emails = node_provider_db.get_emails_as_dict()
