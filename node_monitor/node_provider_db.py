@@ -286,7 +286,8 @@ class NodeProviderDB:
             cur.execute(query)
             rows = cur.fetchall()
 
-        emails_dict = {}
+        emails_dict: Dict[str, List[str]] = {}
+
         for row in rows:
             principal = row[0]
             email_address = row[1]
