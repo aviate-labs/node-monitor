@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Optional, Tuple
 import psycopg2
+from toolz import groupby # type: ignore
 
 
 Principal = str
@@ -215,7 +216,7 @@ class NodeProviderDB:
             'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
         # TODO: Move this into a test - - - - - - - -
         # make sure the column names are always up to date
-        def _test_col_names():
+        def _test_col_names() -> None:
             query = "SELECT * FROM subscribers"
             self.connect()
             assert self.conn is not None
@@ -280,36 +281,14 @@ class NodeProviderDB:
         return rows
     
 
-    def get_emails_as_dict(self) -> Dict[str, List[str]]:
-        """Returns a dictionary of principals associated with a list of unique email addresses."""
-        query = "SELECT node_provider_id, email_address FROM email_lookup"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-
-        emails_dict: Dict[str, List[str]] = {}
-
-        for row in rows:
-            principal = row[0]
-            email_address = row[1]
-
-            # Check if the principal is already in the dictionary. 
-            # If not, add it with an empty list
-            if principal not in emails_dict:
-                emails_dict[principal] = []
-
-            # Append the email address to the list associated with the principal,
-            # but only if it's not already in the list
-            if email_address not in emails_dict[principal]:
-                emails_dict[principal].append(email_address)
-
-        self.disconnect()
-        return emails_dict
-
-
-    
+    def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all emails as a dictionary"""
+        # Group by principal -> convert tuples to lists -> remove duplicates
+        grouped = groupby(lambda row: row[1], self.get_emails())
+        filtered: Dict[Principal, List[str]] = {k: [row[2] for row in v] 
+                                                for k, v in grouped.items()}
+        deduped = {k: list(set(v)) for k, v in filtered.items()}
+        return deduped
 
 
 
