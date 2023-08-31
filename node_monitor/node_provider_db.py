@@ -210,21 +210,24 @@ class NodeProviderDB:
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
         """Returns the table of all subscribers as a dictionary."""
-        query = "SELECT * FROM subscribers"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-            column_names = [desc[0] for desc in cur.description]
-
-        subscribers_dict = {}
-        for row in rows:
-            principal = row[0]
-            preferences = dict(zip(column_names, row))  #
-            subscribers_dict[principal] = preferences
-
-        self.disconnect()
+        cols = \
+            ['node_provider_id', 'notify_on_status_change', 'notify_email',
+            'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
+        # TODO: Move this into a test - - - - - - - -
+        # make sure the column names are always up to date
+        def _test_col_names():
+            query = "SELECT * FROM subscribers"
+            self.connect()
+            assert self.conn is not None
+            with self.conn.cursor() as cur:
+                cur.execute(query)
+                column_names = [desc[0] for desc in cur.description]
+            self.disconnect()
+            assert column_names == cols
+        _test_col_names()
+        # END test - - - - - - - - - 
+        subs = self.get_subscribers()
+        subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
         return subscribers_dict
 
 
