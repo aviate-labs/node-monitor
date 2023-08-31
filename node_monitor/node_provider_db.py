@@ -216,14 +216,12 @@ class NodeProviderDB:
         with self.conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
-
-            # Get column names from the cursor description
             column_names = [desc[0] for desc in cur.description]
 
         subscribers_dict = {}
         for row in rows:
             principal = row[0]
-            preferences = dict(zip(column_names, row))  # Skip the first column (Principal)
+            preferences = dict(zip(column_names, row))  #
             subscribers_dict[principal] = preferences
 
         self.disconnect()
@@ -279,9 +277,34 @@ class NodeProviderDB:
         return rows
     
 
-    def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
-        """Returns the table of all emails as a dictionary."""
-        raise NotImplementedError
+    def get_emails_as_dict(self) -> Dict[str, List[str]]:
+        """Returns a dictionary of principals associated with a list of unique email addresses."""
+        query = "SELECT node_provider_id, email_address FROM email_lookup"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+
+        emails_dict = {}
+        for row in rows:
+            principal = row[0]
+            email_address = row[1]
+
+            # Check if the principal is already in the dictionary. 
+            # If not, add it with an empty list
+            if principal not in emails_dict:
+                emails_dict[principal] = []
+
+            # Append the email address to the list associated with the principal,
+            # but only if it's not already in the list
+            if email_address not in emails_dict[principal]:
+                emails_dict[principal].append(email_address)
+
+        self.disconnect()
+        return emails_dict
+
+
     
 
 
