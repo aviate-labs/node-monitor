@@ -210,7 +210,26 @@ class NodeProviderDB:
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
         """Returns the table of all subscribers as a dictionary."""
-        raise NotImplementedError
+        query = "SELECT * FROM subscribers"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+
+            # Get column names from the cursor description
+            column_names = [desc[0] for desc in cur.description]
+
+        subscribers_dict = {}
+        for row in rows:
+            principal = row[0]
+            preferences = dict(zip(column_names, row))  # Skip the first column (Principal)
+            subscribers_dict[principal] = preferences
+
+        self.disconnect()
+        return subscribers_dict
+
+
 
 
 
