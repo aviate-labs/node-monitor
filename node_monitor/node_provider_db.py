@@ -406,7 +406,25 @@ class NodeProviderDB:
         self.disconnect()
         return rows
     
-    
+
     def get_node_labels_as_dict(self) -> Dict[Principal, str]:
         """Returns the table of all node labels as a dictionary."""
-        raise NotImplementedError
+        query = "SELECT * FROM node_label_lookup"  
+        node_labels: Dict[Principal, str] = {}
+
+        self.connect()  
+        assert self.conn is not None
+
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+
+        for row in rows:
+            node_id = row[0]
+            node_label = row[1]
+            node_labels[node_id] = node_label
+
+        self.disconnect()  
+
+        return node_labels
+
