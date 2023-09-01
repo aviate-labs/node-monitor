@@ -28,8 +28,8 @@ mock_node_provider_db.get_subscribers_as_dict.return_value = \
       'notify_telegram_chat': False,
       'notify_telegram_channel': False}}
 mock_node_provider_db.get_node_labels_as_dict.return_value = \
-    {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae':
-        'dummy-node-label'}
+    {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae': 'dummy-node-label-1',
+     'clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae': 'dummy-node-label-2'}
 mock_node_provider_db.get_emails_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      ['test_recipient@gmail.com']}
