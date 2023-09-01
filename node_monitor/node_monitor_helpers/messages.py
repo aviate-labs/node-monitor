@@ -16,11 +16,11 @@ def detailnode(node: ic_api.Node, label: str) -> str:
         f"Node ID: {node.node_id}\n"
         f"Node Label: {label}\n"
         f"Node Status: {node.status}\n"
-        f"Live Node Status: {status_url}\n"
-    )
+        f"Live Node Status: {status_url}\n")
 
-def detailnodes(nodes: List[ic_api.Node], 
-                          labels: Dict[Principal, str]) -> str:
+
+def detailnodes(nodes: List[ic_api.Node],
+                labels: Dict[Principal, str]) -> str:
     """Runs detailnode on each node in nodes and returns a string of the
     results, separated by newlines.
     """
@@ -29,7 +29,7 @@ def detailnodes(nodes: List[ic_api.Node],
 
 
 def nodes_down_message(nodes: List[ic_api.Node], 
-                      labels: Dict[Principal, str]) -> str:
+                       labels: Dict[Principal, str]) -> str:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.
     """
@@ -37,5 +37,4 @@ def nodes_down_message(nodes: List[ic_api.Node],
     return (
         f"🛑 Node/s Down:\n"
         f"The following nodes are compromised:\n\n"
-        f"{formatted_nodes_down}"
-    )
+        f"{formatted_nodes_down}")
