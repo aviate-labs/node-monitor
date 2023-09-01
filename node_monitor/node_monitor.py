@@ -62,7 +62,7 @@ class NodeMonitor:
         email_recipients = self.node_provider_db.get_emails_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject = f"""Node Down Alert"""
+            subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
