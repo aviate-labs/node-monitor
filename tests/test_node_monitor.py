@@ -11,12 +11,35 @@ from tests.conftest import cached
 
 # This uses data stored on disk that has been fetched with cURL from the ic-api.
 
+# Set up a mock database so that we can test the broadcast() function
+# without needing to access a database. This (temporarily) uses Allusion's 
+# node-provider-id (principal) on our test data stored in 'data/'
+# TODO: expand these tests to work on all nodes, not just Allusion's nodes 
+# (currently all data in the 'data/' directory is filtered to only contain
+# Allusion's nodes)
+
+mock_node_provider_db = Mock(spec=NodeProviderDB)
+mock_node_provider_db.get_subscribers_as_dict.return_value = \
+    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
+     {'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae',
+      'notify_on_status_change': True,
+      'notify_email': True,
+      'notify_slack': False,
+      'notify_telegram_chat': False,
+      'notify_telegram_channel': False}}
+mock_node_provider_db.get_node_labels_as_dict.return_value = \
+    {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae':
+        'dummy-node-label'}
+mock_node_provider_db.get_emails_as_dict.return_value = \
+    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
+     ['test_recipient@gmail.com']}
+
 
 class TestNodeMonitor:
 
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    nm = NodeMonitor(mock_email_bot)
+    nm = NodeMonitor(mock_email_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -41,36 +64,13 @@ class TestNodeMonitor:
 
 
 
-# Set up a mock database so that we can test the broadcast() function
-# without needing to access a database. This (temporarily) uses Allusion's 
-# node-provider-id (principal) on our test data stored in 'data/'
-# TODO: expand these tests to work on all nodes, not just Allusion's nodes 
-# (currently all data in the 'data/' directory is filtered to only contain
-# Allusion's nodes)
-
-mock_node_provider_db = Mock(spec=NodeProviderDB)
-mock_node_provider_db.get_email_recipients.return_value = \
-    ['test_recipient@gmail.com']
-mock_node_provider_db.get_subscribers.return_value = \
-    ['rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae']
-mock_node_provider_db.get_preferences.return_value = \
-    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
-     {'notify_email': True,
-      'notify_slack': False,
-      'notify_telegram_chat': False,
-      'notify_telegram_channel': False}}
-mock_node_provider_db.get_node_labels.return_value = \
-    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
-        'an1-abcd'}
-
-
 
 
 def test_control():
     """Test the control case. No nodes down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    nm = NodeMonitor(mock_email_bot)
+    nm = NodeMonitor(mock_email_bot, mock_node_provider_db)
     nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -94,8 +94,7 @@ def test_one_node_bounce():
     Should not result in a false positive."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    nm = NodeMonitor(mock_email_bot)
-    nm.node_provider_db = mock_node_provider_db
+    nm = NodeMonitor(mock_email_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['one_node_down'])
     nm._resync(cached['control'])
@@ -117,8 +116,7 @@ def test_two_nodes_down():
     """Test the case where two nodes truly go down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
-    nm = NodeMonitor(mock_email_bot)
-    nm.node_provider_db = mock_node_provider_db
+    nm = NodeMonitor(mock_email_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
     nm._resync(cached['two_nodes_down'])
