@@ -54,7 +54,7 @@ def test_send_emails_network():
         status = 'fake_status',
         subnet_id = 'fake_subnet_id',
     )
-    fakelabel = {'fake_node_provider_id': 'fake_label'}
+    fakelabel = {'fake_node_id': 'fake_label'}
 
     ## Init the authenticated email bot instance
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)

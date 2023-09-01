@@ -24,7 +24,7 @@ def detailnodes(nodes: List[ic_api.Node],
     """Runs detailnode on each node in nodes and returns a string of the
     results, separated by newlines.
     """
-    msgs = [detailnode(node, labels[node.node_provider_id]) for node in nodes]
+    msgs = [detailnode(node, labels[node.node_id]) for node in nodes]
     return '\n'.join(msgs)
 
 
