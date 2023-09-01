@@ -96,8 +96,7 @@ class NodeProviderDB:
             database=self.db,
             user=self.username,
             password=self.password,
-            port=self.port
-        )
+            port=self.port)
 
 
     def disconnect(self) -> None:
@@ -147,8 +146,7 @@ class NodeProviderDB:
             notify_email: bool, notify_slack: bool, notify_telegram_chat: bool,
             notify_telegram_channel: bool) -> None:
         """Inserts a subscriber into the subscribers table. Overwrites if
-        subscriber already exists.
-        """
+        subscriber already exists."""
         query = """
             INSERT INTO subscribers (
                 node_provider_id,
@@ -243,8 +241,7 @@ class NodeProviderDB:
         """
         values = (
             node_provider_id,
-            email_address
-        )
+            email_address)
         self.connect()
         assert self.conn is not None
         with self.conn.cursor() as cur:
@@ -307,8 +304,7 @@ class NodeProviderDB:
             node_provider_id,
             slack_channel_name,
             telegram_chat_id,
-            telegram_channel_id,
-        )
+            telegram_channel_id)
         self.connect()
         assert self.conn is not None
         with self.conn.cursor() as cur:
@@ -359,6 +355,7 @@ class NodeProviderDB:
         with self.conn.cursor() as cur:
             cur.execute(query, values)
         self.disconnect()
+    
     
     def _delete_node_label(self, node_id: Principal) -> None:
         """Deletes a node label from the node_label_lookup table."""
