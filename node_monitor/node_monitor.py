@@ -61,10 +61,6 @@ class NodeMonitor:
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
         for node_provider_id, nodes in self.actionables.items():
-            # - - - - - - - - - - - - - - - - -
-            def _represent(nodes: List[ic_api.Node]) -> str:
-                # TODO: Move this into its own helper function
-                return ', '.join([node.node_id for node in nodes])
             preferences = subscribers[node_provider_id]
             subject = f"""Node Down Alert"""
             msg = messages.nodes_down_message(nodes, node_labels)
