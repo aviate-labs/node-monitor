@@ -23,10 +23,6 @@ class NodeProviderDB:
     4. node_label_lookup:
         Table for keeping track of which custom node labels are associated with 
         which node_id (individual node machine principals).
-
-    Prefer directly inserting into the tables over using the
-    'insert' and 'delete' methods in this class. These methods are primarily
-    used for programmatic testing.
     """
 
     # TABLE subscribers
