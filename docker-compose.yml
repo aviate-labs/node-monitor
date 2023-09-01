@@ -11,8 +11,5 @@ services:
       - "80:80"
     volumes:
       - type: bind
-        source: tmp_prod_db.json
-        target: /app/tmp_prod_db.json
-      - type: bind
         source: .env
         target: /app/.env
