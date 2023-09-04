@@ -36,7 +36,7 @@ mock_node_provider_db.get_emails_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      ['test_recipient@gmail.com']}
 mock_node_provider_db.get_channels.return_value = [
-    ('rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 'general_channel', '@slackChannel123', '@telegramChat456'),
+    (1, 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', '#node-monitor', '@slackChannel123', '@telegramChat456'),
 ]
 
 
@@ -126,7 +126,6 @@ def test_two_nodes_down():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    # mock_slack_bot = Mock(spec=SlackBot)
     nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
@@ -143,4 +142,6 @@ def test_two_nodes_down():
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
     mock_node_provider_db.reset_mock()
+
+
 
