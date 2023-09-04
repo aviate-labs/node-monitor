@@ -28,8 +28,8 @@ mock_node_provider_db.get_subscribers_as_dict.return_value = \
       'notify_on_status_change': True,
       'notify_email': True,
       'notify_slack': True,
-      'notify_telegram_chat': False,
-      'notify_telegram_channel': False}}
+      'notify_telegram_chat': True,
+      'notify_telegram_channel': True}}
 mock_node_provider_db.get_node_labels_as_dict.return_value = \
     {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae': 'dummy-node-label-1',
      'clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae': 'dummy-node-label-2'}
@@ -37,7 +37,7 @@ mock_node_provider_db.get_emails_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      ['test_recipient@gmail.com']}
 mock_node_provider_db.get_channels.return_value = [
-    (1, 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', '#node-monitor', '@slackChannel123', '@telegramChat456'),
+    (1, 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', '#node-monitor', '5734534558', '-1001925583150'),
 ]
 
 
@@ -149,6 +149,29 @@ def test_two_nodes_down():
     assert mock_telgram_bot.send_message_to_chat.call_count == 1
     assert mock_telgram_bot.send_message_to_channel.call_count == 1
     mock_node_provider_db.reset_mock()
+
+
+@pytest.mark.skip(reason="sends live message")
+def test_two_nodes_down_live_message():
+    """Test the case where two nodes truly go down."""
+    # init
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = SlackBot(c.TOKEN_SLACK)
+    mock_telgram_bot = TelegramBot(c.TOKEN_TELEGRAM)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, mock_slack_bot, mock_telgram_bot)
+    nm._resync(cached['control'])
+    nm._resync(cached['two_nodes_down'])
+    nm._resync(cached['two_nodes_down'])
+
+    # test _analyze()
+    nm._analyze()
+    assert len(nm.compromised_nodes) == 2
+    assert len(nm.compromised_nodes_by_provider) == 1
+    assert len(nm.actionables) == 1
+
+    # test broadcast()
+    nm.broadcast()
+
 
 
 

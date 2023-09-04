@@ -76,8 +76,14 @@ class NodeMonitor:
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
+
             slack_channel = channels.get_channel_by_node_provider_id(
                 all_channels, node_provider_id, 2)
+            telegram_chat_id = channels.get_channel_by_node_provider_id(
+                all_channels, node_provider_id, 3)
+            telegram_channel_id = channels.get_channel_by_node_provider_id(
+                all_channels, node_provider_id, 4)
+            
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
@@ -87,12 +93,12 @@ class NodeMonitor:
             if (preferences['notify_telegram_chat'] == True and 
                     self.telegram_bot is not None):
                 self.telegram_bot.send_message_to_chat(
-                    chan['telegram_chat_id'], msg
+                    telegram_chat_id, msg
                 )
             if (preferences['notify_telegram_channel'] == True and
                     self.telegram_bot is not None):
                 self.telegram_bot.send_message_to_channel(
-                    chan['telegram_channel_id'], msg
+                    telegram_channel_id, msg
                 )
             # - - - - - - - - - - - - - - - - -
 
