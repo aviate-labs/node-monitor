@@ -2,10 +2,13 @@ import pytest
 import node_monitor.ic_api as ic_api
 
 
-## Usage to actually send emails:
+## Options usage:
 ##   -s is to print to stdout
 ##   --send_emails is a custom flag to send live emails
+##   --db is a custom flag to test CRUD operations on the database
 ## example: pytest -s --send_emails tests/test_bot_email.py
+## example: pytest -s --db tests/test_node_provider_db.py
+
 
 
 def pytest_addoption(parser):
@@ -13,22 +16,33 @@ def pytest_addoption(parser):
         "--send_emails",
         action="store_true",
         default=False,
-        help="send actual emails over the network to a test inbox"
-    )
+        help="send actual emails over the network to a test inbox")
+    parser.addoption(
+        "--db",
+        action="store_true",
+        default=False,
+        help="test CRUD operations on the database")
 
 def pytest_configure(config):
     config.addinivalue_line(
         "markers", "live_email: test sends a live email over the network")
+    config.addinivalue_line(
+        "markers", "db: test CRUD operations on the database")
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--send_emails"):
-        # --send_emails given in cli: do not skip live_email tests
-        return
-    skip_live_email = pytest.mark.skip(reason="need --send_emails option to run")
-    for item in items:
-        if "live_email" in item.keywords:
-            item.add_marker(skip_live_email)
+    # if the --db flag is not given in cli: skip db tests
+    # if the --send_emails flag is not given in cli: skip live_email tests
+    if not config.getoption("--db"):
+        skip_db = pytest.mark.skip(reason="need --db option to run")
+        for item in items:
+            if "db" in item.keywords:
+                item.add_marker(skip_db)
+    if not config.getoption("--send_emails"):
+        skip_live_email = pytest.mark.skip(reason="need --send_emails option to run")
+        for item in items:
+            if "live_email" in item.keywords:
+                item.add_marker(skip_live_email)
 
 
 

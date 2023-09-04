@@ -8,17 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # TODO: remove this when the database implementation changes
-      - name: Create fake temp_prod_db.json file
-        run: |
-          touch tmp_prod_db.json
-          echo "{}" >> tmp_prod_db.json
 
       - name: Create fake .env file to pass assertions
         run: |
           touch .env
           echo "EMAIL_USERNAME=test@email.com" >> .env
           echo "EMAIL_PASSWORD=testPassword" >> .env
+          echo "DB_HOST=testDBHost" >> .env
+          echo "DB_NAME=testDBName" >> .env
+          echo "DB_USERNAME=testDBUsername" >> .env
+          echo "DB_PASSWORD=testDBPassword" >> .env
+          echo "DB_PORT=010101" >> .env
 
 
       - name: Build and Test Docker Container
