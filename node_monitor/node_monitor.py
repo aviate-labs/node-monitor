@@ -62,16 +62,23 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
+        channels = self.node_provider_db.get_channels()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
+
+            for row in channels:
+                if row[0] == node_provider_id:
+                    # Access the 'slack_channel_name' element in the tuple (assuming it's the second element, i.e., row[1])
+                    slack_channel_name = row[1]
+                    break
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
-                self.slack_bot.send_message(chan['slack_channel_name'], msg)
+                self.slack_bot.send_message(slack_channel_name, msg)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
