@@ -10,6 +10,8 @@ from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
+import node_monitor.node_monitor_helpers.messages as messages
+import node_monitor.node_monitor_helpers.channels as channels
 
 Seconds = int
 sync_interval: Seconds = 60 * 4
@@ -18,14 +20,15 @@ Principal = str
 class NodeMonitor:
 
     def __init__(
-            self, 
+            self,
+            node_provider_db: NodeProviderDB, 
             email_bot: EmailBot, 
             slack_bot: Optional[SlackBot] = None,
-            telegram_bot: Optional[TelegramBot] = None
+            telegram_bot: Optional[TelegramBot] = None, 
         ) -> None:
         """NodeMonitor is a class that monitors the status of the nodes."""
         self.email_bot = email_bot
-        self.node_provider_db = NodeProviderDB()
+        self.node_provider_db = node_provider_db
         self.slack_bot = slack_bot
         self.telegram_bot = telegram_bot
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
@@ -57,40 +60,36 @@ class NodeMonitor:
         self.compromised_nodes = get_compromised_nodes(self.snapshots)
         self.compromised_nodes_by_provider = \
             groupby(lambda node: node.node_provider_id, self.compromised_nodes)
-        subscribers = self.node_provider_db.get_subscribers()
+        subscriber_ids = self.node_provider_db.get_subscribers_as_dict().keys()
         self.actionables = {k: v for k, v
                             in self.compromised_nodes_by_provider.items()
-                            if k in subscribers}
+                            if k in subscriber_ids}
     
 
     def broadcast(self) -> None:
         """Broadcast relevant information to the appropriate channels."""
-        preferences = self.node_provider_db.get_preferences()
-        channels = self.node_provider_db.get_channel_details()
-        labels = self.node_provider_db.get_node_labels()
+        subscribers = self.node_provider_db.get_subscribers_as_dict()
+        node_labels = self.node_provider_db.get_node_labels_as_dict()
+        email_recipients = self.node_provider_db.get_emails_as_dict()
+        all_channels = self.node_provider_db.get_channels()
         for node_provider_id, nodes in self.actionables.items():
+            preferences = subscribers[node_provider_id]
+            subject = f"Node Down Alert"
+            msg = messages.nodes_down_message(nodes, node_labels)
+            slack_channel = channels.get_channel_by_node_provider_id(
+                all_channels, node_provider_id, 2)
             # - - - - - - - - - - - - - - - - -
-            def _represent(nodes: List[ic_api.Node]) -> str:
-                # TODO: Move this into its own helper function
-                return ', '.join([node.node_id for node in nodes])
-            pref = preferences[node_provider_id]
-            chan = channels[node_provider_id]
-            subject = f"""Node Down Alert"""
-            msg = f"""The following nodes are down: {_represent(nodes)}"""
-            # - - - - - - - - - - - - - - - - -
-            
-            if pref['notify_email'] == True:
-                recipients = \
-                    self.node_provider_db.get_email_recipients(node_provider_id)
+            if preferences['notify_email'] == True:
+                recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
-            if (pref['notify_slack'] == True and self.slack_bot is not None):
-                self.slack_bot.send_message(chan['slack_channel_name'], msg)
-            if (pref['notify_telegram_chat'] == True and 
+            if (preferences['notify_slack'] == True and self.slack_bot is not None):
+                self.slack_bot.send_message(slack_channel, msg)
+            if (preferences['notify_telegram_chat'] == True and 
                     self.telegram_bot is not None):
                 self.telegram_bot.send_message_to_chat(
                     chan['telegram_chat_id'], msg
                 )
-            if (pref['notify_telegram_channel'] == True and
+            if (preferences['notify_telegram_channel'] == True and
                     self.telegram_bot is not None):
                 self.telegram_bot.send_message_to_channel(
                     chan['telegram_channel_id'], msg
