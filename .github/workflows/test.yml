@@ -1,0 +1,25 @@
+name: Test & Check
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+
+      - name: Create fake .env file to pass assertions
+        run: |
+          touch .env
+          echo "EMAIL_USERNAME=test@email.com" >> .env
+          echo "EMAIL_PASSWORD=testPassword" >> .env
+          echo "DB_HOST=testDBHost" >> .env
+          echo "DB_NAME=testDBName" >> .env
+          echo "DB_USERNAME=testDBUsername" >> .env
+          echo "DB_PASSWORD=testDBPassword" >> .env
+          echo "DB_PORT=010101" >> .env
+
+
+      - name: Build and Test Docker Container
+        run: TEST=true docker compose up --build --exit-code-from node_monitor
