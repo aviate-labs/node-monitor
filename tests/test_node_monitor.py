@@ -132,3 +132,24 @@ def test_two_nodes_down():
     assert mock_email_bot.send_emails.call_count == 1
     mock_node_provider_db.reset_mock()
 
+
+def test_one_new_node_online():
+    """Test the case where one new node comes online."""
+    # init
+    mock_email_bot = Mock(spec=EmailBot)
+    nm = NodeMonitor(mock_email_bot, mock_node_provider_db)
+    nm._resync(cached['one_node_removed'])
+    nm._resync(cached['one_node_removed'])
+    nm._resync(cached['control'])
+
+    # test _analyze()
+    nm._analyze()
+    assert len(nm.compromised_nodes) == 0
+    assert len(nm.compromised_nodes_by_provider) == 0
+    assert len(nm.actionables) == 0
+
+    # test broadcast()
+    nm.broadcast()
+    assert mock_email_bot.send_emails.call_count == 0
+    mock_node_provider_db.reset_mock()
+
