@@ -142,6 +142,3 @@ def test_two_nodes_down():
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
     mock_node_provider_db.reset_mock()
-
-
-

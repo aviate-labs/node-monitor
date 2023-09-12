@@ -37,4 +37,3 @@ app = create_server(nm, thread.is_alive)
 if __name__ == "__main__":
     # debug=True will run two instances of the thread
     app.run(debug=False)
-

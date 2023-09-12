@@ -94,4 +94,3 @@ $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
     ```
 
 - Now you have the bot API token and the chat ID, put the bot API token in the `.env` file in the `telegramBotToken` field and the chat ID in the `config.json` file in the `telegramChatId` field.
-

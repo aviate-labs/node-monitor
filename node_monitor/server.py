@@ -24,4 +24,3 @@ def create_server(
     # - - - - - -
 
     return app
-

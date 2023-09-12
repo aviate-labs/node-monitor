@@ -13,7 +13,3 @@ class SlackBot:
                 f"Error occurred while sending Slack message. "
                 f"Check the name of the Slack channel and/or bot API token is correct"
             )
-
-
-
-

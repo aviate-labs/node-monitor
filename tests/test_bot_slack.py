@@ -36,6 +36,3 @@ def test_send_message_slack():
             raise AssertionError(f"An exception occurred: {e}")
 
         mock_print.assert_not_called()
-
-
-

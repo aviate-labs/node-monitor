@@ -38,4 +38,3 @@ def get_channel_by_node_provider_id(
             else:
                 return ""
     return ""
-
