@@ -9,6 +9,5 @@ types-requests
 slack_sdk
 devtools
 pytest
-pytest-mock
 psycopg2-binary
 types-psycopg2
