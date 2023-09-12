@@ -27,4 +27,15 @@ def test_send_message_slack():
     slack_channel_name = "#node-monitor"
     message = "Hello from test_send_message_slack()"
 
-    slack_bot.send_message(slack_channel_name, message)
+    # Checks if a print statement is called within send_message().
+    # If it is called the test fails.
+    with patch('builtins.print') as mock_print:
+        try:
+            slack_bot.send_message(slack_channel_name, message)
+        except Exception as e:
+            raise AssertionError(f"An exception occurred: {e}")
+
+        mock_print.assert_not_called()
+
+
+
