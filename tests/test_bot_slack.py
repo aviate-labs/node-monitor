@@ -1,7 +1,7 @@
 import pytest
 import node_monitor.load_config as c
 from node_monitor.bot_slack import SlackBot  
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 @patch("slack_sdk.WebClient")
 def test_send_message(mock_web_client):
@@ -19,7 +19,7 @@ def test_send_message(mock_web_client):
     )
 
 
-@pytest.mark.live_email
+@pytest.mark.live_slack
 def test_send_message_slack():
     """Send real messages to a test Slack workspace"""
     slack_bot = SlackBot(c.TOKEN_SLACK)
