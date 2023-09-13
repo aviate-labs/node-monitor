@@ -45,6 +45,8 @@ def get_compromised_nodes(snapshots: Deque[ic_api.Nodes]) -> List[ic_api.Node]:
     # collect downed nodes
     compromised_nodes = []
     for node_id in ci.keys():
+        # if the node just came online in c, skip it to avoid IndexError
+        if node_id not in ai or node_id not in bi: continue
         node_a = ai[node_id]
         node_b = bi[node_id]
         node_c = ci[node_id]
