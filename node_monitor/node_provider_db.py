@@ -117,6 +117,18 @@ class NodeProviderDB:
             cur.execute(self.create_table_channel_lookup)
             cur.execute(self.create_table_node_label_lookup)
         self.disconnect()
+    
+
+    def _test_col_names(self, table_name: str, cols: List[str]) -> None:
+        query = f"SELECT * FROM {table_name}"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            column_names = [desc[0] for desc in cur.description]
+        self.disconnect()
+        assert column_names == cols
+
 
 
     def get_public_schema_tables(self) -> List[str]:
@@ -208,19 +220,8 @@ class NodeProviderDB:
         cols = \
             ['node_provider_id', 'notify_on_status_change', 'notify_email',
             'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
-        # TODO: Move this into a test - - - - - - - -
-        # make sure the column names are always up to date
-        def _test_col_names() -> None:
-            query = "SELECT * FROM subscribers"
-            self.connect()
-            assert self.conn is not None
-            with self.conn.cursor() as cur:
-                cur.execute(query)
-                column_names = [desc[0] for desc in cur.description]
-            self.disconnect()
-            assert column_names == cols
-        _test_col_names()
-        # END test - - - - - - - - - 
+        self._test_col_names("subscribers", cols)
+
         subs = self.get_subscribers()
         subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
         return subscribers_dict
@@ -344,25 +345,12 @@ class NodeProviderDB:
         node provider ID in the channel_lookup table, 
         even if there are duplicates.
         """
-
         cols = \
             ['id', 'node_provider_id', 'slack_channel_name', 
              'telegram_chat_id', 'telegram_channel_id']
-        # TODO: Move this into a test - - - - - - - -
-        # make sure the column names are always up to date
-        def _test_col_names() -> None:
-            query = "SELECT * FROM channel_lookup"
-            self.connect()
-            assert self.conn is not None
-            with self.conn.cursor() as cur:
-                cur.execute(query)
-                column_names = [desc[0] for desc in cur.description]
-            self.disconnect()
-            assert column_names == cols
-        _test_col_names()
-        # END test - - - - - - - - - 
-        chans = self.get_channels()
+        self._test_col_names("channel_lookup", cols)
 
+        chans = self.get_channels()
         channels_dict = {}
         for row in chans:
             node_provider_id = row[1]
