@@ -35,9 +35,14 @@ mock_node_provider_db.get_node_labels_as_dict.return_value = \
 mock_node_provider_db.get_emails_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
      ['test_recipient@gmail.com']}
-mock_node_provider_db.get_channels.return_value = [
-    (1, 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', '#node-monitor', '@slackChannel123', '@telegramChat456'),
-]
+mock_node_provider_db.get_channels_as_dict.return_value = \
+    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
+     {'id': 1, 
+      'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 
+      'slack_channel_name': '#node-monitor', 
+      'telegram_chat_id' : '@slackChannel123', 
+      'telegram_channel_id': '@telegramChat456'} }
+
 
 
 

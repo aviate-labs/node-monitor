@@ -10,7 +10,6 @@ from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 import node_monitor.node_monitor_helpers.messages as messages
-import node_monitor.node_monitor_helpers.channels as channels
 
 Seconds = int
 sync_interval: Seconds = 60 * 4
@@ -63,19 +62,18 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
-        all_channels = self.node_provider_db.get_channels()
+        channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
-            slack_channel = channels.get_channel_by_node_provider_id(
-                all_channels, node_provider_id, 2)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
-                self.slack_bot.send_message(slack_channel, msg)
+                self.slack_bot.send_message(
+                    channels[node_provider_id]['slack_channel_name'], msg)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
