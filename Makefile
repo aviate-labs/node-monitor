@@ -25,5 +25,6 @@ prod:
 # We're using eventlet because otherwise we get timeouts in the default
 # sync worker, which causes gunicorn to timeout and restart the app, 
 # resetting any internal state. See:
+# https://docs.gunicorn.org/en/stable/design.html
 # https://github.com/benoitc/gunicorn/issues/1801#issuecomment-585886471
 # https://stackoverflow.com/questions/15463067/gunicorn-worker-timeout
