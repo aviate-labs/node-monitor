@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional, Tuple
-import psycopg2
+import psycopg2, psycopg2.extensions
 from toolz import groupby # type: ignore
 
 
@@ -85,7 +85,7 @@ class NodeProviderDB:
         self.username = username
         self.password = password
         self.port = port
-        self.conn: Optional[psycopg2.connection] = None
+        self.conn: Optional[psycopg2.extensions.connection] = None
         self._create_tables()
 
 
@@ -125,6 +125,7 @@ class NodeProviderDB:
         assert self.conn is not None
         with self.conn.cursor() as cur:
             cur.execute(query)
+            assert cur.description is not None
             column_names = [desc[0] for desc in cur.description]
         self.disconnect()
         assert column_names == cols
@@ -220,6 +221,7 @@ class NodeProviderDB:
         cols = \
             ['node_provider_id', 'notify_on_status_change', 'notify_email',
             'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
+
         self._test_col_names("subscribers", cols)
 
         subs = self.get_subscribers()
@@ -348,6 +350,7 @@ class NodeProviderDB:
         cols = \
             ['id', 'node_provider_id', 'slack_channel_name', 
              'telegram_chat_id', 'telegram_channel_id']
+        
         self._test_col_names("channel_lookup", cols)
 
         chans = self.get_channels()
