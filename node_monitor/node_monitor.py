@@ -83,16 +83,18 @@ class NodeMonitor:
 
 
     def broadcast_status_report(self) -> None:
-        """Sends a Node Status Report to all Node Providers through
-        email. To be triggered once daily."""
-        subscribers = self.node_provider_db.get_subscribers()
-        for node_provider_id in subscribers:
-            recipients = \
-                self.node_provider_db.get_email_recipients(node_provider_id)
-            subject = f"""Node Status Report"""
-            msg = f"""Not Yet Implemented"""
-            self.email_bot.send_emails(recipients, subject, msg)
-
+        """Broadcasts a Node Status Report to all Node Providers."""
+        subscribers = self.node_provider_db.get_subscribers_as_dict()
+        email_recipients = self.node_provider_db.get_emails_as_dict()
+        for node_provider_id in subscribers.keys():
+            preferences = subscribers[node_provider_id]
+            subject = f"Node Status Report"
+            msg = f"Not Yet Implemented"
+            # - - - - - - - - - - - - - - - - -
+            if preferences['notify_email'] == True:
+                recipients = email_recipients[node_provider_id]
+                self.email_bot.send_emails(recipients, subject, msg)
+            # - - - - - - - - - - - - - - - - -
 
 
     def step(self) -> None:
