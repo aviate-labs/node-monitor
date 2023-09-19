@@ -87,6 +87,11 @@ def test_control():
     assert mock_email_bot.send_emails.call_count == 0
     mock_node_provider_db.reset_mock()
 
+    # test broadcast_status_report()
+    nm.broadcast_status_report()
+    assert mock_email_bot.send_emails.call_count == 1
+    mock_node_provider_db.reset_mock()
+
 
 
 def test_one_node_bounce():
@@ -131,6 +136,7 @@ def test_two_nodes_down():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     mock_node_provider_db.reset_mock()
+
 
 
 def test_one_new_node_online():
