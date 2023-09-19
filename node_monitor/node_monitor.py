@@ -57,8 +57,8 @@ class NodeMonitor:
                             if k in subscriber_ids}
     
 
-    def broadcast(self) -> None:
-        """Broadcast relevant information to the appropriate channels."""
+    def broadcast_alerts(self) -> None:
+        """Broadcast relevant alerts to the appropriate channels."""
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
@@ -104,7 +104,7 @@ class NodeMonitor:
         # - - - - - - - - - - - - - - - - -
         self._resync()
         self._analyze()
-        self.broadcast()
+        self.broadcast_alerts()
         if do_broadcast_status_report:
             self.broadcast_status_report()
             self.last_status_report = time.time()

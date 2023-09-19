@@ -82,8 +82,8 @@ def test_control():
     assert len(nm.compromised_nodes_by_provider) == 0
     assert len(nm.actionables) == 0
 
-    # test broadcast()
-    nm.broadcast()
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     mock_node_provider_db.reset_mock()
 
@@ -105,8 +105,8 @@ def test_one_node_bounce():
     assert len(nm.compromised_nodes_by_provider) == 0
     assert len(nm.actionables) == 0
 
-    # test broadcast()
-    nm.broadcast()
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     mock_node_provider_db.reset_mock()
 
@@ -127,8 +127,8 @@ def test_two_nodes_down():
     assert len(nm.compromised_nodes_by_provider) == 1
     assert len(nm.actionables) == 1
 
-    # test broadcast()
-    nm.broadcast()
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     mock_node_provider_db.reset_mock()
 
@@ -148,8 +148,8 @@ def test_one_new_node_online():
     assert len(nm.compromised_nodes_by_provider) == 0
     assert len(nm.actionables) == 0
 
-    # test broadcast()
-    nm.broadcast()
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     mock_node_provider_db.reset_mock()
 
