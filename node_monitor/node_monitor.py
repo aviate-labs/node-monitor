@@ -11,9 +11,9 @@ from node_monitor.node_monitor_helpers.get_compromised_nodes import \
 import node_monitor.node_monitor_helpers.messages as messages
 
 Seconds = int
+Principal = str
 sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
 status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
-Principal = str
 
 class NodeMonitor:
 
@@ -98,10 +98,14 @@ class NodeMonitor:
 
 
     def step(self) -> None:
+        seconds_since_epoch = time.time()
+        do_broadcast_status_report: bool = seconds_since_epoch >= \
+            (self.last_status_report + status_report_interval)
+        # - - - - - - - - - - - - - - - - -
         self._resync()
         self._analyze()
         self.broadcast()
-        if (self.last_status_report + status_report_interval) <= time.time():
+        if do_broadcast_status_report:
             self.broadcast_status_report()
             self.last_status_report = time.time()
 
