@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional, Tuple
-import psycopg2
+import psycopg2, psycopg2.extensions
 from toolz import groupby # type: ignore
 
 
@@ -85,7 +85,7 @@ class NodeProviderDB:
         self.username = username
         self.password = password
         self.port = port
-        self.conn: Optional[psycopg2.connection] = None
+        self.conn: Optional[psycopg2.extensions.connection] = None
         self._create_tables()
 
 
@@ -216,6 +216,7 @@ class NodeProviderDB:
             assert self.conn is not None
             with self.conn.cursor() as cur:
                 cur.execute(query)
+                assert cur.description is not None
                 column_names = [desc[0] for desc in cur.description]
             self.disconnect()
             assert column_names == cols

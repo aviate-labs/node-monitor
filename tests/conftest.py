@@ -48,7 +48,8 @@ def pytest_collection_modifyitems(config, items):
 
 ## Create mock data for testing
 ## Data was pulled from the ic-api using cURL and stored in json files.
-## This is data only from nodes with aviate labs provider id
+## Example: $ curl "https://ic-api.internetcomputer.org/api/v3/nodes" -o t0.json
+## This is data only from nodes with the Allusion node provider id
 ## TODO: Update this data set to reflect multiple node providers
 cached = {
     "control":                ic_api.get_nodes_from_file("data/t0.json"),
