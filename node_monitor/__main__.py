@@ -12,9 +12,9 @@ import node_monitor.load_config as c
 ## Objects are passed by reference, so we can pass around the NodeMonitor
 ## instance and work on the same data in different functions/threads
 email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
+slack_bot = SlackBot(c.TOKEN_SLACK)
 node_provider_db = NodeProviderDB(
     c.DB_HOST, c.DB_NAME, c.DB_USERNAME, c.DB_PASSWORD, c.DB_PORT)
-slack_bot = SlackBot(c.TOKEN_SLACK)
 nm = NodeMonitor(email_bot, slack_bot, node_provider_db)
 
 
