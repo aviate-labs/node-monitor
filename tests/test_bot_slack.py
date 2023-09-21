@@ -15,8 +15,7 @@ def test_send_message(mock_web_client):
 
     mock_client.chat_postMessage.assert_called_once_with(
         channel=expected_channel,
-        text=expected_message,
-    )
+        text=expected_message)
 
 
 @pytest.mark.live_slack

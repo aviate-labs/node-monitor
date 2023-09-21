@@ -101,8 +101,8 @@ class NodeMonitor:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
-                self.slack_bot.send_message(
-                    channels[node_provider_id]['slack_channel_name'], msg)
+                channel_name = channels[node_provider_id]['slack_channel_name']
+                self.slack_bot.send_message(channel_name, msg)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
