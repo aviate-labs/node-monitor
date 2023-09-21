@@ -18,7 +18,9 @@ status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
 
 class NodeMonitor:
 
-    def __init__(self, email_bot: EmailBot, slack_bot: SlackBot, node_provider_db: NodeProviderDB) -> None:
+    def __init__(
+            self, email_bot: EmailBot,slack_bot: SlackBot, 
+            node_provider_db: NodeProviderDB) -> None:
         """NodeMonitor is a class that monitors the status of the nodes.
         It is responsible for syncing the nodes from the ic-api, analyzing
         the nodes, and broadcasting alerts to the appropriate channels.
