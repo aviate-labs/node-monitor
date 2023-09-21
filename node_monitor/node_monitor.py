@@ -42,8 +42,8 @@ class NodeMonitor:
                 subscribed to alerts.
         """
         self.email_bot = email_bot
-        self.node_provider_db = node_provider_db
         self.slack_bot = slack_bot
+        self.node_provider_db = node_provider_db
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.last_status_report: float = 0
