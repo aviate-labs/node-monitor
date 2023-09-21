@@ -119,7 +119,10 @@ class NodeProviderDB:
         self.disconnect()
     
 
-    def _test_col_names(self, table_name: str, cols: List[str]) -> None:
+    def _validate_col_names(self, table_name: str, cols: List[str]) -> None:
+        """Validates that the actual column names in the table match the 
+        expected column names defined in the program. Useful for testing."""
+        # TODO: Move this to a separate test file
         query = f"SELECT * FROM {table_name}"
         self.connect()
         assert self.conn is not None
@@ -128,7 +131,7 @@ class NodeProviderDB:
             assert cur.description is not None
             column_names = [desc[0] for desc in cur.description]
         self.disconnect()
-        assert column_names == cols
+        assert column_names == cols, "Column names do not match expected names."
 
 
 
@@ -221,9 +224,7 @@ class NodeProviderDB:
         cols = \
             ['node_provider_id', 'notify_on_status_change', 'notify_email',
             'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
-
-        self._test_col_names("subscribers", cols)
-
+        self._validate_col_names("subscribers", cols)
         subs = self.get_subscribers()
         subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
         return subscribers_dict
@@ -350,9 +351,7 @@ class NodeProviderDB:
         cols = \
             ['id', 'node_provider_id', 'slack_channel_name', 
              'telegram_chat_id', 'telegram_channel_id']
-        
-        self._test_col_names("channel_lookup", cols)
-
+        self._validate_col_names("channel_lookup", cols)
         chans = self.get_channels()
         channels_dict = {}
         for row in chans:
