@@ -141,8 +141,8 @@ def test_channel_lookup_crud():
 
     channels = node_provider_db.get_channels_as_dict()
     assert channels['test-dummy-principal-1'] == \
-        {'node_provider_id': 'test-dummy-principal-1', 'slack_channel_name': 'dummy-slack-channel-1', 
-         'telegram_chat_id': 'dummy-telegram-chat-1', 'telegram_channel_id': 'dummy-telegram-channel-1'}
+        {'node_provider_id': 'test-dummy-principal-1', 'slack_channel_name': 'dummy-slack-channel-3', 
+         'telegram_chat_id': 'dummy-telegram-chat-3', 'telegram_channel_id': 'dummy-telegram-channel-3'}
     assert channels['test-dummy-principal-2'] == \
         {'node_provider_id': 'test-dummy-principal-2', 'slack_channel_name': 'dummy-slack-channel-2', 
          'telegram_chat_id': 'dummy-telegram-chat-2', 'telegram_channel_id': 'dummy-telegram-channel-2'}

@@ -221,9 +221,9 @@ class NodeProviderDB:
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
         """Returns the table of all subscribers as a dictionary."""
-        cols = \
-            ['node_provider_id', 'notify_on_status_change', 'notify_email',
-            'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
+        cols = ['node_provider_id', 'notify_on_status_change',
+                'notify_email', 'notify_slack',
+                'notify_telegram_chat', 'notify_telegram_channel']
         self._validate_col_names("subscribers", cols)
         subs = self.get_subscribers()
         subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
@@ -342,23 +342,16 @@ class NodeProviderDB:
     
     
     def get_channels_as_dict(self) -> Dict[Principal, Dict[str, str]]:
-        """Returns the table of all channels as a dictionary
-
-        Inserts entries into the dictionary based on the first occurrence of a 
-        node provider ID in the channel_lookup table, 
-        even if there are duplicates.
+        """Returns the table of all channels as a dictionary. If there are
+        multiple entries for a node provider ID, only the last entry is kept.
         """
-        cols = \
-            ['id', 'node_provider_id', 'slack_channel_name', 
-             'telegram_chat_id', 'telegram_channel_id']
-        self._validate_col_names("channel_lookup", cols)
-        chans = self.get_channels()
+        columns = ['id', 'node_provider_id', 'slack_channel_name',
+                   'telegram_chat_id', 'telegram_channel_id']
+        self._validate_col_names("channel_lookup", columns)
         channels_dict = {}
-        for row in chans:
+        for row in self.get_channels():
             node_provider_id = row[1]
-            if node_provider_id not in channels_dict:
-                channels_dict[node_provider_id] = dict(zip(cols[1:], row[1:]))
-
+            channels_dict[node_provider_id] = dict(zip(columns[1:], row[1:]))
         return channels_dict
 
 
