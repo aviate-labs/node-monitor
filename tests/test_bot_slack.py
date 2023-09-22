@@ -28,6 +28,9 @@ def test_send_message_slack():
     slack_channel_name = "node-monitor-allusion"
     message = "🔬 Hello from test_send_message_slack()"
 
+    # SlackBot.send_message() returns an error without raising an exception
+    # to prevent NodeMonitor from crashing if the message fails to send.
+    # Instead, we raise it here.
     err = slack_bot.send_message(slack_channel_name, message)
     if err is not None:
         raise err
