@@ -43,7 +43,8 @@ mock_node_provider_db.get_channels_as_dict.return_value = \
       'telegram_chat_id' : '@slackChannel123', 
       'telegram_channel_id': '@telegramChat456'} }
 
-
+# Note that reset_mock() doesn’t clear the return value, side_effect or any 
+# child attributes you have set using normal assignment by default
 
 
 class TestNodeMonitor:
@@ -84,7 +85,6 @@ def test_control():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
-    nm.node_provider_db = mock_node_provider_db
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -98,11 +98,17 @@ def test_control():
     # test broadcast_alerts()
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
+    assert mock_slack_bot.send_message.call_count == 0
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
     # test broadcast_status_report()
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
+    assert mock_slack_bot.send_message.call_count == 1
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
 
@@ -127,6 +133,9 @@ def test_one_node_bounce():
     # test broadcast_alerts()
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
+    assert mock_slack_bot.send_message.call_count == 0
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
 
@@ -151,6 +160,8 @@ def test_two_nodes_down():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
 
@@ -175,5 +186,7 @@ def test_one_new_node_online():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
