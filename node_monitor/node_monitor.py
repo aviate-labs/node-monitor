@@ -27,10 +27,12 @@ class NodeMonitor:
 
         Args:
             email_bot: An instance of EmailBot
+            slack_bot: An instance of SlackBot
             node_provider_db: An instance of NodeProviderDB
 
         Attributes:
             email_bot: An instance of EmailBot
+            slack_bot: An instance of SlackBot
             node_provider_db: An instance of NodeProviderDB
             snapshots: A deque of the last 3 snapshots of the nodes
             last_update: The timestamp of the last time the nodes were synced
