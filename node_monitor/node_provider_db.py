@@ -117,6 +117,22 @@ class NodeProviderDB:
             cur.execute(self.create_table_channel_lookup)
             cur.execute(self.create_table_node_label_lookup)
         self.disconnect()
+    
+
+    def _validate_col_names(self, table_name: str, cols: List[str]) -> None:
+        """Validates that the actual column names in the table match the 
+        expected column names defined in the program. Useful for testing."""
+        # TODO: Move this to a separate test file
+        query = f"SELECT * FROM {table_name}"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            assert cur.description is not None
+            column_names = [desc[0] for desc in cur.description]
+        self.disconnect()
+        assert column_names == cols, "Column names do not match expected names."
+
 
 
     def get_public_schema_tables(self) -> List[str]:
@@ -205,23 +221,10 @@ class NodeProviderDB:
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
         """Returns the table of all subscribers as a dictionary."""
-        cols = \
-            ['node_provider_id', 'notify_on_status_change', 'notify_email',
-            'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel']
-        # TODO: Move this into a test - - - - - - - -
-        # make sure the column names are always up to date
-        def _test_col_names() -> None:
-            query = "SELECT * FROM subscribers"
-            self.connect()
-            assert self.conn is not None
-            with self.conn.cursor() as cur:
-                cur.execute(query)
-                assert cur.description is not None
-                column_names = [desc[0] for desc in cur.description]
-            self.disconnect()
-            assert column_names == cols
-        _test_col_names()
-        # END test - - - - - - - - - 
+        cols = ['node_provider_id', 'notify_on_status_change',
+                'notify_email', 'notify_slack',
+                'notify_telegram_chat', 'notify_telegram_channel']
+        self._validate_col_names("subscribers", cols)
         subs = self.get_subscribers()
         subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
         return subscribers_dict
@@ -337,6 +340,19 @@ class NodeProviderDB:
         self.disconnect()
         return rows
     
+    
+    def get_channels_as_dict(self) -> Dict[Principal, Dict[str, str]]:
+        """Returns the table of all channels as a dictionary. If there are
+        multiple entries for a node provider ID, only the last entry is kept.
+        """
+        columns = ['id', 'node_provider_id', 'slack_channel_name',
+                   'telegram_chat_id', 'telegram_channel_id']
+        self._validate_col_names("channel_lookup", columns)
+        channels_dict = {}
+        for row in self.get_channels():
+            node_provider_id = row[1]
+            channels_dict[node_provider_id] = dict(zip(columns[1:], row[1:]))
+        return channels_dict
 
 
     ##############################################
@@ -388,3 +404,4 @@ class NodeProviderDB:
         labels = self.get_node_labels()
         node_labels = {row[0]: row[1] for row in labels}
         return node_labels
+
