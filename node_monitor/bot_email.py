@@ -38,4 +38,3 @@ class EmailBot:
                 del email_message['To']
                 email_message['To'] = recipient
                 server.send_message(email_message)
-

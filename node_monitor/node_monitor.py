@@ -5,6 +5,7 @@ from toolz import groupby # type: ignore
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
+from node_monitor.bot_slack import SlackBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
@@ -17,17 +18,21 @@ status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
 
 class NodeMonitor:
 
-    def __init__(self, email_bot: EmailBot, node_provider_db: NodeProviderDB) -> None:
+    def __init__(
+            self, email_bot: EmailBot, slack_bot: SlackBot,
+            node_provider_db: NodeProviderDB) -> None:
         """NodeMonitor is a class that monitors the status of the nodes.
         It is responsible for syncing the nodes from the ic-api, analyzing
         the nodes, and broadcasting alerts to the appropriate channels.
 
         Args:
             email_bot: An instance of EmailBot
+            slack_bot: An instance of SlackBot
             node_provider_db: An instance of NodeProviderDB
 
         Attributes:
             email_bot: An instance of EmailBot
+            slack_bot: An instance of SlackBot
             node_provider_db: An instance of NodeProviderDB
             snapshots: A deque of the last 3 snapshots of the nodes
             last_update: The timestamp of the last time the nodes were synced
@@ -39,6 +44,7 @@ class NodeMonitor:
                 subscribed to alerts.
         """
         self.email_bot = email_bot
+        self.slack_bot = slack_bot
         self.node_provider_db = node_provider_db
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
@@ -87,6 +93,7 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
+        channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
@@ -96,8 +103,8 @@ class NodeMonitor:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                channel_name = channels[node_provider_id]['slack_channel_name']
+                self.slack_bot.send_message(channel_name, msg)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
@@ -116,6 +123,7 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
+        channels = self.node_provider_db.get_channels_as_dict()
         latest_snapshot_nodes = self.snapshots[-1].nodes
         all_nodes_by_provider: Dict[Principal, List[ic_api.Node]] = \
             groupby(lambda node: node.node_provider_id, latest_snapshot_nodes)
@@ -131,6 +139,9 @@ class NodeMonitor:
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
+            if preferences['notify_slack'] == True:
+                channel_name = channels[node_provider_id]['slack_channel_name']
+                self.slack_bot.send_message(channel_name, msg)
             # - - - - - - - - - - - - - - - - -
 
 
