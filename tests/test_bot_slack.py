@@ -25,7 +25,7 @@ def test_send_message_slack():
     """Send a real test message to a Slack workspace"""
     slack_bot = SlackBot(c.TOKEN_SLACK)
     
-    slack_channel_name = "node-monitor-allusion"
+    slack_channel_name = "node-monitor"
     message = "🔬 Hello from test_send_message_slack()"
 
     # SlackBot.send_message() returns an error without raising an exception
