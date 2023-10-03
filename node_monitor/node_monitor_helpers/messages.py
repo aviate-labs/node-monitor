@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
@@ -58,14 +59,30 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Details of Nodes that are currently DOWN:\n"
         f"{detailnodes(nodes_down, labels)}")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    subject = "Node Status Report"
+    def _make_diagnostic_message():
+        match len(nodes_down):
+            case 0: return ""
+            case _: return (f"Details of Nodes that are currently DOWN:\n"
+                            f"{detailnodes(nodes_down, labels)}")
+    def _make_subject():
+        datacenters = {node.dc_id.upper() for node in nodes_down}
+        match len(nodes_down):
+            case 0: return "All Systems Healthy"
+            case _: return "Action Required @ " + ', '.join(sorted(datacenters))
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    diagnostic_message = _make_diagnostic_message()
+    subject = _make_subject()
     message = (
-        f"🩺 Node/s Status Report:\n"
+        f"{diagnostic_message}\n\n"
+        f"🔎 Node/s Status Breakdown:\n"
         f"Total Nodes: {total_nodes}\n"
         f"Nodes Up: {len(nodes_up)}/{total_nodes}\n"
         f"Nodes Down: {len(nodes_down)}/{total_nodes}\n"
         f"Nodes Unassigned: {len(nodes_unassigned)}/{total_nodes}\n"
         f"Nodes Disabled: {len(nodes_disabled)}/{total_nodes}\n"
         f"Nodes Degraded: {len(nodes_degraded)}/{total_nodes}\n\n"
-        f"{diagnostic_message}")
+        f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
+        f"Node Monitor by Aviate Labs.\n"
+        f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
