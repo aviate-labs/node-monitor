@@ -59,12 +59,12 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Details of Nodes that are currently DOWN:\n"
         f"{detailnodes(nodes_down, labels)}")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def _make_diagnostic_message():
+    def _make_diagnostic_message() -> str:
         match len(nodes_down):
             case 0: return ""
             case _: return (f"Details of Nodes that are currently DOWN:\n"
                             f"{detailnodes(nodes_down, labels)}")
-    def _make_subject():
+    def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_down}
         match len(nodes_down):
             case 0: return "All Systems Healthy"
