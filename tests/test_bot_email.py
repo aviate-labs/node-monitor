@@ -23,10 +23,10 @@ def test_send_emails_mock(mock_smtp):
 
     recipients = ['test1@example.com', 'test2@example.com']
     subject = 'Test Subject'
-    body = 'Test Body'
+    message = 'Test Body'
 
     bot = EmailBot('username', 'password')
-    bot.send_emails(recipients, subject, body)
+    bot.send_emails(recipients, subject, message)
 
     assert mock_instance.ehlo.call_count == 2
     assert mock_instance.starttls.call_count == 1
@@ -61,9 +61,9 @@ def test_send_emails_network():
 
     ## Set paramaters (uses an anonymous email inbox for testing)
     recipients = ['nodemonitortest@mailnesia.com']
+    subject, message = messages.nodes_down_message([fakenode], fakelabel)
     subject = str(time.time())
-    body = messages.nodes_down_message([fakenode], fakelabel)
-    email_bot.send_emails(recipients, subject, body)
+    email_bot.send_emails(recipients, subject, message)
 
     ## Automatically check the email inbox
     print(f'\nhttps://mailnesia.com/mailbox/nodemonitortest')

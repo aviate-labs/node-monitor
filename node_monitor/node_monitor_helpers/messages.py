@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
 
@@ -30,19 +30,21 @@ def detailnodes(nodes: List[ic_api.Node],
 
 
 def nodes_down_message(nodes: List[ic_api.Node], 
-                       labels: Dict[Principal, str]) -> str:
+                       labels: Dict[Principal, str]) -> Tuple[str, str]:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.
     """
     formatted_nodes_down = detailnodes(nodes, labels)
-    return (
+    subject = "Node Down Alert"
+    message = (
         f"🛑 Node/s Down:\n"
         f"The following nodes are compromised:\n\n"
         f"{formatted_nodes_down}")
+    return (subject, message)
 
 
 def nodes_status_message(nodes: List[ic_api.Node],
-                         labels: Dict[Principal, str]) -> str:
+                         labels: Dict[Principal, str]) -> Tuple[str, str]:
     """Returns a message that describes the status of all nodes, in the
     format of an email or message for a comprable communication channel.
     """
@@ -56,7 +58,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Details of Nodes that are currently DOWN:\n"
         f"{detailnodes(nodes_down, labels)}")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    return (
+    subject = "Node Status Report"
+    message = (
         f"🩺 Node/s Status Report:\n"
         f"Total Nodes: {total_nodes}\n"
         f"Nodes Up: {len(nodes_up)}/{total_nodes}\n"
@@ -65,3 +68,4 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Nodes Disabled: {len(nodes_disabled)}/{total_nodes}\n"
         f"Nodes Degraded: {len(nodes_degraded)}/{total_nodes}\n\n"
         f"{diagnostic_message}")
+    return (subject, message)

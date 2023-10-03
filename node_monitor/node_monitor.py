@@ -96,15 +96,14 @@ class NodeMonitor:
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject = f"Node Down Alert"
-            msg = messages.nodes_down_message(nodes, node_labels)
+            subject, message = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, msg)
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, msg)
+                self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
                 raise NotImplementedError
@@ -133,15 +132,14 @@ class NodeMonitor:
         # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
             preferences = subscribers[node_provider_id]
-            subject = f"Node Status Report"
-            msg = messages.nodes_status_message(nodes, node_labels)
+            subject, message = messages.nodes_status_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, msg)
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, msg)
+                self.slack_bot.send_message(channel_name, message)
             # - - - - - - - - - - - - - - - - -
 
 
