@@ -51,7 +51,7 @@ def test_send_emails_network():
         node_provider_name = 'fake_node_provider_name',
         owner = 'fake_owner',
         region = 'fake_region',
-        status = 'fake_status',
+        status = 'DOWN',
         subnet_id = 'fake_subnet_id',
     )
     fakelabel = {'fake_node_id': 'fake_label'}
@@ -60,14 +60,21 @@ def test_send_emails_network():
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 
     ## Set paramaters (uses an anonymous email inbox for testing)
+    ## Send out nodes_down_message and nodes_status_message. We test both.
+    ## We append time to the subject to act as an identifier for the test.
     recipients = ['nodemonitortest@mailnesia.com']
-    subject, message = messages.nodes_down_message([fakenode], fakelabel)
-    subject = str(time.time())
-    email_bot.send_emails(recipients, subject, message)
+    subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
+    subject1 = str(f'{time.time()} - {subject1}')
+    email_bot.send_emails(recipients, subject1, message1)
+
+    subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
+    subject2 = str(f'{time.time()} - {subject2}')
+    email_bot.send_emails(recipients, subject2, message2)
 
     ## Automatically check the email inbox
     print(f'\nhttps://mailnesia.com/mailbox/nodemonitortest')
-    print(f'Email Subject should match: {subject}')
+    print(f'Email 1 Subject should match: {subject1}')
+    print(f'Email 2 Subject should match: {subject2}')
     print('Checking now... Waiting 10 seconds...')
     time.sleep(10)
 
@@ -75,5 +82,6 @@ def test_send_emails_network():
     url = 'https://mailnesia.com/mailbox/nodemonitortest'
     response = requests.get(url)
     assert response.status_code == 200, "Mailnesia website did not respond."
-    assert re.search(subject, response.text), "The sent email was not received."
+    assert re.search(subject1, response.text), "The nodes_down_message email was not received."
+    assert re.search(subject2, response.text), "The nodes_status_message email was not received."
     print('Email received!')
