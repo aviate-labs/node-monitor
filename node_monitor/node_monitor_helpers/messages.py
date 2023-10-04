@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
 
+# Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
 
 def detailnode(node: ic_api.Node, label: str) -> str:
@@ -69,18 +70,22 @@ def nodes_status_message(nodes: List[ic_api.Node],
         match len(nodes_down):
             case 0: return "All Systems Healthy"
             case _: return "Action Required @ " + ', '.join(sorted(datacenters))
+    def _render_frac(numerator: int, denominator: int) -> str:
+        match numerator:
+            case 0: return "None"
+            case _: return f"{numerator}/{denominator}"
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     diagnostic_message = _make_diagnostic_message()
     subject = _make_subject()
     message = (
         f"{diagnostic_message}\n\n"
         f"🔎 Node/s Status Breakdown:\n"
-        f"Total Nodes: {total_nodes}\n"
-        f"Nodes Up: {len(nodes_up)}/{total_nodes}\n"
-        f"Nodes Down: {len(nodes_down)}/{total_nodes}\n"
-        f"Nodes Unassigned: {len(nodes_unassigned)}/{total_nodes}\n"
-        f"Nodes Disabled: {len(nodes_disabled)}/{total_nodes}\n"
-        f"Nodes Degraded: {len(nodes_degraded)}/{total_nodes}\n\n"
+        f"Total Nodes:      {  total_nodes                                       }\n"
+        f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
+        f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
+        f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
+        f"Nodes Disabled:   {  _render_frac(len(nodes_disabled), total_nodes)    }\n"
+        f"Nodes Degraded:   {  _render_frac(len(nodes_degraded), total_nodes)    }\n\n"
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
