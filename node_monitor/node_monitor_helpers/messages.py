@@ -86,8 +86,13 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
         f"Nodes Disabled:   {  _render_frac(len(nodes_disabled), total_nodes)    }\n"
         f"Nodes Degraded:   {  _render_frac(len(nodes_degraded), total_nodes)    }\n\n"
+        f"{render_footer()}")
+    return (subject, message)
+
+
+def render_footer():
+    return (
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
-    return (subject, message)
