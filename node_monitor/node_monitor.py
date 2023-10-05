@@ -15,7 +15,6 @@ import node_monitor.node_monitor_helpers.messages as messages
 Seconds = int
 Principal = str
 sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
-status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
 
 class NodeMonitor:
 
@@ -155,11 +154,11 @@ class NodeMonitor:
         self._resync()
         self._analyze()
         self.broadcast_alerts()
-        schedule.run_pending()
 
 
     def mainloop(self) -> None:
         """Iterate NodeMonitor in a loop. This is the main entrypoint."""
         while True:
             self.step()
+            schedule.run_pending()
             time.sleep(sync_interval)
