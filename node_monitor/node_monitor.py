@@ -2,6 +2,7 @@ import time
 from collections import deque
 from typing import Deque, List, Dict
 from toolz import groupby # type: ignore
+import schedule
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
@@ -53,6 +54,10 @@ class NodeMonitor:
         self.compromised_nodes_by_provider: \
             Dict[Principal, List[ic_api.Node]] = {}
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
+        self.jobs = [
+            schedule.every().day.at("03:00", "UTC").do(
+                self.broadcast_status_report)
+        ]
 
 
     def _resync(self, override_data: ic_api.Nodes | None = None) -> None:
@@ -147,16 +152,10 @@ class NodeMonitor:
 
     def step(self) -> None:
         """Iterate NodeMonitor one step."""
-        seconds_since_epoch = time.time()
-        do_broadcast_status_report: bool = seconds_since_epoch >= \
-            (self.last_status_report + status_report_interval)
-        # - - - - - - - - - - - - - - - - -
         self._resync()
         self._analyze()
         self.broadcast_alerts()
-        if do_broadcast_status_report:
-            self.broadcast_status_report()
-            self.last_status_report = time.time()
+        schedule.run_pending()
 
 
     def mainloop(self) -> None:
