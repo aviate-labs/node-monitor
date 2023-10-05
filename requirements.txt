@@ -12,3 +12,5 @@ pytest
 psycopg2-binary
 types-psycopg2
 eventlet
+schedule
+pytz
