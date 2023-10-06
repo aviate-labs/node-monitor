@@ -151,9 +151,14 @@ class NodeMonitor:
 
     def step(self) -> None:
         """Iterate NodeMonitor one step."""
-        self._resync()
-        self._analyze()
-        self.broadcast_alerts()
+        try:
+            # These all need to be in the same try/catch block, because if
+            # _resync fails, we don't want to analyze or broadcast_alerts.
+            self._resync()
+            self._analyze()
+            self.broadcast_alerts()
+        except Exception as e:
+            print(f"NodeMonitor.step() failed with error: {e}")
 
 
     def mainloop(self) -> None:
