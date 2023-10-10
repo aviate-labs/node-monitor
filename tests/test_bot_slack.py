@@ -1,34 +1,36 @@
 import pytest
+from unittest.mock import patch
+
 import node_monitor.load_config as c
-from node_monitor.bot_slack import SlackBot  
-from unittest.mock import Mock
+from node_monitor.bot_slack import SlackBot
 
-@pytest.fixture
-def mock_slack_client(mocker):
-    mock_client = Mock()
-    mocker.patch("slack_sdk.WebClient", return_value=mock_client)
-    return mock_client
 
-def test_send_message(mock_slack_client):
-    slack_bot = SlackBot(c.TOKEN_SLACK)
+@patch("slack_sdk.WebClient")
+def test_send_message(mock_web_client):
+    mock_client = mock_web_client.return_value
 
+    expected_channel = "#node-monitor"
     expected_message = "Hello, Slack!"
-    expected_chanel = "#node-monitor"
-    slack_bot.send_message(expected_chanel, expected_message)
 
-    mock_slack_client.chat_postMessage.assert_called_once_with(
-        channel=expected_chanel,  
-        text=expected_message,
-    )
+    slack_bot = SlackBot(c.TOKEN_SLACK)
+    slack_bot.send_message(expected_channel, expected_message)
+
+    mock_client.chat_postMessage.assert_called_once_with(
+        channel=expected_channel,
+        text=expected_message)
 
 
-
-@pytest.mark.skip(reason="sends live message")
+@pytest.mark.live_slack
 def test_send_message_slack():
-    """Send real messages to a test Slack workspace"""
+    """Send a real test message to a Slack workspace"""
     slack_bot = SlackBot(c.TOKEN_SLACK)
     
-    slack_channel_name = "#node-monitor"
-    message = "Hello from test_send_message_slack()"
+    slack_channel_name = "node-monitor"
+    message = "🔬 Hello from test_send_message_slack()"
 
-    slack_bot.send_message(slack_channel_name, message)
+    # SlackBot.send_message() returns an error without raising an exception
+    # to prevent NodeMonitor from crashing if the message fails to send.
+    # Instead, we raise it here.
+    err = slack_bot.send_message(slack_channel_name, message)
+    if err is not None:
+        raise err

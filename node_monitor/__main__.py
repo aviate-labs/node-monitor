@@ -13,11 +13,10 @@ import node_monitor.load_config as c
 ## Objects are passed by reference, so we can pass around the NodeMonitor
 ## instance and work on the same data in different functions/threads
 email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
+slack_bot = SlackBot(c.TOKEN_SLACK)
 node_provider_db = NodeProviderDB(
     c.DB_HOST, c.DB_NAME, c.DB_USERNAME, c.DB_PASSWORD, c.DB_PORT)
-slack_bot = SlackBot(c.TOKEN_SLACK)
-telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
-nm = NodeMonitor(node_provider_db, email_bot, slack_bot, telegram_bot)
+nm = NodeMonitor(email_bot, slack_bot, node_provider_db)
 
 
 ## Run NodeMonitor in a separate thread
@@ -39,4 +38,3 @@ app = create_server(nm, thread.is_alive)
 if __name__ == "__main__":
     # debug=True will run two instances of the thread
     app.run(debug=False)
-

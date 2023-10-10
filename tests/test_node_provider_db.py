@@ -28,7 +28,12 @@ def test_get_public_schema_tables():
                         'channel_lookup', 'node_label_lookup'}
     assert necessary_tables.issubset(all_public_tables)
 
-
+@pytest.mark.db
+def test_validate_column_names():
+    node_provider_db._validate_col_names('subscribers', NodeProviderDB.table_subscribers_cols)
+    node_provider_db._validate_col_names('email_lookup', NodeProviderDB.table_email_lookup_cols)
+    node_provider_db._validate_col_names('channel_lookup', NodeProviderDB.table_channel_lookup_cols)
+    node_provider_db._validate_col_names('node_label_lookup', NodeProviderDB.table_node_label_lookup_cols)
 
 
 ##############################################
@@ -37,23 +42,23 @@ def test_get_public_schema_tables():
 @pytest.mark.db
 def test_subscribers_crud():
     # Create new subscribers / overwrite subscriber 1
-    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False)
-    node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False)
-    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, True, True, True)
+    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False, 'test-dummy-node-provider-name-1')
+    node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2')
+    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1')
 
     # Get and check subscribers
     subs = node_provider_db.get_subscribers()
-    assert ('test-dummy-principal-1', True, True, True, True, True) in subs
-    assert ('test-dummy-principal-2', True, True, False, False, False) in subs
+    assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') in subs
+    assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') in subs
 
     # Get and check subscribers as dict
     subs = node_provider_db.get_subscribers_as_dict()
     assert subs['test-dummy-principal-1'] == \
         {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': True, 'notify_email': True,
-         'notify_slack': True, 'notify_telegram_chat': True, 'notify_telegram_channel': True}
+         'notify_slack': True, 'notify_telegram_chat': True, 'notify_telegram_channel': True, 'node_provider_name': 'test-dummy-node-provider-name-1'}
     assert subs['test-dummy-principal-2'] == \
         {'node_provider_id': 'test-dummy-principal-2', 'notify_on_status_change': True, 'notify_email': True,
-         'notify_slack': False, 'notify_telegram_chat': False, 'notify_telegram_channel': False}
+         'notify_slack': False, 'notify_telegram_chat': False, 'notify_telegram_channel': False, 'node_provider_name': 'test-dummy-node-provider-name-2'}
 
     # Delete subscribers
     node_provider_db._delete_subscriber('test-dummy-principal-1')
@@ -61,8 +66,8 @@ def test_subscribers_crud():
 
     # Get and check subscribers
     subs = node_provider_db.get_subscribers()
-    assert ('test-dummy-principal-1', True, True, True, True, True) not in subs
-    assert ('test-dummy-principal-2', True, True, False, False, False) not in subs
+    assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') not in subs
+    assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') not in subs
 
     # Get and check subscribers as dict
     subs = node_provider_db.get_subscribers_as_dict()
@@ -138,6 +143,14 @@ def test_channel_lookup_crud():
     assert ('test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1') in channels
     assert ('test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2') in channels
     assert ('test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3') in channels
+
+    channels = node_provider_db.get_channels_as_dict()
+    assert channels['test-dummy-principal-1'] == \
+        {'node_provider_id': 'test-dummy-principal-1', 'slack_channel_name': 'dummy-slack-channel-3', 
+         'telegram_chat_id': 'dummy-telegram-chat-3', 'telegram_channel_id': 'dummy-telegram-channel-3'}
+    assert channels['test-dummy-principal-2'] == \
+        {'node_provider_id': 'test-dummy-principal-2', 'slack_channel_name': 'dummy-slack-channel-2', 
+         'telegram_chat_id': 'dummy-telegram-chat-2', 'telegram_channel_id': 'dummy-telegram-channel-2'}
 
     # Delete channels. This deletes all channels for a given principal
     node_provider_db._delete_channel_lookup('test-dummy-principal-1')

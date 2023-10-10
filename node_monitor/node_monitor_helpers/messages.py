@@ -22,9 +22,10 @@ def detailnode(node: ic_api.Node, label: str) -> str:
 def detailnodes(nodes: List[ic_api.Node],
                 labels: Dict[Principal, str]) -> str:
     """Runs detailnode on each node in nodes and returns a string of the
-    results, separated by newlines.
+    results, separated by newlines. For empty lists, returns an empty string.
     """
-    msgs = [detailnode(node, labels[node.node_id]) for node in nodes]
+    msgs = [detailnode(node, labels.get(node.node_id, 'N/A'))
+            for node in nodes]
     return '\n'.join(msgs)
 
 
@@ -38,3 +39,29 @@ def nodes_down_message(nodes: List[ic_api.Node],
         f"🛑 Node/s Down:\n"
         f"The following nodes are compromised:\n\n"
         f"{formatted_nodes_down}")
+
+
+def nodes_status_message(nodes: List[ic_api.Node],
+                         labels: Dict[Principal, str]) -> str:
+    """Returns a message that describes the status of all nodes, in the
+    format of an email or message for a comprable communication channel.
+    """
+    nodes_up           = [node for node in nodes if node.status == 'UP']
+    nodes_down         = [node for node in nodes if node.status == 'DOWN']
+    nodes_unassigned   = [node for node in nodes if node.status == 'UNASSIGNED']
+    nodes_disabled     = [node for node in nodes if node.status == 'DISABLED']
+    nodes_degraded     = [node for node in nodes if node.status == 'DEGRADED']
+    total_nodes        = len(nodes)
+    diagnostic_message = "" if len(nodes_down) == 0 else (
+        f"Details of Nodes that are currently DOWN:\n"
+        f"{detailnodes(nodes_down, labels)}")
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    return (
+        f"🩺 Node/s Status Report:\n"
+        f"Total Nodes: {total_nodes}\n"
+        f"Nodes Up: {len(nodes_up)}/{total_nodes}\n"
+        f"Nodes Down: {len(nodes_down)}/{total_nodes}\n"
+        f"Nodes Unassigned: {len(nodes_unassigned)}/{total_nodes}\n"
+        f"Nodes Disabled: {len(nodes_disabled)}/{total_nodes}\n"
+        f"Nodes Degraded: {len(nodes_degraded)}/{total_nodes}\n\n"
+        f"{diagnostic_message}")
