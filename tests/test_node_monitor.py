@@ -41,8 +41,8 @@ mock_node_provider_db.get_channels_as_dict.return_value = \
      {'id': 1, 
       'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 
       'slack_channel_name': '#node-monitor', 
-      'telegram_chat_id' : '@slackChannel123', 
-      'telegram_channel_id': '@telegramChat456'} }
+      'telegram_chat_id' : '5734534558', 
+      'telegram_channel_id': '-1001925583150'} }
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default
@@ -99,18 +99,21 @@ def test_control():
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message_to_chat.call_count == 0
     assert mock_telegram_bot.send_message_to_channel.call_count == 0
-    mock_email_bot.reset_mock()
     mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
     # test broadcast_status_report()
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
+    assert mock_telegram_bot.send_message_to_chat.call_count == 1
+    assert mock_telegram_bot.send_message_to_channel.call_count == 1
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
-
 
 
 def test_one_node_bounce():
@@ -144,6 +147,7 @@ def test_one_node_bounce():
     assert mock_telegram_bot.send_message_to_channel.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
 
@@ -171,6 +175,9 @@ def test_two_nodes_down():
     assert mock_slack_bot.send_message.call_count == 1
     assert mock_telegram_bot.send_message_to_chat.call_count == 1
     assert mock_telegram_bot.send_message_to_channel.call_count == 1
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
 
@@ -201,5 +208,6 @@ def test_one_new_node_online():
     assert mock_telegram_bot.send_message_to_channel.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
 
