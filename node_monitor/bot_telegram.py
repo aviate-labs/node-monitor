@@ -1,5 +1,4 @@
 import requests
-import logging
 
 
 class TelegramBot:
@@ -14,11 +13,7 @@ class TelegramBot:
             )
             request.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            # logging.error(e)
-            logging.error(
-                f"Error occurred while sending Telegram message. "
-                f"Check that the Telegram channel id and/or Telegram bot API token is correct"
-            )
+            print(f"Got an error: {e}")
 
     def send_message_to_chat(self, chat_id: str, message: str) -> None:
         try:
@@ -28,9 +23,5 @@ class TelegramBot:
             )
             request.raise_for_status()
         except Exception as e:
-            # logging.error(e)
-            logging.error(
-                f"Error occurred while sending Telegram message. "
-                f"Check that the Telegram chat id and/or Telegram bot API token is correct"
-            )
+            print(f"Got an error: {e}")
 
