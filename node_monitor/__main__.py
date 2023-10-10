@@ -9,9 +9,8 @@ from node_monitor.server import create_server
 import node_monitor.load_config as c
 
 
-## Flask uses the logging module internally. Calling `basicConfig` will 
-## globally overwrite the logging configuration, for every imported file, 
-## as well as Flask.
+## Calling `basicConfig` will globally overwrite the root logging 
+## configuration, so changes propagate to all loggers in the application.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s: %(message)s',

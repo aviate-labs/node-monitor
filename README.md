@@ -39,6 +39,14 @@ $ make prod
 For more control over testing, see `tests/conftest.py`, and/or `Makefile`.
 
 
+## Logging
+
+Node Monitor writes all logs to the `logs/` directory.  
+- `logs/gunicorn_access.log` contains all HTTP requests.
+- `logs/gunicorn_error.log` contains all gunicorn errors and information.
+- `logs/node_monitor.log` contains all `Node Monitor` specific logs.
+
+
 
 ## Notes
 
