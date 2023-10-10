@@ -8,6 +8,8 @@
 
 # logs
 logs/
+gunicornlog.txt
+node_monitor.log
 
 # misc
 *.csv
