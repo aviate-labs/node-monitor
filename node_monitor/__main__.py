@@ -15,8 +15,8 @@ import node_monitor.load_config as c
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s: %(message)s',
-    datefmt='%Y-%m-%dT%H:%M:%SZ',  # ISO 8601 format with 'T' and 'Z'
-    filename='node_monitor.log',
+    datefmt='[%Y-%m-%d %H:%M:%S %z]', # Uses the same format as Gunicorn
+    filename='logs/node_monitor.log',
 )
 
 ## Initialize Node Monitor
