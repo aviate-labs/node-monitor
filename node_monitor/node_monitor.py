@@ -3,6 +3,7 @@ from collections import deque
 from typing import Deque, List, Dict
 from toolz import groupby # type: ignore
 import schedule
+import logging
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
@@ -67,6 +68,7 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Nodes from the ic-api. Useful for testing.
         """
+        logging.info("Resyncing node states from ic-api...")
         data = override_data if override_data else ic_api.get_nodes()
         self.snapshots.append(data)
         self.last_update = time.time()
@@ -99,6 +101,7 @@ class NodeMonitor:
         email_recipients = self.node_provider_db.get_emails_as_dict()
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
+            logging.info(f"Broadcasting alerts for {node_provider_id}...")
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
@@ -136,6 +139,7 @@ class NodeMonitor:
                             if k in subscribers.keys()}
         # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
+            logging.info(f"Broadcasting status report {node_provider_id}...")
             preferences = subscribers[node_provider_id]
             subject = f"Node Status Report"
             msg = messages.nodes_status_message(nodes, node_labels)
@@ -158,7 +162,7 @@ class NodeMonitor:
             self._analyze()
             self.broadcast_alerts()
         except Exception as e:
-            print(f"NodeMonitor.step() failed with error: {e}")
+            logging.error(f"NodeMonitor.step() failed with error: {e}")
 
 
     def mainloop(self) -> None:
