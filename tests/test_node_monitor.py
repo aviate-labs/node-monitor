@@ -53,7 +53,9 @@ class TestNodeMonitor:
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    nm = NodeMonitor(mock_slack_bot, mock_node_provider_db, mock_email_bot, )
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
+                     mock_telegram_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -78,7 +80,9 @@ def test_control():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
+                     mock_telegram_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -93,6 +97,8 @@ def test_control():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
     mock_email_bot.reset_mock()
     mock_slack_bot.reset_mock()
     mock_node_provider_db.reset_mock()
@@ -117,7 +123,9 @@ def test_one_node_bounce():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)       
-    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, mock_slack_bot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
+                     mock_telegram_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['one_node_down'])
     nm._resync(cached['control'])
@@ -132,6 +140,8 @@ def test_one_node_bounce():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()
@@ -142,8 +152,9 @@ def test_two_nodes_down():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    mock_telgram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
+                     mock_telegram_bot, mock_node_provider_db)
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
     nm._resync(cached['two_nodes_down'])
@@ -158,34 +169,9 @@ def test_two_nodes_down():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
-    assert mock_telgram_bot.send_message_to_chat.call_count == 1
-    assert mock_telgram_bot.send_message_to_channel.call_count == 1
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
+    assert mock_telegram_bot.send_message_to_chat.call_count == 1
+    assert mock_telegram_bot.send_message_to_channel.call_count == 1
     mock_node_provider_db.reset_mock()
-
-
-@pytest.mark.skip(reason="sends live message")
-def test_two_nodes_down_live_message():
-    """Test the case where two nodes truly go down."""
-    # init
-    mock_email_bot = Mock(spec=EmailBot)
-    mock_slack_bot = SlackBot(c.TOKEN_SLACK)
-    mock_telgram_bot = TelegramBot(c.TOKEN_TELEGRAM)
-    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, mock_slack_bot, mock_telgram_bot)
-    nm._resync(cached['control'])
-    nm._resync(cached['two_nodes_down'])
-    nm._resync(cached['two_nodes_down'])
-
-    # test _analyze()
-    nm._analyze()
-    assert len(nm.compromised_nodes) == 2
-    assert len(nm.compromised_nodes_by_provider) == 1
-    assert len(nm.actionables) == 1
-
-    # test broadcast()
-    nm.broadcast()
-
 
 
 
@@ -194,7 +180,9 @@ def test_one_new_node_online():
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
+                     mock_telegram_bot, mock_node_provider_db)
     nm._resync(cached['one_node_removed'])
     nm._resync(cached['one_node_removed'])
     nm._resync(cached['control'])
@@ -209,30 +197,8 @@ def test_one_new_node_online():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_node_provider_db.reset_mock()
-
-def test_one_new_node_online():
-    """Test the case where one new node comes online."""
-    # init
-    mock_email_bot = Mock(spec=EmailBot)
-    mock_slack_bot = Mock(spec=SlackBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, mock_node_provider_db)
-    nm._resync(cached['one_node_removed'])
-    nm._resync(cached['one_node_removed'])
-    nm._resync(cached['control'])
-
-    # test _analyze()
-    nm._analyze()
-    assert len(nm.compromised_nodes) == 0
-    assert len(nm.compromised_nodes_by_provider) == 0
-    assert len(nm.actionables) == 0
-
-    # test broadcast_alerts()
-    nm.broadcast_alerts()
-    assert mock_email_bot.send_emails.call_count == 0
-    assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_node_provider_db.reset_mock()

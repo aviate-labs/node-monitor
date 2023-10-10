@@ -20,14 +20,8 @@ sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
 class NodeMonitor:
 
     def __init__(
-            
-            self,
-           
-            node_provider_db: NodeProviderDB, 
-            email_bot: EmailBot, 
-            slack_bot: Optional[SlackBot] = None,
-            telegram_bot: Optional[TelegramBot] = None, 
-        ) -> None:
+            self, email_bot: EmailBot, slack_bot: SlackBot, 
+            telegram_bot: TelegramBot, node_provider_db: NodeProviderDB) -> None:
         """NodeMonitor is a class that monitors the status of the nodes.
         It is responsible for syncing the nodes from the ic-api, analyzing
         the nodes, and broadcasting alerts to the appropriate channels.
@@ -52,8 +46,8 @@ class NodeMonitor:
         """
         self.email_bot = email_bot
         self.slack_bot = slack_bot
-        self.node_provider_db = node_provider_db
         self.telegram_bot = telegram_bot
+        self.node_provider_db = node_provider_db
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.last_status_report: float = 0
@@ -118,11 +112,11 @@ class NodeMonitor:
                 channel_name = channels[node_provider_id]['slack_channel_name']
                 self.slack_bot.send_message(channel_name, msg)
             if preferences['notify_telegram_chat'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                chat_id = channels[node_provider_id]['telegram_chat_id']
+                self.telegram_bot.send_message_to_chat(chat_id, msg)
             if preferences['notify_telegram_channel'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                channel_id = channels[node_provider_id]['telegram_channel_id']
+                self.telegram_bot.send_message_to_channel(channel_id, msg)
             # - - - - - - - - - - - - - - - - -
 
 
