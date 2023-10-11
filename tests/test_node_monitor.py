@@ -81,8 +81,8 @@ def test_control():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
-                     mock_telegram_bot, mock_node_provider_db)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -116,6 +116,49 @@ def test_control():
     mock_node_provider_db.reset_mock()
 
 
+
+def test_control_only_email_bot():
+    """Test the control case. No nodes down. Initialize with only email"""
+    # init
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = Mock(spec=SlackBot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     None, None)
+    nm._resync(cached['control'])
+    nm._resync(cached['control'])
+    nm._resync(cached['control'])
+
+    # test _analyze()
+    nm._analyze()
+    assert len(nm.compromised_nodes) == 0
+    assert len(nm.compromised_nodes_by_provider) == 0
+    assert len(nm.actionables) == 0
+
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
+    assert mock_email_bot.send_emails.call_count == 0
+    assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
+    mock_node_provider_db.reset_mock()
+
+    # test broadcast_status_report()
+    nm.broadcast_status_report()
+    assert mock_email_bot.send_emails.call_count == 1
+    assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
+    mock_node_provider_db.reset_mock()
+
+
+
 def test_one_node_bounce():
     """Test the case where one node bounces.
     Should not result in a false positive.
@@ -127,8 +170,8 @@ def test_one_node_bounce():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)       
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
-                     mock_telegram_bot, mock_node_provider_db)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
     nm._resync(cached['control'])
     nm._resync(cached['one_node_down'])
     nm._resync(cached['control'])
@@ -151,14 +194,15 @@ def test_one_node_bounce():
     mock_node_provider_db.reset_mock()
 
 
+
 def test_two_nodes_down():
     """Test the case where two nodes truly go down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
-                     mock_telegram_bot, mock_node_provider_db)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
     nm._resync(cached['control'])
     nm._resync(cached['two_nodes_down'])
     nm._resync(cached['two_nodes_down'])
@@ -182,14 +226,44 @@ def test_two_nodes_down():
 
 
 
+def test_two_nodes_down_only_email_bot():
+    """Test the case where two nodes truly only with an email bot"""
+    # init
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = Mock(spec=SlackBot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, None, None)
+    nm._resync(cached['control'])
+    nm._resync(cached['two_nodes_down'])
+    nm._resync(cached['two_nodes_down'])
+
+    # test _analyze()
+    nm._analyze()
+    assert len(nm.compromised_nodes) == 2
+    assert len(nm.compromised_nodes_by_provider) == 1
+    assert len(nm.actionables) == 1
+
+    # test broadcast_alerts()
+    nm.broadcast_alerts()
+    assert mock_email_bot.send_emails.call_count == 1
+    assert mock_slack_bot.send_message.call_count == 0
+    assert mock_telegram_bot.send_message_to_chat.call_count == 0
+    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    mock_slack_bot.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
+    mock_node_provider_db.reset_mock()
+
+
+
 def test_one_new_node_online():
     """Test the case where one new node comes online."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
-                     mock_telegram_bot, mock_node_provider_db)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
     nm._resync(cached['one_node_removed'])
     nm._resync(cached['one_node_removed'])
     nm._resync(cached['control'])
