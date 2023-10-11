@@ -101,16 +101,17 @@ class NodeMonitor:
         email_recipients = self.node_provider_db.get_emails_as_dict()
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
-            logging.info(f"Broadcasting alerts for {node_provider_id}...")
             preferences = subscribers[node_provider_id]
             subject = f"Node Down Alert"
             msg = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
+                logging.info(f"Sending alert email to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
                 channel_name = channels[node_provider_id]['slack_channel_name']
+                logging.info(f"Sending alert slack message to {channel_name}...")
                 self.slack_bot.send_message(channel_name, msg)
             if preferences['notify_telegram_chat'] == True:
                 # TODO: Not Yet Implemented
@@ -146,9 +147,11 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
+                logging.info(f"Sending status_report email to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, msg)
             if preferences['notify_slack'] == True:
                 channel_name = channels[node_provider_id]['slack_channel_name']
+                logging.info(f"Sending status_report slack message to {channel_name}...")
                 self.slack_bot.send_message(channel_name, msg)
             # - - - - - - - - - - - - - - - - -
 
