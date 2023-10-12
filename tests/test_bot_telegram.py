@@ -22,10 +22,11 @@ def test_send_message(mock_get):
 
 
 @pytest.mark.live_telegram
-def test_send_message():
+def test_send_live_message():
     telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
     channel_id = "-1001925583150"  
     message = "Test message"
 
-    telegram_bot.send_message(channel_id, message)
-
+    err = telegram_bot.send_message(channel_id, message)
+    if err is not None:
+        raise err
