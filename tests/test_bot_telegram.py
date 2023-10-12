@@ -1,19 +1,16 @@
 import pytest
-import requests
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 import node_monitor.load_config as c
-from node_monitor.bot_telegram import TelegramBot  # Replace 'your_module' with the actual module name
+from node_monitor.bot_telegram import TelegramBot
 
-
-@patch.object(requests, "get")
+@patch("requests.get")
 def test_send_message(mock_get):
     telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
-    channel_id = "1234567890"  # Replace with a valid channel ID
+    channel_id = "1234567890" 
     message = "Test message"
-    mock_response = Mock()
+    mock_response = mock_get.return_value
     mock_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_response
 
     telegram_bot.send_message(channel_id, message)
 
