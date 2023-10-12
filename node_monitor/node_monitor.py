@@ -116,12 +116,9 @@ class NodeMonitor:
             if preferences['notify_slack'] == True and self.slack_bot is not None:
                 channel_name = channels[node_provider_id]['slack_channel_name']
                 self.slack_bot.send_message(channel_name, msg)
-            if preferences['notify_telegram_chat'] == True and self.telegram_bot is not None:
-                chat_id = channels[node_provider_id]['telegram_chat_id']
-                self.telegram_bot.send_message_to_chat(chat_id, msg)
             if preferences['notify_telegram_channel'] == True and self.telegram_bot is not None:
                 channel_id = channels[node_provider_id]['telegram_channel_id']
-                self.telegram_bot.send_message_to_channel(channel_id, msg)
+                self.telegram_bot.send_message(channel_id, msg)
             # - - - - - - - - - - - - - - - - -
 
 
@@ -153,12 +150,9 @@ class NodeMonitor:
             if preferences['notify_slack'] == True and self.slack_bot is not None:
                 channel_name = channels[node_provider_id]['slack_channel_name']
                 self.slack_bot.send_message(channel_name, msg)
-            if preferences['notify_telegram_chat'] == True and self.telegram_bot is not None:
-                chat_id = channels[node_provider_id]['telegram_chat_id']
-                self.telegram_bot.send_message_to_chat(chat_id, msg)
             if preferences['notify_telegram_channel'] == True and self.telegram_bot is not None:
                 channel_id = channels[node_provider_id]['telegram_channel_id']
-                self.telegram_bot.send_message_to_channel(channel_id, msg)
+                self.telegram_bot.send_message(channel_id, msg)
             # - - - - - - - - - - - - - - - - -
 
 

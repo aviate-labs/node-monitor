@@ -97,8 +97,7 @@ def test_control():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -108,8 +107,7 @@ def test_control():
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
-    assert mock_telegram_bot.send_message_to_chat.call_count == 1
-    assert mock_telegram_bot.send_message_to_channel.call_count == 1
+    assert mock_telegram_bot.send_message.call_count == 1
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -139,8 +137,7 @@ def test_control_only_email_bot():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -150,8 +147,7 @@ def test_control_only_email_bot():
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -186,8 +182,7 @@ def test_one_node_bounce():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -217,8 +212,7 @@ def test_two_nodes_down():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
-    assert mock_telegram_bot.send_message_to_chat.call_count == 1
-    assert mock_telegram_bot.send_message_to_channel.call_count == 1
+    assert mock_telegram_bot.send_message.call_count == 1
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -247,8 +241,7 @@ def test_two_nodes_down_only_email_bot():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
@@ -278,10 +271,8 @@ def test_one_new_node_online():
     nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
-    assert mock_telegram_bot.send_message_to_chat.call_count == 0
-    assert mock_telegram_bot.send_message_to_channel.call_count == 0
+    assert mock_telegram_bot.send_message.call_count == 0
     mock_slack_bot.reset_mock()
     mock_email_bot.reset_mock()
     mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
-
