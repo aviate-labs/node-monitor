@@ -38,7 +38,7 @@ class NodeMonitor:
         Attributes:
             email_bot: An instance of EmailBot
             slack_bot: An instance of SlackBot
-            telegram_bot: An instance of Telegram
+            telegram_bot: An instance of TelegramBot
             node_provider_db: An instance of NodeProviderDB
             snapshots: A deque of the last 3 snapshots of the nodes
             last_update: The timestamp of the last time the nodes were synced
@@ -113,12 +113,14 @@ class NodeMonitor:
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
-            if preferences['notify_slack'] == True and self.slack_bot is not None:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, msg)
-            if preferences['notify_telegram_channel'] == True and self.telegram_bot is not None:
-                channel_id = channels[node_provider_id]['telegram_channel_id']
-                self.telegram_bot.send_message(channel_id, msg)
+            if preferences['notify_slack'] == True: 
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    self.slack_bot.send_message(channel_name, msg)
+            if preferences['notify_telegram_chat'] == True:
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, msg)
             # - - - - - - - - - - - - - - - - -
 
 
@@ -147,12 +149,14 @@ class NodeMonitor:
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, msg)
-            if preferences['notify_slack'] == True and self.slack_bot is not None:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, msg)
-            if preferences['notify_telegram_channel'] == True and self.telegram_bot is not None:
-                channel_id = channels[node_provider_id]['telegram_channel_id']
-                self.telegram_bot.send_message(channel_id, msg)
+            if preferences['notify_slack'] == True:
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    self.slack_bot.send_message(channel_name, msg)
+            if preferences['notify_telegram_chat'] == True: 
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, msg)
             # - - - - - - - - - - - - - - - - -
 
 

@@ -29,7 +29,9 @@ mock_node_provider_db.get_subscribers_as_dict.return_value = \
       'notify_email': True,
       'notify_slack': True,
       'notify_telegram_chat': True,
-      'notify_telegram_channel': True}}
+      'notify_telegram_channel': True # Deprecated: column not used
+      }
+    }
 mock_node_provider_db.get_node_labels_as_dict.return_value = \
     {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae': 'dummy-node-label-1',
      'clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae': 'dummy-node-label-2'}
@@ -42,7 +44,9 @@ mock_node_provider_db.get_channels_as_dict.return_value = \
       'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae', 
       'slack_channel_name': '#node-monitor', 
       'telegram_chat_id' : '5734534558', 
-      'telegram_channel_id': '-1001925583150'} }
+      'telegram_channel_id': '-1001925583150' # Deprecated: column not used
+      } 
+    }
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default
@@ -54,8 +58,8 @@ class TestNodeMonitor:
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_email_bot, mock_slack_bot, 
-                     mock_telegram_bot, mock_node_provider_db)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
     nm._resync(cached['control'])
     nm._resync(cached['control'])
     nm._resync(cached['control'])
@@ -158,9 +162,6 @@ def test_control_only_email_bot():
 def test_one_node_bounce():
     """Test the case where one node bounces.
     Should not result in a false positive.
-    
-    This also tests that Node Monitor runs
-    correctly with optional arguments.
     """
     # init
     mock_email_bot = Mock(spec=EmailBot)
