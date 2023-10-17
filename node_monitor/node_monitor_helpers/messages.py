@@ -6,6 +6,7 @@ import node_monitor.ic_api as ic_api
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
 
+
 def detailnode(node: ic_api.Node, label: str) -> str:
     """Returns:
         Node ID:          <node_id>
@@ -21,6 +22,7 @@ def detailnode(node: ic_api.Node, label: str) -> str:
         f"Live Node Status: {status_url}\n")
 
 
+
 def detailnodes(nodes: List[ic_api.Node],
                 labels: Dict[Principal, str]) -> str:
     """Runs detailnode on each node in nodes and returns a string of the
@@ -31,18 +33,29 @@ def detailnodes(nodes: List[ic_api.Node],
     return '\n'.join(msgs)
 
 
+
 def nodes_down_message(nodes: List[ic_api.Node], 
                        labels: Dict[Principal, str]) -> Tuple[str, str]:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.
     """
+    nodes_down = [node for node in nodes if node.status == 'DOWN']
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    def _make_subject() -> str:
+        datacenters = {node.dc_id.upper() for node in nodes_down}
+        match len(nodes_down):
+            case 0: return "All Systems Healthy"
+            case _: return "Action Required @ " + ', '.join(sorted(datacenters))
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     formatted_nodes_down = detailnodes(nodes, labels)
-    subject = "Node Down Alert"
+    subject = _make_subject()
     message = (
         f"🛑 Node/s Down:\n"
         f"The following nodes are compromised:\n\n"
-        f"{formatted_nodes_down}")
+        f"{formatted_nodes_down}\n\n"
+        f"{render_footer()}")
     return (subject, message)
+
 
 
 def nodes_status_message(nodes: List[ic_api.Node],
@@ -90,7 +103,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
     return (subject, message)
 
 
-def render_footer():
+
+def render_footer() -> str:
     return (
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
