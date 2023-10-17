@@ -102,20 +102,20 @@ def test_control():
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
     # test broadcast_status_report()
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
     assert mock_telegram_bot.send_message.call_count == 1
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
 
 
@@ -142,20 +142,20 @@ def test_control_only_email_bot():
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
     # test broadcast_status_report()
     nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
 
 
@@ -184,10 +184,10 @@ def test_one_node_bounce():
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
 
 
@@ -214,10 +214,10 @@ def test_two_nodes_down():
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 1
     assert mock_telegram_bot.send_message.call_count == 1
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
 
 
@@ -243,10 +243,10 @@ def test_two_nodes_down_only_email_bot():
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
 
 
 
@@ -273,7 +273,7 @@ def test_one_new_node_online():
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0
-    mock_slack_bot.reset_mock()
-    mock_email_bot.reset_mock()
-    mock_telegram_bot.reset_mock()
     mock_node_provider_db.reset_mock()
+    mock_email_bot.reset_mock()
+    mock_slack_bot.reset_mock()
+    mock_telegram_bot.reset_mock()
