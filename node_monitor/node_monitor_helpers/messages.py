@@ -16,9 +16,10 @@ def detailnode(node: ic_api.Node, label: str) -> str:
     """
     status_url = f"https://dashboard.internetcomputer.org/node/{node.node_id}"
     return (
-        f"Node ID: {node.node_id}\n"
+        f"Data Center: {node.dc_id.upper()}\n"
         f"Node Label: {label}\n"
         f"Node Status: {node.status}\n"
+        f"Node ID: {node.node_id}\n"
         f"Live Node Status: {status_url}\n")
 
 
