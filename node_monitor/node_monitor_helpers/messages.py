@@ -9,9 +9,10 @@ Principal = str
 
 def detailnode(node: ic_api.Node, label: str) -> str:
     """Returns:
-        Node ID:          <node_id>
+        Data Center:      <dc_id>
         Node Label:       <label>
         Node Status:      <status>
+        Node ID:          <node_id>
         Live Node Status: <status_url>
     """
     status_url = f"https://dashboard.internetcomputer.org/node/{node.node_id}"
@@ -28,6 +29,22 @@ def detailnodes(nodes: List[ic_api.Node],
                 labels: Dict[Principal, str]) -> str:
     """Runs detailnode on each node in nodes and returns a string of the
     results, separated by newlines. For empty lists, returns an empty string.
+    Returns:
+        Data Center:      <dc_id>
+        Node Label:       <label>
+        Node Status:      <status>
+        Node ID:          <node_id>
+        Live Node Status: <status_url>
+
+        Data Center:      <dc_id>
+        Node Label:       <label>
+        Node Status:      <status>
+        Node ID:          <node_id>
+        Live Node Status: <status_url>
+        
+        ...
+        ...
+        ...
     """
     msgs = [detailnode(node, labels.get(node.node_id, 'N/A'))
             for node in nodes]
