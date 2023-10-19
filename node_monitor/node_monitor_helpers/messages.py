@@ -51,10 +51,13 @@ def nodes_down_message(nodes: List[ic_api.Node],
     formatted_nodes_down = detailnodes(nodes, labels)
     subject = _make_subject()
     message = (
-        f"🛑 Node/s Down:\n"
-        f"The following nodes are compromised:\n\n"
-        f"{formatted_nodes_down}\n\n"
-        f"{render_footer()}")
+        f"🛑 Node(s) Compromised:\n"
+        f"\n"
+        f"{formatted_nodes_down}\n"
+        f"\n"
+        f"Node Monitor by Aviate Labs\n"
+        f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
 
 
@@ -74,8 +77,9 @@ def nodes_status_message(nodes: List[ic_api.Node],
     def _make_diagnostic_message() -> str:
         match len(nodes_down):
             case 0: return ""
-            case _: return (f"Details of Nodes that are currently DOWN:\n"
-                            f"{detailnodes(nodes_down, labels)}")
+            case _: return (f"🛑 Node(s) Compromised:\n"
+                            f"\n"
+                            f"{detailnodes(nodes_down, labels)}\n")
     def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_down}
         match len(nodes_down):
@@ -90,7 +94,7 @@ def nodes_status_message(nodes: List[ic_api.Node],
     message = (
         f"{_make_diagnostic_message()}\n"
         f"\n"
-        f"🔎 Node/s Status Breakdown:\n"
+        f"🔎 Node Status Breakdown:\n"
         f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
@@ -101,14 +105,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Total Nodes:      {total_nodes}\n"
         f"Node Provider:    {nodes[0].node_provider_name}\n"
         f"\n"
-        f"{render_footer()}")
-    return (subject, message)
-
-
-
-def render_footer() -> str:
-    return (
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
+    return (subject, message)
