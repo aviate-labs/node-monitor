@@ -26,4 +26,4 @@ def test_detailnodes():
     # Test fake node returns correct string
     result = messages.detailnodes([fakenode], fakelabel)
     assert len(result) > 20 # greater than 20 characters
-    assert result.startswith("Node ID: fake_node_id")
+    assert result.startswith("Data Center: FAKE_DC_ID")
