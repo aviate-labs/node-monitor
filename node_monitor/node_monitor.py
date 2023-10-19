@@ -107,20 +107,19 @@ class NodeMonitor:
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject = f"Node Down Alert"
-            msg = messages.nodes_down_message(nodes, node_labels)
+            subject, message = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, msg)
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True: 
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, msg)
+                    self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True:
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, msg)
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 
@@ -143,20 +142,19 @@ class NodeMonitor:
         # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
             preferences = subscribers[node_provider_id]
-            subject = f"Node Status Report"
-            msg = messages.nodes_status_message(nodes, node_labels)
+            subject, message = messages.nodes_status_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, msg)
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, msg)
+                    self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True: 
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, msg)
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 

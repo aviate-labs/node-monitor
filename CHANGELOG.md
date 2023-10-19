@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deprecated fields from `NodeProviderDB`:
   - `notify_telegram_channel` from the `subscribers` table.
   - `telegram_channel_id` from the `channel_lookup` table.
+- Improved `Node Status` / `Node Down` messages to include more information.
 
 
 ## [1.0.0-alpha] - 2023-09-01
