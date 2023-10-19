@@ -98,7 +98,11 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
         f"Nodes Disabled:   {  _render_frac(len(nodes_disabled), total_nodes)    }\n"
-        f"Nodes Degraded:   {  _render_frac(len(nodes_degraded), total_nodes)    }\n\n"
+        f"Nodes Degraded:   {  _render_frac(len(nodes_degraded), total_nodes)    }\n"
+        f"\n"
+        f"Total Nodes:      {total_nodes}\n"
+        f"Node Provider:    {nodes[0].node_provider_name}\n"
+        f"\n"
         f"{render_footer()}")
     return (subject, message)
 
