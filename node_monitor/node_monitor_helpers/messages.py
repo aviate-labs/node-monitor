@@ -88,10 +88,10 @@ def nodes_status_message(nodes: List[ic_api.Node],
             case 0: return "None"
             case _: return f"{numerator}/{denominator}"
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    diagnostic_message = _make_diagnostic_message()
     subject = _make_subject()
     message = (
-        f"{diagnostic_message}\n\n"
+        f"{_make_diagnostic_message()}\n"
+        f"\n"
         f"🔎 Node/s Status Breakdown:\n"
         f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
