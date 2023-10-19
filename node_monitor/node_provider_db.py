@@ -36,13 +36,14 @@ class NodeProviderDB:
             notify_email BOOLEAN,
             notify_slack BOOLEAN,
             notify_telegram_chat BOOLEAN,
-            notify_telegram_channel BOOLEAN,
+            notify_telegram_channel BOOLEAN, --Deprecated: column not used
             node_provider_name TEXT
         );
     """
     table_subscribers_cols = [
         'node_provider_id', 'notify_on_status_change', 'notify_email', 
-        'notify_slack', 'notify_telegram_chat', 'notify_telegram_channel',
+        'notify_slack', 'notify_telegram_chat', 
+        'notify_telegram_channel', # Deprecated: column not used
         'node_provider_name']
 
 
@@ -65,11 +66,13 @@ class NodeProviderDB:
             node_provider_id TEXT,
             slack_channel_name TEXT,
             telegram_chat_id TEXT,
-            telegram_channel_id TEXT
+            telegram_channel_id TEXT --Deprecated: column not used
         );
     """
     table_channel_lookup_cols = ['id', 'node_provider_id', 'slack_channel_name',
-                                 'telegram_chat_id', 'telegram_channel_id']
+                                 'telegram_chat_id', 
+                                 'telegram_channel_id' # Deprecated: column not used
+                                ]
 
 
     # TABLE node_label_lookup
@@ -172,7 +175,8 @@ class NodeProviderDB:
     def _insert_subscriber(
             self, node_provider_id: Principal, notify_on_status_change: bool, 
             notify_email: bool, notify_slack: bool, notify_telegram_chat: bool,
-            notify_telegram_channel: bool, node_provider_name: str) -> None:
+            notify_telegram_channel: bool, # Deprecated: column not used
+            node_provider_name: str) -> None:
         """Inserts a subscriber into the subscribers table. Overwrites if
         subscriber already exists."""
         query = """
@@ -182,7 +186,7 @@ class NodeProviderDB:
                 notify_email,
                 notify_slack,
                 notify_telegram_chat,
-                notify_telegram_channel,
+                notify_telegram_channel, --Deprecated: colunn not used
                 node_provider_name
             ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (node_provider_id) DO UPDATE SET
@@ -190,7 +194,7 @@ class NodeProviderDB:
                 notify_email = EXCLUDED.notify_email,
                 notify_slack = EXCLUDED.notify_slack,
                 notify_telegram_chat = EXCLUDED.notify_telegram_chat,
-                notify_telegram_channel = EXCLUDED.notify_telegram_channel,
+                notify_telegram_channel = EXCLUDED.notify_telegram_channel, --Deprecated: column not used
                 node_provider_name = EXCLUDED.node_provider_name
         """
         values = (
@@ -199,7 +203,7 @@ class NodeProviderDB:
             notify_email,
             notify_slack,
             notify_telegram_chat,
-            notify_telegram_channel,
+            notify_telegram_channel, # Deprecated: column not used
             node_provider_name
         )
         self.connect()
@@ -307,21 +311,24 @@ class NodeProviderDB:
     
     def _insert_channel(
         self, node_provider_id: Principal, slack_channel_name: str,
-        telegram_chat_id: str, telegram_channel_id: str) -> None:
+        telegram_chat_id: str, 
+        telegram_channel_id: str # Deprecated: column not used
+    ) -> None:
         """Inserts or updates a record in the channel_lookup table."""
         query = """
             INSERT INTO channel_lookup (
                 node_provider_id,
                 slack_channel_name,
                 telegram_chat_id,
-                telegram_channel_id
+                telegram_channel_id --Deprecated: column not used
             ) VALUES (%s, %s, %s, %s)
         """
         values = (
             node_provider_id,
             slack_channel_name,
             telegram_chat_id,
-            telegram_channel_id)
+            telegram_channel_id # Deprecated: column not used
+        )
         self.connect()
         assert self.conn is not None
         with self.conn.cursor() as cur:

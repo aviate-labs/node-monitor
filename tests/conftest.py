@@ -25,6 +25,11 @@ def pytest_addoption(parser):
         default=False,
         help="send actual slack messages via webclient to test slack channel")
     parser.addoption(
+        "--send_telegram",
+        action="store_true",
+        default=False,
+        help="send actual telegram messages via http to test telegram channel")
+    parser.addoption(
         "--db",
         action="store_true",
         default=False,
@@ -35,6 +40,8 @@ def pytest_configure(config):
         "markers", "live_email: test sends a live email over the network")
     config.addinivalue_line(
         "markers", "live_slack: test sends a live slack message over the network")
+    config.addinivalue_line(
+        "markers", "live_telegram: test sends a live telegram message over the network")
     config.addinivalue_line(
         "markers", "db: test CRUD operations on the database")
 
@@ -58,6 +65,11 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "live_slack" in item.keywords:
                 item.add_marker(skip_live_slack)
+    if not config.getoption("--send_telegram"):
+        skip_live_telegram = pytest.mark.skip(reason="need --send_telegram option to run")
+        for item in items:
+            if "live_telegram" in item.keywords:
+                item.add_marker(skip_live_telegram)
 
 
 
