@@ -69,9 +69,6 @@ def nodes_status_message(nodes: List[ic_api.Node],
     nodes_disabled     = [node for node in nodes if node.status == 'DISABLED']
     nodes_degraded     = [node for node in nodes if node.status == 'DEGRADED']
     total_nodes        = len(nodes)
-    diagnostic_message = "" if len(nodes_down) == 0 else (
-        f"Details of Nodes that are currently DOWN:\n"
-        f"{detailnodes(nodes_down, labels)}")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def _make_diagnostic_message() -> str:
         match len(nodes_down):
