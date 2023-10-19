@@ -1,11 +1,13 @@
 import time
 from collections import deque
-from typing import Deque, List, Dict
+from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
+import schedule
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
+from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
@@ -14,13 +16,15 @@ import node_monitor.node_monitor_helpers.messages as messages
 Seconds = int
 Principal = str
 sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
-status_report_interval: Seconds = 60 * 60 * 24 # 24 hours -> Seconds
 
 class NodeMonitor:
 
     def __init__(
-            self, email_bot: EmailBot, slack_bot: SlackBot,
-            node_provider_db: NodeProviderDB) -> None:
+            self, 
+            node_provider_db: NodeProviderDB, 
+            email_bot: EmailBot, 
+            slack_bot: Optional[SlackBot] = None, 
+            telegram_bot: Optional[TelegramBot] = None) -> None:
         """NodeMonitor is a class that monitors the status of the nodes.
         It is responsible for syncing the nodes from the ic-api, analyzing
         the nodes, and broadcasting alerts to the appropriate channels.
@@ -28,11 +32,13 @@ class NodeMonitor:
         Args:
             email_bot: An instance of EmailBot
             slack_bot: An instance of SlackBot
+            telegram_bot: An instance of TelegramBot
             node_provider_db: An instance of NodeProviderDB
 
         Attributes:
             email_bot: An instance of EmailBot
             slack_bot: An instance of SlackBot
+            telegram_bot: An instance of TelegramBot
             node_provider_db: An instance of NodeProviderDB
             snapshots: A deque of the last 3 snapshots of the nodes
             last_update: The timestamp of the last time the nodes were synced
@@ -43,9 +49,10 @@ class NodeMonitor:
                 node_provider_id, but only including node_providers that are 
                 subscribed to alerts.
         """
+        self.node_provider_db = node_provider_db
         self.email_bot = email_bot
         self.slack_bot = slack_bot
-        self.node_provider_db = node_provider_db
+        self.telegram_bot = telegram_bot
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.last_status_report: float = 0
@@ -53,6 +60,10 @@ class NodeMonitor:
         self.compromised_nodes_by_provider: \
             Dict[Principal, List[ic_api.Node]] = {}
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
+        self.jobs = [
+            schedule.every().day.at("15:00", "UTC").do(
+                self.broadcast_status_report)
+        ]
 
 
     def _resync(self, override_data: ic_api.Nodes | None = None) -> None:
@@ -101,15 +112,14 @@ class NodeMonitor:
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, message)
-            if preferences['notify_slack'] == True:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, message)
+            if preferences['notify_slack'] == True: 
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
-            if preferences['notify_telegram_channel'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 
@@ -138,27 +148,31 @@ class NodeMonitor:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                self.slack_bot.send_message(channel_name, message)
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    self.slack_bot.send_message(channel_name, message)
+            if preferences['notify_telegram_chat'] == True: 
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 
     def step(self) -> None:
         """Iterate NodeMonitor one step."""
-        seconds_since_epoch = time.time()
-        do_broadcast_status_report: bool = seconds_since_epoch >= \
-            (self.last_status_report + status_report_interval)
-        # - - - - - - - - - - - - - - - - -
-        self._resync()
-        self._analyze()
-        self.broadcast_alerts()
-        if do_broadcast_status_report:
-            self.broadcast_status_report()
-            self.last_status_report = time.time()
+        try:
+            # These all need to be in the same try/catch block, because if
+            # _resync fails, we don't want to analyze or broadcast_alerts.
+            self._resync()
+            self._analyze()
+            self.broadcast_alerts()
+        except Exception as e:
+            print(f"NodeMonitor.step() failed with error: {e}")
 
 
     def mainloop(self) -> None:
         """Iterate NodeMonitor in a loop. This is the main entrypoint."""
         while True:
             self.step()
+            schedule.run_pending()
             time.sleep(sync_interval)
