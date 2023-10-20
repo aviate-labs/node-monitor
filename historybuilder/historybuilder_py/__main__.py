@@ -1,5 +1,5 @@
 import logging, requests, json, os, time
-from historybuilder.NodeMonitorDB import NodeMonitorDB
+from historybuilder_py.NodeMonitorDB import NodeMonitorDB
 
 ## Logging - use systemd to forward stdout/stderr to journald
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper(),
