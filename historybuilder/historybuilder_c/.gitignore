@@ -1,4 +1,5 @@
 historybuilder
+test_main
 *.o
 *.dSYM
 *~
