@@ -1,0 +1,5 @@
+historybuilder
+*.o
+*.dSYM
+*~
+.DS_Store
