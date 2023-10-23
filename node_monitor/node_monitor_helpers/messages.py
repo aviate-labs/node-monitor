@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
+import node_monitor.load_config as c
 
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
@@ -53,7 +54,8 @@ def detailnodes(nodes: List[ic_api.Node],
 
 
 def nodes_down_message(nodes: List[ic_api.Node], 
-                       labels: Dict[Principal, str]) -> Tuple[str, str]:
+                       labels: Dict[Principal, str],
+                       feedback_form: str) -> Tuple[str, str]:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.
     """
@@ -74,13 +76,14 @@ def nodes_down_message(nodes: List[ic_api.Node],
         f"\n"
         f"Node Monitor by Aviate Labs\n"
         f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Help us serve you better! Provide your feedback here: {feedback_form}\n")
     return (subject, message)
 
 
 
 def nodes_status_message(nodes: List[ic_api.Node],
-                         labels: Dict[Principal, str]) -> Tuple[str, str]:
+                         labels: Dict[Principal, str],
+                         feedback_form: str) -> Tuple[str, str]:
     """Returns a message that describes the status of all nodes, in the
     format of an email or message for a comprable communication channel.
     """
@@ -125,5 +128,5 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Help us serve you better! Provide your feedback here: {feedback_form} \n")
     return (subject, message)

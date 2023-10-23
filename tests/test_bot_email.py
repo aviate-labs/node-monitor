@@ -55,6 +55,7 @@ def test_send_emails_network():
         subnet_id = 'fake_subnet_id',
     )
     fakelabel = {'fake_node_id': 'fake_label'}
+    fakeurl = 'https://forms.gle/thisisfake'
 
     ## Init the authenticated email bot instance
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
@@ -63,11 +64,13 @@ def test_send_emails_network():
     ## Send out nodes_down_message and nodes_status_message. We test both.
     ## We append time to the subject to act as an identifier for the test.
     recipients = ['nodemonitortest@mailnesia.com']
-    subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
+    subject1, message1 = messages.nodes_down_message(
+        [fakenode], fakelabel, fakeurl)
     subject1 = str(f'{time.time()} - {subject1}')
     email_bot.send_emails(recipients, subject1, message1)
 
-    subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
+    subject2, message2 = messages.nodes_status_message(
+        [fakenode], fakelabel, fakeurl)
     subject2 = str(f'{time.time()} - {subject2}')
     email_bot.send_emails(recipients, subject2, message2)
 
