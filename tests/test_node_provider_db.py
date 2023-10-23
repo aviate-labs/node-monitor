@@ -42,16 +42,19 @@ def test_validate_column_names():
 @pytest.mark.db
 def test_subscribers_crud():
     # Create new subscribers / overwrite subscriber 1
+    # Note: 6th argument of _insert_subscriber is deprecated
     node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False, 'test-dummy-node-provider-name-1')
     node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2')
     node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1')
 
     # Get and check subscribers
+    # Note: 6th argument of asssert statement is deprecated
     subs = node_provider_db.get_subscribers()
     assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') in subs
     assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') in subs
 
     # Get and check subscribers as dict
+    # Note: notify_telegram_channel field in assert statement is deprecated
     subs = node_provider_db.get_subscribers_as_dict()
     assert subs['test-dummy-principal-1'] == \
         {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': True, 'notify_email': True,
@@ -65,6 +68,7 @@ def test_subscribers_crud():
     node_provider_db._delete_subscriber('test-dummy-principal-2')
 
     # Get and check subscribers
+    # Note: 6th argument of asssert statement is deprecated
     subs = node_provider_db.get_subscribers()
     assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') not in subs
     assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') not in subs
@@ -128,6 +132,7 @@ def test_email_lookup_crud():
 @pytest.mark.db
 def test_channel_lookup_crud():
     # Insert new channels, including duplicate principals
+    # Note: last argument of _insert_channel() is deprecated
     node_provider_db._insert_channel(
         'test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1')
     node_provider_db._insert_channel(
@@ -136,14 +141,17 @@ def test_channel_lookup_crud():
         'test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3')
 
     # Get the channels, remove surrogate id column
+    # Note: row[4] is deprecated - telegram channel not used
     channels = node_provider_db.get_channels()
     channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
     # Check that the proper channels were inserted correctly
+    # Note: last argument of assert statement is deprecated
     assert ('test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1') in channels
     assert ('test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2') in channels
     assert ('test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3') in channels
 
+    # Note: telegram_channel_id is deprecated
     channels = node_provider_db.get_channels_as_dict()
     assert channels['test-dummy-principal-1'] == \
         {'node_provider_id': 'test-dummy-principal-1', 'slack_channel_name': 'dummy-slack-channel-3', 
@@ -157,10 +165,12 @@ def test_channel_lookup_crud():
     node_provider_db._delete_channel_lookup('test-dummy-principal-2')
 
     # Get the channels, remove surrogate id column
+    # Note: row[4] is deprecated - telegram channel not used
     channels = node_provider_db.get_channels()
     channels = [(row[1], row[2], row[3], row[4]) for row in channels]
 
     # Check that the channel lookups were deleted correctly
+    # Note: last argument of assert statement is deprecated
     assert ('test-dummy-principal-1', 'dummy-slack-channel-1', 'dummy-telegram-chat-1', 'dummy-telegram-channel-1') not in channels
     assert ('test-dummy-principal-2', 'dummy-slack-channel-2', 'dummy-telegram-chat-2', 'dummy-telegram-channel-2') not in channels
     assert ('test-dummy-principal-1', 'dummy-slack-channel-3', 'dummy-telegram-chat-3', 'dummy-telegram-channel-3') not in channels

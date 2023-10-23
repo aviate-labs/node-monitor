@@ -1,6 +1,6 @@
 import time
 from collections import deque
-from typing import Deque, List, Dict
+from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
 import schedule
 import logging
@@ -8,6 +8,7 @@ import logging
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
+from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
@@ -20,8 +21,11 @@ sync_interval: Seconds = 60 * 4 # 4 minutes -> Seconds
 class NodeMonitor:
 
     def __init__(
-            self, email_bot: EmailBot, slack_bot: SlackBot,
-            node_provider_db: NodeProviderDB) -> None:
+            self, 
+            node_provider_db: NodeProviderDB, 
+            email_bot: EmailBot, 
+            slack_bot: Optional[SlackBot] = None, 
+            telegram_bot: Optional[TelegramBot] = None) -> None:
         """NodeMonitor is a class that monitors the status of the nodes.
         It is responsible for syncing the nodes from the ic-api, analyzing
         the nodes, and broadcasting alerts to the appropriate channels.
@@ -29,11 +33,13 @@ class NodeMonitor:
         Args:
             email_bot: An instance of EmailBot
             slack_bot: An instance of SlackBot
+            telegram_bot: An instance of TelegramBot
             node_provider_db: An instance of NodeProviderDB
 
         Attributes:
             email_bot: An instance of EmailBot
             slack_bot: An instance of SlackBot
+            telegram_bot: An instance of TelegramBot
             node_provider_db: An instance of NodeProviderDB
             snapshots: A deque of the last 3 snapshots of the nodes
             last_update: The timestamp of the last time the nodes were synced
@@ -44,9 +50,10 @@ class NodeMonitor:
                 node_provider_id, but only including node_providers that are 
                 subscribed to alerts.
         """
+        self.node_provider_db = node_provider_db
         self.email_bot = email_bot
         self.slack_bot = slack_bot
-        self.node_provider_db = node_provider_db
+        self.telegram_bot = telegram_bot
         self.snapshots: Deque[ic_api.Nodes] = deque(maxlen=3)
         self.last_update: float | None = None
         self.last_status_report: float = 0
@@ -102,23 +109,21 @@ class NodeMonitor:
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject = f"Node Down Alert"
-            msg = messages.nodes_down_message(nodes, node_labels)
+            subject, message = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 logging.info(f"Sending alert email to {recipients}...")
-                self.email_bot.send_emails(recipients, subject, msg)
-            if preferences['notify_slack'] == True:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                logging.info(f"Sending alert slack message to {channel_name}...")
-                self.slack_bot.send_message(channel_name, msg)
+                self.email_bot.send_emails(recipients, subject, message)
+            if preferences['notify_slack'] == True: 
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    logging.info(f"Sending alert slack message to {channel_name}...")
+                    self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
-            if preferences['notify_telegram_channel'] == True:
-                # TODO: Not Yet Implemented
-                raise NotImplementedError
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 
@@ -142,17 +147,21 @@ class NodeMonitor:
         for node_provider_id, nodes in reportable_nodes.items():
             logging.info(f"Broadcasting status report {node_provider_id}...")
             preferences = subscribers[node_provider_id]
-            subject = f"Node Status Report"
-            msg = messages.nodes_status_message(nodes, node_labels)
+            subject, message = messages.nodes_status_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 logging.info(f"Sending status_report email to {recipients}...")
-                self.email_bot.send_emails(recipients, subject, msg)
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
-                channel_name = channels[node_provider_id]['slack_channel_name']
-                logging.info(f"Sending status_report slack message to {channel_name}...")
-                self.slack_bot.send_message(channel_name, msg)
+                if self.slack_bot is not None:
+                    channel_name = channels[node_provider_id]['slack_channel_name']
+                    logging.info(f"Sending status_report slack message to {channel_name}...")
+                    self.slack_bot.send_message(channel_name, message)
+            if preferences['notify_telegram_chat'] == True: 
+                if self.telegram_bot is not None:
+                    chat_id = channels[node_provider_id]['telegram_chat_id']
+                    self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
 

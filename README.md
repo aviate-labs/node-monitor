@@ -59,15 +59,3 @@ $ rsync -anv --exclude '.git/' . username@remote_host:/root/directory
 
 #### 2FA Gmail
 If you are using gmail, you may need to create an ['app password'](https://support.google.com/mail/answer/185833)
-
-#### Setting up the Slack Bot
-1. Follow the steps in [this walkthrough](https://app.tango.us/app/workflow/Setting-up-a-Node-Monitor-Bot-in-Slack--Step-by-Step-Instructions-c971a31e13a344dc8cba4c2ebc3f4e4e), and keep track of the bot API token and the channel name.
-2. Update the `TOKEN_SLACK` field in `.env` with the bot API token.
-3. Update your database with any necessary channel information.
-
-#### Setting up the Telegram Bot
-- Not Yet Implemented
-1. Follow the steps in this [walkthrough](https://help.nethunt.com/en/articles/6467726-how-to-create-a-telegram-bot-and-use-it-to-post-in-telegram-channels)
-2. Update the `TOKEN_TELEGRAM` field in the `.env` file with the bot API token.
-3. Update your database with any necessary channel information (for messaging a channel)
-4. Update your database with the chat ID (for messaging a chat)
