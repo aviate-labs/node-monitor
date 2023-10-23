@@ -113,7 +113,7 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                logging.info(f"Sending alert email to {recipients}...")
+                logging.info(f"Sending alert email message to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True: 
                 if self.slack_bot is not None:
@@ -123,6 +123,7 @@ class NodeMonitor:
             if preferences['notify_telegram_chat'] == True:
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
+                    logging.info(f"Sending alert telegram message to {chat_id}...")
                     self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
@@ -151,16 +152,17 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
-                logging.info(f"Sending status_report email to {recipients}...")
+                logging.info(f"Sending status report email to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
-                    logging.info(f"Sending status_report slack message to {channel_name}...")
+                    logging.info(f"Sending status report slack message to {channel_name}...")
                     self.slack_bot.send_message(channel_name, message)
             if preferences['notify_telegram_chat'] == True: 
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
+                    logging.info(f"Sending status report telegram message to {chat_id}...")
                     self.telegram_bot.send_message(chat_id, message)
             # - - - - - - - - - - - - - - - - -
 
