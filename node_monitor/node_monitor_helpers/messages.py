@@ -55,7 +55,7 @@ def detailnodes(nodes: List[ic_api.Node],
 
 def nodes_down_message(nodes: List[ic_api.Node], 
                        labels: Dict[Principal, str],
-                       feedback_form: str) -> Tuple[str, str]:
+                       feedback_form_url: str) -> Tuple[str, str]:
     """Returns a message that describes the nodes that are down, in the
     format of an email or message for a comprable communication channel.
     """
@@ -76,14 +76,14 @@ def nodes_down_message(nodes: List[ic_api.Node],
         f"\n"
         f"Node Monitor by Aviate Labs\n"
         f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback here: {feedback_form}\n")
+        f"Help us serve you better! Provide your feedback here: {feedback_form_url}\n")
     return (subject, message)
 
 
 
 def nodes_status_message(nodes: List[ic_api.Node],
                          labels: Dict[Principal, str],
-                         feedback_form: str) -> Tuple[str, str]:
+                         feedback_form_url: str) -> Tuple[str, str]:
     """Returns a message that describes the status of all nodes, in the
     format of an email or message for a comprable communication channel.
     """
@@ -128,5 +128,5 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback here: {feedback_form} \n")
+        f"Help us serve you better! Provide your feedback here: {feedback_form_url} \n")
     return (subject, message)
