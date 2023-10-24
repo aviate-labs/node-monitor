@@ -12,7 +12,6 @@ from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 import node_monitor.node_monitor_helpers.messages as messages
-import node_monitor.load_config as c
 
 Seconds = int
 Principal = str
@@ -108,8 +107,7 @@ class NodeMonitor:
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject, message = messages.nodes_down_message(
-                nodes, node_labels, c.FEEDBACK_FORM_URL)
+            subject, message = messages.nodes_down_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
@@ -144,8 +142,7 @@ class NodeMonitor:
         # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
             preferences = subscribers[node_provider_id]
-            subject, message = messages.nodes_status_message(
-                nodes, node_labels, c.FEEDBACK_FORM_URL)
+            subject, message = messages.nodes_status_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]

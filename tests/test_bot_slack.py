@@ -41,17 +41,15 @@ def test_send_message_slack():
         subnet_id = 'fake_subnet_id',
     )
     fakelabel = {'fake_node_id': 'fake_label'}
-    fakeurl = 'https://forms.gle/thisisfake'
     
     slack_channel_name = "node-monitor"
-    subject1, message1 = messages.nodes_down_message(
-        [fakenode], fakelabel, fakeurl)
-    subject2, message2 = messages.nodes_status_message(
-        [fakenode], fakelabel, fakeurl)
+    with patch.object(c, 'FEEDBACK_FORM_URL', 'https://url-has-been-redacted.ninja'):
+        subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
+        subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
 
-    # SlackBot.send_message() returns an error without raising an exception
-    # to prevent NodeMonitor from crashing if the message fails to send.
-    # Instead, we raise it here.
+    ## SlackBot.send_message() normally returns an error without raising 
+    ## an exception to prevent NodeMonitor from crashing if the message 
+    ## fails to send. We make sure to raise it here to purposely fail the test.
     err1 = slack_bot.send_message(slack_channel_name, message1)
     err2 = slack_bot.send_message(slack_channel_name, message2)
     if err1 is not None:

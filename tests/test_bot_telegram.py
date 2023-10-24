@@ -42,12 +42,10 @@ def test_send_live_message():
         subnet_id = 'fake_subnet_id',
     )
     fakelabel = {'fake_node_id': 'fake_label'}
-    fakeurl = 'https://forms.gle/thisisfake'
-    
-    subject1, message1 = messages.nodes_down_message(
-        [fakenode], fakelabel, fakeurl)
-    subject2, message2 = messages.nodes_status_message(
-        [fakenode], fakelabel, fakeurl)
+
+    with patch.object(c, 'FEEDBACK_FORM_URL', 'https://url-has-been-redacted.ninja'):
+        subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
+        subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
 
     err1 = telegram_bot.send_message(chat_id, message1)
     err2 = telegram_bot.send_message(chat_id, message2)
