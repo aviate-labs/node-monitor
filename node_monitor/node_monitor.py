@@ -119,12 +119,16 @@ class NodeMonitor:
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
                     logging.info(f"Sending alert slack message to {channel_name}...")
-                    self.slack_bot.send_message(channel_name, message)
+                    err = self.slack_bot.send_message(channel_name, message)
+                    if err is not None:
+                        logging.error(f"SlackBot.send_message() failed with error: {err}")
             if preferences['notify_telegram_chat'] == True:
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
                     logging.info(f"Sending alert telegram message to {chat_id}...")
-                    self.telegram_bot.send_message(chat_id, message)
+                    err = self.telegram_bot.send_message(chat_id, message)
+                    if err is not None:
+                        logging.error(f"TelegramBot.send_message() failed with error: {err}")
             # - - - - - - - - - - - - - - - - -
 
 
@@ -158,12 +162,16 @@ class NodeMonitor:
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
                     logging.info(f"Sending status report slack message to {channel_name}...")
-                    self.slack_bot.send_message(channel_name, message)
+                    err = self.slack_bot.send_message(channel_name, message)
+                    if err is not None:
+                        logging.error(f"SlackBot.send_message() failed with error: {err}")
             if preferences['notify_telegram_chat'] == True: 
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
                     logging.info(f"Sending status report telegram message to {chat_id}...")
-                    self.telegram_bot.send_message(chat_id, message)
+                    err = self.telegram_bot.send_message(chat_id, message)
+                    if err is not None:
+                        logging.error(f"TelegramBot.send_message() failed with error: {err}")
             # - - - - - - - - - - - - - - - - -
 
 
