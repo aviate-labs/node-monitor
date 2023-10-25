@@ -6,6 +6,12 @@ import node_monitor.ic_api as ic_api
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
 
+def datetime_iso8601() -> str:
+    """Returns the current time in ISO 8601 format, excluding milliseconds.
+    Example: 2021-05-01T00:00:00.
+    """
+    return datetime.utcnow().isoformat(timespec='seconds')
+
 
 def detailnode(node: ic_api.Node, label: str) -> str:
     """Returns:
@@ -73,7 +79,7 @@ def nodes_down_message(nodes: List[ic_api.Node],
         f"{formatted_nodes_down}\n"
         f"\n"
         f"Node Monitor by Aviate Labs\n"
-        f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Report Generated: {datetime_iso8601()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
 
@@ -124,6 +130,6 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"\n"
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
-        f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Report generated: {datetime_iso8601()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
