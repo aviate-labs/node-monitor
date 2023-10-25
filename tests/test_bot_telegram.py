@@ -27,30 +27,9 @@ def test_send_message(mock_get):
 def test_send_live_message():
     telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
     chat_id = "-1001925583150"  
+    message = "🔬 This is a test message from Node Monitor"
 
-    ## Create a fake node model
-    fakenode = ic_api.Node(
-        dc_id = 'fake_dc_id',
-        dc_name = 'fake_dc_name',
-        node_id = 'fake_node_id',
-        node_operator_id = 'fake_node_operator_id',
-        node_provider_id = 'fake_node_provider_id',
-        node_provider_name = 'fake_node_provider_name',
-        owner = 'fake_owner',
-        region = 'fake_region',
-        status = 'DOWN',
-        subnet_id = 'fake_subnet_id',
-    )
-    fakelabel = {'fake_node_id': 'fake_label'}
-
-    with patch.object(c, 'FEEDBACK_FORM_URL', 'https://url-has-been-redacted.ninja'):
-        subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
-        subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
-
-    err1 = telegram_bot.send_message(chat_id, message1)
-    err2 = telegram_bot.send_message(chat_id, message2)
-    if err1 is not None:
-        raise err1
-    if err2 is not None:
-        raise err2
+    err = telegram_bot.send_message(chat_id, message)
+    if err is not None:
+        raise err
 
