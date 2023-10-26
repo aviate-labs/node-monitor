@@ -118,7 +118,6 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"{_make_diagnostic_message()}\n"
         f"\n"
         f"🔎 Node Status Breakdown:\n"
-        f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
