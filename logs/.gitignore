@@ -1,0 +1,11 @@
+# This `logs/` folder needs to exist for docker to be able to bind to it.
+# We use this gitignore file to commit the folder to the repo, so it exists
+# in our github workflow and can be run with CI. 
+# Empty directories are not tracked by default in git.
+
+
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+
