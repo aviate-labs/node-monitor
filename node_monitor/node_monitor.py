@@ -3,6 +3,7 @@ from collections import deque
 from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
 import schedule
+import logging
 
 import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
@@ -74,6 +75,7 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Nodes from the ic-api. Useful for testing.
         """
+        logging.info("Resyncing node states from ic-api...")
         data = override_data if override_data else ic_api.get_nodes()
         self.snapshots.append(data)
         self.last_update = time.time()
@@ -111,15 +113,22 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
+                logging.info(f"Sending alert email message to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True: 
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, message)
+                    logging.info(f"Sending alert slack message to {channel_name}...")
+                    err1 = self.slack_bot.send_message(channel_name, message)
+                    if err1 is not None:
+                        logging.error(f"SlackBot.send_message() failed with error: {err1}")
             if preferences['notify_telegram_chat'] == True:
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, message)
+                    logging.info(f"Sending alert telegram message to {chat_id}...")
+                    err2 = self.telegram_bot.send_message(chat_id, message)
+                    if err2 is not None:
+                        logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
 
 
@@ -141,20 +150,28 @@ class NodeMonitor:
                             if k in subscribers.keys()}
         # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
+            logging.info(f"Broadcasting status report {node_provider_id}...")
             preferences = subscribers[node_provider_id]
             subject, message = messages.nodes_status_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
+                logging.info(f"Sending status report email to {recipients}...")
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
                     channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, message)
+                    logging.info(f"Sending status report slack message to {channel_name}...")
+                    err1 = self.slack_bot.send_message(channel_name, message)
+                    if err1 is not None:
+                        logging.error(f"SlackBot.send_message() failed with error: {err1}")
             if preferences['notify_telegram_chat'] == True: 
                 if self.telegram_bot is not None:
                     chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, message)
+                    logging.info(f"Sending status report telegram message to {chat_id}...")
+                    err2 = self.telegram_bot.send_message(chat_id, message)
+                    if err2 is not None:
+                        logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
 
 
@@ -167,7 +184,7 @@ class NodeMonitor:
             self._analyze()
             self.broadcast_alerts()
         except Exception as e:
-            print(f"NodeMonitor.step() failed with error: {e}")
+            logging.error(f"NodeMonitor.step() failed with error: {e}")
 
 
     def mainloop(self) -> None:
