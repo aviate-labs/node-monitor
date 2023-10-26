@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
+import node_monitor.load_config as c
 
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str

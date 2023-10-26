@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch
 
-import node_monitor.load_config as c
 from node_monitor.bot_slack import SlackBot
+import node_monitor.load_config as c
 
 
 @patch("slack_sdk.WebClient")
@@ -24,13 +24,12 @@ def test_send_message(mock_web_client):
 def test_send_message_slack():
     """Send a real test message to a Slack workspace"""
     slack_bot = SlackBot(c.TOKEN_SLACK)
-    
     slack_channel_name = "node-monitor"
-    message = "🔬 Hello from test_send_message_slack()"
+    message = "🔬 This is a test message from Node Monitor"
 
-    # SlackBot.send_message() returns an error without raising an exception
-    # to prevent NodeMonitor from crashing if the message fails to send.
-    # Instead, we raise it here.
+    ## SlackBot.send_message() normally returns an error without raising 
+    ## an exception to prevent NodeMonitor from crashing if the message 
+    ## fails to send. We make sure to raise it here to purposely fail the test.
     err = slack_bot.send_message(slack_channel_name, message)
     if err is not None:
         raise err

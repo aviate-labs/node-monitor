@@ -9,6 +9,7 @@ import node_monitor.ic_api as ic_api
 ##   --db is a custom flag to test CRUD operations on the database
 ## example: pytest -s --send_emails tests/test_bot_email.py
 ## example: pytest -s --send_slack tests/test_bot_slack.py
+## example: pytest -s --send_telegram tests/test_bot_telegram.py
 ## example: pytest -s --db tests/test_node_provider_db.py
 
 
