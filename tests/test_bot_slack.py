@@ -3,8 +3,6 @@ from unittest.mock import patch
 
 from node_monitor.bot_slack import SlackBot
 import node_monitor.load_config as c
-import node_monitor.node_monitor_helpers.messages as messages
-import node_monitor.ic_api as ic_api
 
 
 @patch("slack_sdk.WebClient")

@@ -2,8 +2,6 @@ import pytest
 from unittest.mock import patch
 
 import node_monitor.load_config as c
-import node_monitor.node_monitor_helpers.messages as messages
-import node_monitor.ic_api as ic_api
 from node_monitor.bot_telegram import TelegramBot
 
 @patch("requests.get")
