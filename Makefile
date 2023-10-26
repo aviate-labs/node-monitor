@@ -15,7 +15,7 @@ dev:
 
 # Run this with the production gunicorn WSGI Server
 prod:
-	gunicorn -w 1 -b 0.0.0.0:80 --access-logfile gunicornlog.txt -k eventlet node_monitor.__main__:app
+	gunicorn -w 1 -b 0.0.0.0:80 --access-logfile=logs/gunicorn_access.log --error-logfile=logs/gunicorn_error.log -k eventlet node_monitor.__main__:app
 # We're forced to run this with only one worker because we're instantiating
 # node_monitor in a thread from inside the app. If we had multiple workers,
 # we would have multiple instances of node_monitor running, each sending

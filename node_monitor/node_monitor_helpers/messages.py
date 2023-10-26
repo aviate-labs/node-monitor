@@ -2,9 +2,16 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
+import node_monitor.load_config as c
 
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
+
+def datetime_iso8601() -> str:
+    """Returns the current time in ISO 8601 format, excluding milliseconds.
+    Example: 2021-05-01T00:00:00.
+    """
+    return datetime.utcnow().isoformat(timespec='seconds')
 
 
 def detailnode(node: ic_api.Node, label: str) -> str:
@@ -73,7 +80,7 @@ def nodes_down_message(nodes: List[ic_api.Node],
         f"{formatted_nodes_down}\n"
         f"\n"
         f"Node Monitor by Aviate Labs\n"
-        f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Report Generated: {datetime_iso8601()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
 
@@ -96,7 +103,7 @@ def nodes_status_message(nodes: List[ic_api.Node],
             case 0: return ""
             case _: return (f"🛑 Node(s) Compromised:\n"
                             f"\n"
-                            f"{detailnodes(nodes_down, labels)}\n")
+                            f"{detailnodes(nodes_down, labels)}\n\n")
     def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_down}
         match len(nodes_down):
@@ -109,10 +116,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     subject = _make_subject()
     message = (
-        f"{_make_diagnostic_message()}\n"
-        f"\n"
+        f"{_make_diagnostic_message()}"
         f"🔎 Node Status Breakdown:\n"
-        f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
@@ -124,6 +129,6 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"\n"
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
-        f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
+        f"Report generated: {datetime_iso8601()} UTC\n"
         f"Help us serve you better! Provide your feedback!\n")
     return (subject, message)
