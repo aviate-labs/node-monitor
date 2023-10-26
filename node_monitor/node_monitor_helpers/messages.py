@@ -102,7 +102,7 @@ def nodes_status_message(nodes: List[ic_api.Node],
             case 0: return ""
             case _: return (f"🛑 Node(s) Compromised:\n"
                             f"\n"
-                            f"{detailnodes(nodes_down, labels)}\n")
+                            f"{detailnodes(nodes_down, labels)}\n\n")
     def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_down}
         match len(nodes_down):
@@ -115,10 +115,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     subject = _make_subject()
     message = (
-        f"{_make_diagnostic_message()}\n"
-        f"\n"
+        f"{_make_diagnostic_message()}"
         f"🔎 Node Status Breakdown:\n"
-        f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
