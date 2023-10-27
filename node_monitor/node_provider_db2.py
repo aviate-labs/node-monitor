@@ -4,7 +4,26 @@ import psycopg2, psycopg2.extensions
 Principal = str
 
 class DictDB:
-    """Class used to operate with a postgres database using dictionaries."""
+    """Class used to operate with a postgres database using dictionaries.
+    This class is not intended to be called directly, instead it should be
+    inherited from and the schema should be defined in the child class."""
+    ##
+    ## Any child class should define a schema.
+    ## The schema should be a dictionary of dictionaries, where the keys
+    ## are the table names, and the values are dictionaries of column names
+    ## and data types. See the example schema for reference.
+    ## 
+    ## Any schema that is a superset of this should be considered valid and
+    ## interoperable, and should not throw errors.
+    schema = {}
+    example_schema = {
+        "table_name": {
+            "column_name": "data_type",
+            "column_name": "data_type"
+        }
+    }
+    ##
+    ## Function Definitions
 
     def __init__(self, host: str, db: str, port: str,
                  username: str,password: str) -> None:
@@ -34,8 +53,8 @@ class DictDB:
         self.conn = None
 
 
-    def get_tables(self) -> List[Tuple[str]]:
-        """List all the table names in the database"""
+    def get_table_schema(self) -> List[Tuple[str]]:
+        """Query the database for the table schema."""
         assert self.conn is not None
         q = """
             SELECT table_name
@@ -48,8 +67,8 @@ class DictDB:
         return rows
     
 
-    def get_table_schema(self, table_name: str) -> List[Tuple[str, str]]:
-        """Get the schema of a table by its name"""
+    def get_column_schema(self, table_name: str) -> List[Tuple[str, str]]:
+        """Query the database for the column schema of a table."""
         assert self.conn is not None
         q = f"""
             SELECT column_name, data_type
@@ -62,11 +81,11 @@ class DictDB:
         return rows
     
 
-    def validate_schema(self):
+    def validate_schema(self) -> bool:
         """Validate the schema against the database.
         Used for testing, not in production."""
         actual_tables = self.get_tables()
-        expected_tables = schema.keys()
+        expected_tables = DictDB.schema.keys()
         # TODO: this will fail, the data isnt properly formatted
         return set(actual_tables) == set(expected_tables)
     
@@ -99,50 +118,43 @@ class DictDB:
         return [dict(zip(column_names, row)) for row in rows]
 
 
-## Our schema
-## This is a minimum schema.
-## Any schema that is a superset of this should
-## be considered valid and interoperable, and should not throw errors
-## 
-## schema = {
-##     "table_name": {
-##         "column_name": "data_type",
-##         "column_name": "data_type"
-##     }
-## }
-##
-##
 
 
-schema = {
-    "subscribers": {
-        "node_provider_id": "TEXT PRIMARY KEY",
-        "node_provider_name": "TEXT",
-        "notify_on_status_change": "BOOLEAN", # do we want this?
-        "notify_email": "BOOLEAN",
-        "notify_slack": "BOOLEAN",
-        "notify_telegram": "BOOLEAN"
-    },
-    "email_lookup": {
-        "id": "SERIAL PRIMARY KEY",
-        "node_provider_id": "TEXT",
-        "email_address": "TEXT"
-    },
-    "slack_channel_lookup": {
-        "id": "SERIAL PRIMARY KEY",
-        "node_provider_id": "TEXT",
-        "slack_channel_id": "TEXT"
-    },
-    "telegram_chat_lookup": {
-        "id": "SERIAL PRIMARY KEY",
-        "node_provider_id": "TEXT",
-        "telegram_chat_id": "TEXT"
-    },
-    "node_label_lookup": {
-        "node_id": "TEXT PRIMARY KEY",
-        "node_label": "TEXT"
+
+class NodeProviderDB(DictDB):
+    """Class used to define and test the proper schema."""
+
+    schema = {
+        "subscribers": {
+            "node_provider_id": "TEXT PRIMARY KEY",
+            "node_provider_name": "TEXT",
+            "notify_on_status_change": "BOOLEAN", # do we want this?
+            "notify_email": "BOOLEAN",
+            "notify_slack": "BOOLEAN",
+            "notify_telegram": "BOOLEAN"
+        },
+        "email_lookup": {
+            "id": "SERIAL PRIMARY KEY",
+            "node_provider_id": "TEXT",
+            "email_address": "TEXT"
+        },
+        "slack_channel_lookup": {
+            "id": "SERIAL PRIMARY KEY",
+            "node_provider_id": "TEXT",
+            "slack_channel_id": "TEXT"
+        },
+        "telegram_chat_lookup": {
+            "id": "SERIAL PRIMARY KEY",
+            "node_provider_id": "TEXT",
+            "telegram_chat_id": "TEXT"
+        },
+        "node_label_lookup": {
+            "node_id": "TEXT PRIMARY KEY",
+            "node_label": "TEXT"
+        }
     }
-}
+
+
 
 
 
@@ -153,10 +165,10 @@ if __name__ == "__main__":
     db.connect()
     pprint("---------------------------------")
     print("Tables:")
-    pprint(db.get_tables())
+    pprint(db.get_table_schema())
     print("")
     print("Schema:")
-    pprint(db.get_table_schema('email_lookup'))
+    pprint(db.get_column_schema('email_lookup'))
     print("Subscribers as dict")
     pprint(db.get_table_as_dict('subscribers'))
     pprint(db.get_table_as_dict('email_lookup'))
