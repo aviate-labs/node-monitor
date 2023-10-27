@@ -32,20 +32,46 @@ class DictDB:
         self.conn = None
 
 
-    def validate_table(self, table_name: str) -> None:
-        """Validate that the table exists with the expected schema"""
-        pass
+    def get_tables(self) -> List[str]:
+        """List all the table names in the database"""
+        assert self.conn is not None
+        q = """
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(q)
+            rows = cur.fetchall()
+        return [row[0] for row in rows]
+    
 
-    def read_rows() -> List[Dict[str, Any]]:
-        """Read all rows from database"""
-        pass
-
+    def get_table_schema(self, table_name: str) -> List[Tuple[str, str]]:
+        """Get the schema of a table by its name"""
+        assert self.conn is not None
+        q = f"""
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = '{table_name}'
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(q)
+            rows = cur.fetchall()
+        return rows
 
 
 
 if __name__ == "__main__":
     import load_config as c
+    from pprint import pprint
     db = DictDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     db.connect()
-    print("Connected to database")
+    pprint("---------------------------------")
+    print("Tables:")
+    pprint(db.get_tables())
+    print("")
+    print("Schema:")
+    pprint(db.get_table_schema('email_lookup'))
+    pprint("---------------------------------")
     db.disconnect()
+    
