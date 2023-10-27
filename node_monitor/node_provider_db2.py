@@ -61,6 +61,53 @@ class DictDB:
 
 
 
+
+## Our schema
+## This is a minimum schema. 
+## Any schema that is a superset of this is valid.
+
+tables = [
+    'subscribers',
+    'email_lookup',
+    'slack_channel_lookup',
+    'telegram_chat_lookup',
+    'node_label_lookup'
+]
+
+table_subscribers = {
+    'node_provider_id': 'TEXT PRIMARY KEY',
+    'node_provider_name': 'TEXT',
+    'notify_on_status_change': 'BOOLEAN', # do we want this?
+    'notify_email': 'BOOLEAN',
+    'notify_slack': 'BOOLEAN',
+    'notify_telegram': 'BOOLEAN',
+}
+
+table_email_lookup = {
+    'id': 'SERIAL PRIMARY KEY',
+    'node_provider_id': 'TEXT',
+    'email_address': 'TEXT'
+}
+
+table_slack_channel_lookup = {
+    'id': 'SERIAL PRIMARY KEY',
+    'node_provider_id': 'TEXT',
+    'slack_channel_id': 'TEXT'
+}
+
+table_telegram_chat_lookup = {
+    'id': 'SERIAL PRIMARY KEY',
+    'node_provider_id': 'TEXT',
+    'telegram_chat_id': 'TEXT'
+}
+
+table_node_label_lookup = {
+    'node_id': 'TEXT PRIMARY KEY',
+    'node_label': 'TEXT'
+}
+
+
+
 if __name__ == "__main__":
     import load_config as c
     from pprint import pprint
@@ -74,4 +121,3 @@ if __name__ == "__main__":
     pprint(db.get_table_schema('email_lookup'))
     pprint("---------------------------------")
     db.disconnect()
-    
