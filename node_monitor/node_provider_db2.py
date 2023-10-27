@@ -62,6 +62,15 @@ class DictDB:
         return rows
     
 
+    def validate_schema(self):
+        """Validate the schema against the database.
+        Used for testing, not in production."""
+        actual_tables = self.get_tables()
+        expected_tables = schema.keys()
+        # TODO: this will fail, the data isnt properly formatted
+        return set(actual_tables) == set(expected_tables)
+    
+
     def get_table_as_dict(self, table_name: str) -> List[dict]:
         """Get a table as a list of flat (unnested) dictionaries.
         Example:
