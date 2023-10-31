@@ -64,7 +64,8 @@ def nodes_compromised_message(nodes: List[ic_api.Node],
     """Returns a message that describes the nodes that are compromised, in the
     format of an email or message for a comprable communication channel.
     """
-    nodes_compromised = [node for node in nodes if node.status == 'DOWN' or node.status == 'DEGRADED']
+    nodes_compromised = [node for node in nodes if node.status == 'DOWN' or 
+                         node.status == 'DEGRADED']
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_compromised}
