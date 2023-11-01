@@ -5,7 +5,17 @@ from psycopg2.extras import DictCursor
 Principal = str
 
 
+## References:
+# Information about psycopg2 connection pooling and cursors:
+# https://www.psycopg.org/docs/pool.html
+# https://www.psycopg.org/docs/cursor.html
+# Please note that we did include a NodeProviderDB.close() class here, 
+# but we will probably never need to call it:
+# https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
+
+
 class NodeProviderDB():
+    """A class to interact with the node_provider database."""
 
     create_table_subscribers = """
         CREATE TABLE IF NOT EXISTS subscribers (
@@ -59,22 +69,39 @@ class NodeProviderDB():
             
     def _validate(self) -> None:
         raise NotImplementedError
+    
 
-
-    def get_subscribers(self) -> List[Tuple[Any, ...]]:
+    def _query(self, sql: str, vals: tuple):
+        """Execute a read only SQL statement with a connection from the pool."""
         conn = self.pool.getconn()
-        # https://www.psycopg.org/docs/cursor.html
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM subscribers")
-        rows = cur.fetchall()
-        cur.close()
+        with conn.cursor() as cur:
+            cur.execute(sql, vals)
+            result = cur.fetchall()
         self.pool.putconn(conn)
-        return rows
+        return result
 
 
-    def close(self):
-        # We will probably never call this
-        # https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
+    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
+        """Returns the table of all subscribers as a dictionary."""
+        raise NotImplementedError
+    
+
+    def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all emails as a dictionary"""
+        raise NotImplementedError
+    
+
+    def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all slack channels as a dictionary."""
+        raise NotImplementedError
+    
+
+    def get_telegram_chats_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all telegram chats as a dictionary."""
+        raise NotImplementedError
+
+
+    def close(self) -> None:
         self.pool.closeall()
 
 
@@ -85,5 +112,5 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
-    result = db.get_subscribers()
+    result = db._query("SELECT * FROM subscribers", ())
     pprint(result)
