@@ -6,12 +6,17 @@ Principal = str
 
 
 ## References:
+# This API was inspired by:
+# https://cljdoc.org/d/seancorfield/next.jdbc/
+#
 # Information about psycopg2 connection pooling and cursors:
 # https://www.psycopg.org/docs/pool.html
 # https://www.psycopg.org/docs/cursor.html
+#
 # Please note that we did include a NodeProviderDB.close() class here, 
 # but we will probably never need to call it:
 # https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
+#
 
 
 class NodeProviderDB():
@@ -61,7 +66,6 @@ class NodeProviderDB():
 
     def __init__(self, host: str, db: str, port: str,
                  username: str,password: str) -> None:
-        # https://www.psycopg.org/docs/pool.html
         self.pool = psycopg2.pool.SimpleConnectionPool(
             1, 3, host=host, database=db, port=port,
             user=username, password=password)
@@ -71,11 +75,13 @@ class NodeProviderDB():
         raise NotImplementedError
     
 
-    def _query(self, sql: str, vals: tuple):
-        """Execute a read only SQL statement with a connection from the pool."""
+    def _query(self, sql: str, params: tuple):
+        """Execute a read only SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed."""
+        # TODO: replace this with an _execute method that can read/write?
         conn = self.pool.getconn()
         with conn.cursor() as cur:
-            cur.execute(sql, vals)
+            cur.execute(sql, params)
             result = cur.fetchall()
         self.pool.putconn(conn)
         return result
