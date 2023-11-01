@@ -79,6 +79,8 @@ class NodeProviderDB():
         """Execute a read only SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed."""
         # TODO: replace this with an _execute method that can read/write?
+        # TODO: use RealDictCursor instead of default?
+        # TODO: return a list of dicts instead of a list of tuples?
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
