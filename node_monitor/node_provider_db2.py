@@ -115,6 +115,7 @@ class NodeProviderDB():
         """Validate the database schema."""
         # This function is still incomplete
         # Get the column names, data types
+        # TODO: could we use pg_dump or generate_ddl to test this instead?
         table_name = "subscribers"
         query = f"""
             SELECT column_name, data_type
