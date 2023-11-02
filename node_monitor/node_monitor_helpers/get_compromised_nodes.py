@@ -53,9 +53,9 @@ def get_compromised_nodes(snapshots: Deque[ic_api.Nodes]) -> List[ic_api.Node]:
         # debounce: eliminate false positives
         # sometimes the nodes go down for a few minutes and come back up
         node_c_is_compromised: bool = all([
-            node_a.status == 'UP' or node_a.status == 'UNASSIGEND',
-            node_b.status == 'DOWN' or node_b.status == 'DEGRAGED',
-            node_c.status == 'DOWN' or node_c.status == 'DEGRAGED',
+            node_a.status == 'UP' or node_a.status == 'UNASSIGNED',
+            node_b.status == 'DOWN' or node_b.status == 'DEGRADED',
+            node_c.status == 'DOWN' or node_c.status == 'DEGRADED',
         ])
         if node_c_is_compromised:
             compromised_nodes.append(node_c)
