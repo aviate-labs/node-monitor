@@ -71,13 +71,13 @@ class NodeProviderDB():
             user=username, password=password)
 
 
-    def _execute(self, sql: str, params: tuple):
+    def _execute1(self, sql: str, params: tuple) -> List[tuple]:
         """Execute a SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed.
         All transactions are committed.
+        Returns a list of tuples, as is standard.
+        Prefer _execute() instead.
         """
-        # Note: this method can also be used for read-only queries.
-        # conn.commit() adds insignificant overhead for read-only queries.
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
@@ -86,7 +86,8 @@ class NodeProviderDB():
         self.pool.putconn(conn)
         return result
     
-    def _execute2(self, sql: str, params: tuple) -> List[dict]:
+
+    def _execute(self, sql: str, params: tuple) -> List[dict]:
         """Execute a SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed.
         All transactions are committed.
@@ -141,5 +142,5 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
-    result = db._execute2("SELECT * FROM subscribers", ())
+    result = db._execute("SELECT * FROM subscribers", ())
     pprint(result)
