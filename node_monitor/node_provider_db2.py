@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional, Tuple
 import psycopg2, psycopg2.extensions, psycopg2.pool
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, RealDictCursor
 
 Principal = str
 
@@ -78,8 +78,6 @@ class NodeProviderDB():
         """
         # Note: this method can also be used for read-only queries.
         # conn.commit() adds insignificant overhead for read-only queries.
-        # TODO: use RealDictCursor instead of default?
-        # TODO: return a list of dicts instead of a list of tuples?
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
@@ -87,6 +85,24 @@ class NodeProviderDB():
         conn.commit()
         self.pool.putconn(conn)
         return result
+    
+    def _execute2(self, sql: str, params: tuple) -> List[dict]:
+        """Execute a SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed.
+        All transactions are committed.
+        Returns a list of dicts instead of the default list of tuples.
+        Ex. [{'column_name': value, ...}, ...]
+        """
+        # Note: this method can also be used for read-only queries, because
+        # conn.commit() adds insignificant overhead for read-only queries.
+        # Note: we convert 'result' from type List[RealDictCursor] to List[dict]
+        conn = self.pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql, params)
+            result = cur.fetchall()
+        conn.commit()
+        self.pool.putconn(conn)
+        return [dict(r) for r in result]
 
 
     def _validate(self) -> None:
@@ -125,5 +141,5 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
-    result = db._execute("SELECT * FROM subscribers", ())
+    result = db._execute2("SELECT * FROM subscribers", ())
     pprint(result)
