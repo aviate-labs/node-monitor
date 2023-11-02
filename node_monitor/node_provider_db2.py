@@ -106,9 +106,19 @@ class NodeProviderDB():
         return result
 
 
-    def _validate(self) -> None:
+    def _validate_schema(self) -> bool:
         """Validate the database schema."""
-        raise NotImplementedError
+        # This function is still incomplete
+        # Get the column names, data types
+        table_name = "subscribers"
+        query = f"""
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = '{table_name}'
+        """
+        result = self._execute(query, ())
+        # Do something here
+        return None
 
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
@@ -142,5 +152,6 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
+    db._validate_schema()
     result = db._execute("SELECT * FROM subscribers", ())
     pprint(result)
