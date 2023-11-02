@@ -92,18 +92,6 @@ class NodeProviderDB():
     def _validate(self) -> None:
         """Validate the database schema."""
         raise NotImplementedError
-    
-
-    def _query(self, sql: str, params: tuple):
-        """Execute a read only SQL statement with a connection from the pool.
-        An empty tuple should be passed if no parameters are needed."""
-        # TODO: replace this with an _execute method that can read/write?
-        conn = self.pool.getconn()
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            result = cur.fetchall()
-        self.pool.putconn(conn)
-        return result
 
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
@@ -137,7 +125,5 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
-    result = db._query("SELECT * FROM subscribers", ())
-    pprint(result)
     result = db._execute("SELECT * FROM subscribers", ())
     pprint(result)
