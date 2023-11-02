@@ -69,9 +69,28 @@ class NodeProviderDB():
         self.pool = psycopg2.pool.SimpleConnectionPool(
             1, 3, host=host, database=db, port=port,
             user=username, password=password)
-        
-            
+
+
+    def _execute(self, sql: str, params: tuple):
+        """Execute a SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed.
+        All transactions are committed.
+        """
+        # Note: this method can also be used for read-only queries.
+        # conn.commit() adds insignificant overhead for read-only queries.
+        # TODO: use RealDictCursor instead of default?
+        # TODO: return a list of dicts instead of a list of tuples?
+        conn = self.pool.getconn()
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+            result = cur.fetchall()
+        conn.commit()
+        self.pool.putconn(conn)
+        return result
+
+
     def _validate(self) -> None:
+        """Validate the database schema."""
         raise NotImplementedError
     
 
@@ -79,8 +98,6 @@ class NodeProviderDB():
         """Execute a read only SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed."""
         # TODO: replace this with an _execute method that can read/write?
-        # TODO: use RealDictCursor instead of default?
-        # TODO: return a list of dicts instead of a list of tuples?
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
@@ -121,4 +138,6 @@ if __name__ == "__main__":
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
     result = db._query("SELECT * FROM subscribers", ())
+    pprint(result)
+    result = db._execute("SELECT * FROM subscribers", ())
     pprint(result)
