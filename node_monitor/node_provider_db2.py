@@ -69,24 +69,8 @@ class NodeProviderDB():
         self.pool = psycopg2.pool.SimpleConnectionPool(
             1, 3, host=host, database=db, port=port,
             user=username, password=password)
-
-
-    def _execute1(self, sql: str, params: tuple) -> List[tuple]:
-        """Execute a SQL statement with a connection from the pool.
-        An empty tuple should be passed if no parameters are needed.
-        All transactions are committed.
-        Returns a list of tuples, as is standard.
-        Prefer _execute() instead.
-        """
-        conn = self.pool.getconn()
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            result = cur.fetchall()
-        conn.commit()
-        self.pool.putconn(conn)
-        return result
     
-
+    
     def _execute(self, sql: str, params: tuple) -> List[dict]:
         """Execute a SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed.
@@ -104,6 +88,22 @@ class NodeProviderDB():
         conn.commit()
         self.pool.putconn(conn)
         return [dict(r) for r in result]
+    
+
+    def _execute1(self, sql: str, params: tuple) -> List[tuple]:
+        """Execute a SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed.
+        All transactions are committed.
+        Returns a list of tuples, as is standard.
+        Prefer _execute() instead.
+        """
+        conn = self.pool.getconn()
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+            result = cur.fetchall()
+        conn.commit()
+        self.pool.putconn(conn)
+        return result
 
 
     def _validate(self) -> None:
