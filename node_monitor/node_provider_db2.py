@@ -4,19 +4,24 @@ from psycopg2.extras import DictCursor, RealDictCursor
 
 Principal = str
 
-
+## This class is a rewrite of our previous NodeProviderDB class.
+## The previous class represented a slightly different database schema.
+## It was verbose, and was hard to build upon or change.
+## It is available for reference in this commit:
+## daf8ee36b5b1309692d3d8583701023ca68b6c54
+##
 ## References:
-# This API was inspired by:
-# https://cljdoc.org/d/seancorfield/next.jdbc/
-#
-# Information about psycopg2 connection pooling and cursors:
-# https://www.psycopg.org/docs/pool.html
-# https://www.psycopg.org/docs/cursor.html
-#
-# Please note that we did include a NodeProviderDB.close() class here, 
-# but we will probably never need to call it:
-# https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
-#
+## This API was inspired by:
+## https://cljdoc.org/d/seancorfield/next.jdbc/
+##
+## Information about psycopg2 connection pooling and cursors:
+## https://www.psycopg.org/docs/pool.html
+## https://www.psycopg.org/docs/cursor.html
+##
+## Please note that we did include a NodeProviderDB.close() class here, 
+## but we will probably never need to call it:
+## https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
+##
 
 
 class NodeProviderDB():
