@@ -9,6 +9,10 @@ Place a `.env` file in this directory.
 Use `.env.example` as a template.  
 You will also need a running Postgres database to store user information.
 
+### Free hosted version
+
+🚀 Don't want the hassle of hosting the code yourself? We've got you covered! Introducing our free hosted version - instant monitoring, zero setup. [Sign up here](https://www.aviatelabs.co/node-monitor)!
+
 
 ## Running
 
