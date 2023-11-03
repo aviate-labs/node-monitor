@@ -109,7 +109,7 @@ class NodeMonitor:
         channels = self.node_provider_db.get_channels_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
-            subject, message = messages.nodes_down_message(nodes, node_labels)
+            subject, message = messages.nodes_compromised_message(nodes, node_labels)
             # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
