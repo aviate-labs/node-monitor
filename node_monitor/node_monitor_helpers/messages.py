@@ -59,25 +59,26 @@ def detailnodes(nodes: List[ic_api.Node],
 
 
 
-def nodes_down_message(nodes: List[ic_api.Node], 
+def nodes_compromised_message(nodes: List[ic_api.Node], 
                        labels: Dict[Principal, str]) -> Tuple[str, str]:
-    """Returns a message that describes the nodes that are down, in the
+    """Returns a message that describes the nodes that are compromised, in the
     format of an email or message for a comprable communication channel.
     """
-    nodes_down = [node for node in nodes if node.status == 'DOWN']
+    nodes_compromised = [node for node in nodes 
+                         if node.status == 'DOWN' or node.status == 'DEGRADED']
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def _make_subject() -> str:
-        datacenters = {node.dc_id.upper() for node in nodes_down}
-        match len(nodes_down):
+        datacenters = {node.dc_id.upper() for node in nodes_compromised}
+        match len(nodes_compromised):
             case 0: return "All Systems Healthy"
             case _: return "Action Required @ " + ', '.join(sorted(datacenters))
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    formatted_nodes_down = detailnodes(nodes, labels)
+    formatted_nodes_compromised = detailnodes(nodes, labels)
     subject = _make_subject()
     message = (
         f"🛑 Node(s) Compromised:\n"
         f"\n"
-        f"{formatted_nodes_down}\n"
+        f"{formatted_nodes_compromised}\n"
         f"\n"
         f"Node Monitor by Aviate Labs\n"
         f"Report Generated: {datetime_iso8601()} UTC\n"
