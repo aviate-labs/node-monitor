@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, Optional, Tuple
 import psycopg2, psycopg2.extensions, psycopg2.pool
 from psycopg2.extras import DictCursor, RealDictCursor
+from toolz import groupby # type: ignore
 
 Principal = str
 
@@ -127,9 +128,11 @@ class NodeProviderDB():
         return None
 
 
-    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
+    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
         """Returns the table of all subscribers as a dictionary."""
-        raise NotImplementedError
+        result = self._execute("SELECT * FROM subscribers", ())
+        as_dict = {row['node_provider_id']: row for row in result}
+        return as_dict
     
 
     def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
@@ -160,4 +163,7 @@ if __name__ == "__main__":
     pprint("---------------------------------")
     db._validate_schema()
     result = db._execute("SELECT * FROM subscribers", ())
+    pprint(result)
+    pprint("---------------------------------")
+    result = db.get_subscribers_as_dict()
     pprint(result)
