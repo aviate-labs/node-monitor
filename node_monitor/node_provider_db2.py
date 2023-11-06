@@ -77,7 +77,8 @@ class NodeProviderDB():
             user=username, password=password)
     
     
-    def _execute(self, sql: str, params: tuple) -> List[dict]:
+    def _execute(self, sql: str,
+                 params: Tuple[Any, ...]) -> List[Dict[str, Any]]:
         """Execute a SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed.
         All transactions are committed.
@@ -96,7 +97,7 @@ class NodeProviderDB():
         return [dict(r) for r in result]
     
 
-    def _execute1(self, sql: str, params: tuple) -> List[tuple]:
+    def _execute1(self, sql: str, params: Tuple[Any, ...]) -> List[Tuple[Any, ...]]:
         """Execute a SQL statement with a connection from the pool.
         An empty tuple should be passed if no parameters are needed.
         All transactions are committed.
@@ -106,7 +107,7 @@ class NodeProviderDB():
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
-            result = cur.fetchall()
+            result: List[Tuple[Any, ...]] = cur.fetchall()
         conn.commit()
         self.pool.putconn(conn)
         return result
@@ -160,14 +161,14 @@ class NodeProviderDB():
 
 
 
-if __name__ == "__main__":
-    import load_config as c
-    from pprint import pprint
-    db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
-    pprint("---------------------------------")
+# if __name__ == "__main__":
+    # import load_config as c
+    # from pprint import pprint
+    # db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
+    # pprint("---------------------------------")
     # db._validate_schema()
     # result = db._execute("SELECT * FROM subscribers", ())
     # pprint(result)
-    pprint("---------------------------------")
-    result = db.get_emails_as_dict()
-    pprint(result)
+    # pprint("---------------------------------")
+    # result = db.get_emails_as_dict()
+    # pprint(result)
