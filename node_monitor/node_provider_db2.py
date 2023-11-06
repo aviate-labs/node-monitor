@@ -114,9 +114,9 @@ class NodeProviderDB():
 
     def _validate_schema(self) -> bool:
         """Validate the database schema."""
-        # This function is still incomplete
-        # Get the column names, data types
+        # TODO: This function is still incomplete
         # TODO: could we use pg_dump or generate_ddl to test this instead?
+        # Get the column names, data types
         table_name = "subscribers"
         query = f"""
             SELECT column_name, data_type
@@ -124,7 +124,7 @@ class NodeProviderDB():
             WHERE table_name = '{table_name}'
         """
         result = self._execute(query, ())
-        # Do something here
+        raise NotImplementedError
         return None
 
 
@@ -137,7 +137,14 @@ class NodeProviderDB():
 
     def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
         """Returns the table of all emails as a dictionary"""
-        raise NotImplementedError
+        result = self._execute("SELECT * FROM email_lookup", ())
+        resultd = {}
+        # TODO: Can this be done with a higher level functions?
+        for d in result:
+            if d['node_provider_id'] not in resultd:
+                resultd[d['node_provider_id']] = []
+            resultd[d['node_provider_id']].append(d['email_address'])
+        return resultd
     
 
     def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
@@ -161,9 +168,9 @@ if __name__ == "__main__":
     from pprint import pprint
     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
     pprint("---------------------------------")
-    db._validate_schema()
-    result = db._execute("SELECT * FROM subscribers", ())
-    pprint(result)
+    # db._validate_schema()
+    # result = db._execute("SELECT * FROM subscribers", ())
+    # pprint(result)
     pprint("---------------------------------")
-    result = db.get_subscribers_as_dict()
+    result = db.get_emails_as_dict()
     pprint(result)
