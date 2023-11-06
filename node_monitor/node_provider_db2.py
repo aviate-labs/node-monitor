@@ -138,13 +138,10 @@ class NodeProviderDB():
     def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
         """Returns the table of all emails as a dictionary"""
         result = self._execute("SELECT * FROM email_lookup", ())
-        resultd = {}
-        # TODO: Can this be done with a higher level functions?
-        for d in result:
-            if d['node_provider_id'] not in resultd:
-                resultd[d['node_provider_id']] = []
-            resultd[d['node_provider_id']].append(d['email_address'])
-        return resultd
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['email_address'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
     
 
     def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
