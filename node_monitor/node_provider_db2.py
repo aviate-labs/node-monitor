@@ -147,7 +147,11 @@ class NodeProviderDB():
 
     def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
         """Returns the table of all slack channels as a dictionary."""
-        raise NotImplementedError
+        result = self._execute("SELECT * FROM slack_channel_lookup", ())
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['slack_channel_id'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
     
 
     def get_telegram_chats_as_dict(self) -> Dict[Principal, List[str]]:
@@ -162,13 +166,14 @@ class NodeProviderDB():
 
 
 # if __name__ == "__main__":
-    # import load_config as c
-    # from pprint import pprint
-    # db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
-    # pprint("---------------------------------")
-    # db._validate_schema()
-    # result = db._execute("SELECT * FROM subscribers", ())
-    # pprint(result)
-    # pprint("---------------------------------")
-    # result = db.get_emails_as_dict()
-    # pprint(result)
+#     import load_config as c
+#     from pprint import pprint
+#     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
+#     pprint("---------------------------------")
+#     # db._validate_schema()
+#     result = db._execute("SELECT * FROM subscribers", ())
+#     pprint(result)
+#     pprint("---------------------------------")
+#     result = db.get_emails_as_dict()
+#     result = db.get_slack_channels_as_dict()
+#     pprint(result)
