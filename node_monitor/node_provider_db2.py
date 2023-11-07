@@ -175,19 +175,3 @@ class NodeProviderDB():
 
     def close(self) -> None:
         self.pool.closeall()
-
-
-
-# if __name__ == "__main__":
-#     import load_config as c
-#     from pprint import pprint
-#     db = NodeProviderDB(c.DB_HOST, c.DB_NAME, c.DB_PORT, c.DB_USERNAME, c.DB_PASSWORD)
-#     pprint("---------------------------------")
-#     # db._validate_schema()
-#     result = db._execute("SELECT * FROM subscribers", ())
-#     pprint(result)
-#     pprint("---------------------------------")
-#     result = db.get_emails_as_dict()
-#     result = db.get_slack_channels_as_dict()
-#     result = db.get_node_labels_as_dict()
-#     pprint(result)
