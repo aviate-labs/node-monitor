@@ -28,6 +28,10 @@ Principal = str
 class NodeProviderDB():
     """A class to interact with the node_provider database."""
 
+    # Postgres has no efficiency gain for using a VARCHAR instead of TEXT:
+    # We've chosen to use VARCHAR so that any user or admin can't store
+    # an arbitrarily large amount of data in the database.
+
     create_table_subscribers = """
         CREATE TABLE IF NOT EXISTS subscribers (
             node_provider_id VARCHAR(255) PRIMARY KEY,
