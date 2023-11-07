@@ -66,6 +66,13 @@ def get_node_providers(provider_id: Optional[Principal] = None) -> NodeProviders
     response = requests.get(node_provider_endpoint)
     return NodeProviders(**response.json())
 
+def get_node_providers_from_file(file_path: str) -> Nodes:
+    """slurps node providers from a json file previously retrieved with curl"""
+    with open(file_path) as f:
+        j = json.load(f)
+    return NodeProviders(**j)
+
+
 
 ##############################################
 ## Development
@@ -73,5 +80,6 @@ def get_node_providers(provider_id: Optional[Principal] = None) -> NodeProviders
 if __name__ == "__main__":
     from devtools import debug
     debug(get_nodes())
-    debug(get_nodes_from_file("tests/t0.json"))
+    debug(get_nodes_from_file("data/t0.json"))
     debug(get_node_providers())
+    debug(get_node_providers_from_file("data/t_np0.json"))

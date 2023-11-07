@@ -16,3 +16,7 @@ def test_get_nodes_from_file():
 def test_get_node_providers():
     node_providers = ic_api.get_node_providers()
     assert len(node_providers.node_providers) > 0
+
+def test_get_node_providers_from_file():
+    node_providers = ic_api.get_node_providers_from_file("data/t_np0.json")
+    assert len(node_providers.node_providers) > 0
