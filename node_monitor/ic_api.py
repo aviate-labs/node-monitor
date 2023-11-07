@@ -61,7 +61,7 @@ def get_nodes_from_file(file_path: str) -> Nodes:
         j = json.load(f)
     return Nodes(**j)
 
-def get_node_providers(provider_id: Optional[Principal] = None) -> NodeProviders:
+def get_node_providers() -> NodeProviders:
     """slurps node providers from the dfinity api"""
     response = requests.get(node_provider_endpoint)
     return NodeProviders(**response.json())
