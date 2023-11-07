@@ -86,6 +86,17 @@ class NodeProviderDB:
     """
     table_node_label_lookup_cols = ['node_id', 'node_label']
 
+    # TABLE node_provider_lookup
+    # This table will keep up to date with the node providers registered
+    # on the ic api.
+    create_table_node_provider_lookup = """
+        CREATE TABLE IF NOT EXISTS node_provider_lookup (
+            node_provider_id TEXT PRIMARY KEY,
+            node_provider_name TEXT
+        );
+    """
+    table_node_provider_lookup_cols = ['node_provider_id', 'node_provider_name']
+
 
 
     ##############################################
@@ -131,6 +142,7 @@ class NodeProviderDB:
             cur.execute(self.create_table_email_lookup)
             cur.execute(self.create_table_channel_lookup)
             cur.execute(self.create_table_node_label_lookup)
+            cur.execute(self.create_table_node_provider_lookup)
         self.disconnect()
     
 
@@ -424,3 +436,55 @@ class NodeProviderDB:
         node_labels = {row[0]: row[1] for row in labels}
         return node_labels
 
+
+    ##############################################
+    ## CRUD :: TABLE node_provider_lookup
+
+    def _insert_node_provider(
+        self, node_provider_id: Principal, node_provider_name: str) -> None:
+        """Inserts a record into the node_provider_lookup table. Overwrites if
+        record already exists."""
+        query = """
+            INSERT INTO node_provider_lookup (
+                node_provider_id,
+                node_provider_name
+            ) VALUES (%s, %s)
+            ON CONFLICT (node_provider_id) DO UPDATE SET
+                node_provider_name = EXCLUDED.node_provider_name
+        """
+        values = (node_provider_id, node_provider_name)
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query, values)
+        self.disconnect()
+
+    def _delete_node_provider(self, node_provider_id: Principal) -> None:
+        """Deletes a record from the node_provider_lookup table based
+        on node provider principal."""
+        query = """
+            DELETE FROM node_provider_lookup
+            WHERE node_provider_id = %s
+        """
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query, (node_provider_id,))
+        self.disconnect()
+
+    def get_node_providers(self) -> List[Tuple[Any, ...]]: 
+        """Returns the table of all records in node_provider_lookup."""
+        query = "SELECT * FROM node_provider_lookup"
+        self.connect()
+        assert self.conn is not None
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            rows = cur.fetchall()
+        self.disconnect()
+        return rows
+
+    def get_node_providers_as_dict(self) -> Dict[int, Dict[str, str]]:
+        """Returns the table of all records in node_provider_lookup as a dictionary."""
+        node_providers = self.get_node_providers()
+        node_providers_dict = {row[0]: row[1] for row in node_providers}
+        return node_providers_dict

@@ -25,7 +25,8 @@ def test_init():
 def test_get_public_schema_tables():
     all_public_tables = set(node_provider_db.get_public_schema_tables())
     necessary_tables = {'subscribers', 'email_lookup', 
-                        'channel_lookup', 'node_label_lookup'}
+                        'channel_lookup', 'node_label_lookup', 
+                        'node_provider_lookup'}
     assert necessary_tables.issubset(all_public_tables)
 
 @pytest.mark.db
@@ -34,6 +35,7 @@ def test_validate_column_names():
     node_provider_db._validate_col_names('email_lookup', NodeProviderDB.table_email_lookup_cols)
     node_provider_db._validate_col_names('channel_lookup', NodeProviderDB.table_channel_lookup_cols)
     node_provider_db._validate_col_names('node_label_lookup', NodeProviderDB.table_node_label_lookup_cols)
+    node_provider_db._validate_col_names('node_provider_lookup', NodeProviderDB.table_node_provider_lookup_cols)
 
 
 ##############################################
@@ -217,3 +219,44 @@ def test_node_label_lookup_crud():
     node_labels = node_provider_db.get_node_labels_as_dict()
     assert 'test-dummy-node-id-1' not in node_labels
     assert 'test-dummy-node-id-2' not in node_labels
+
+
+##############################################
+# ## TEST CRUD :: TABLE node_provider_lookup
+
+@pytest.mark.db
+def test_node_provider_lookup_crud():
+    # Insert new records / overwrite existing record
+    node_provider_db._insert_node_provider('test-dummy-principal-1', 'Node Provider A')
+    node_provider_db._insert_node_provider('test-dummy-principal-2', 'Node Provider B')
+
+    # Get and check node provider lookup records
+    node_providers = node_provider_db.get_node_providers()
+    assert ('test-dummy-principal-1', 'Node Provider A') in node_providers
+    assert ('test-dummy-principal-2', 'Node Provider B') in node_providers
+
+    # Overwrite a node label
+    node_provider_db._insert_node_provider('test-dummy-principal-1', 'Node Provider C')
+
+    # Get the new node labels, make sure the value was overwritten
+    node_providers = node_provider_db.get_node_providers()
+    assert ('test-dummy-principal-1', 'Node Provider C') in node_providers
+
+    # Get the node labels as dict, make sure they were inserted correctly
+    node_providers = node_provider_db.get_node_providers_as_dict()
+    assert node_providers['test-dummy-principal-1'] == 'Node Provider C'
+    assert node_providers['test-dummy-principal-2'] == 'Node Provider B'
+
+    # Delete node labels
+    node_provider_db._delete_node_provider('test-dummy-principal-1')
+    node_provider_db._delete_node_provider('test-dummy-principal-2')
+
+    # Get and check node provider lookup records
+    node_providers = node_provider_db.get_node_providers()
+    assert ('test-dummy-principal-1', 'Node Provider C') not in node_providers
+    assert ('test-dummy-principal-2', 'Node Provider B') not in node_providers
+
+    # # Get and check node provider lookup records as dict
+    # lookup_dict = node_provider_db.get_node_providers_as_dict()
+    # assert 1 not in lookup_dict
+    # assert 2 not in lookup_dict
