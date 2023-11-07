@@ -156,7 +156,11 @@ class NodeProviderDB():
 
     def get_telegram_chats_as_dict(self) -> Dict[Principal, List[str]]:
         """Returns the table of all telegram chats as a dictionary."""
-        raise NotImplementedError
+        result = self._execute("SELECT * FROM telegram_chat_lookup", ())
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['telegram_chat_id'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
 
 
     def close(self) -> None:
