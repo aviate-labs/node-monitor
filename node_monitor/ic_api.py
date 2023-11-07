@@ -66,7 +66,7 @@ def get_node_providers(provider_id: Optional[Principal] = None) -> NodeProviders
     response = requests.get(node_provider_endpoint)
     return NodeProviders(**response.json())
 
-def get_node_providers_from_file(file_path: str) -> Nodes:
+def get_node_providers_from_file(file_path: str) -> NodeProviders:
     """slurps node providers from a json file previously retrieved with curl"""
     with open(file_path) as f:
         j = json.load(f)
