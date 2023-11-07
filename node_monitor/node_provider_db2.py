@@ -161,11 +161,16 @@ class NodeProviderDB():
         lookupd = {k: [row['telegram_chat_id'] for row in v] 
                    for k, v in grouped.items()}
         return lookupd
+    
+
+    def get_node_labels_as_dict(self) -> Dict[Principal, str]:
+        rows = self._execute("SELECT * FROM node_label_lookup", ())
+        lookupd = {row['node_id']: row['node_label'] for row in rows}
+        return lookupd
 
 
     def close(self) -> None:
         self.pool.closeall()
-
 
 
 
@@ -180,4 +185,5 @@ class NodeProviderDB():
 #     pprint("---------------------------------")
 #     result = db.get_emails_as_dict()
 #     result = db.get_slack_channels_as_dict()
+#     result = db.get_node_labels_as_dict()
 #     pprint(result)
