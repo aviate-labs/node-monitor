@@ -35,12 +35,12 @@ class NodeProviderDB():
     # table: subscribers
     create_table_subscribers = """
         CREATE TABLE IF NOT EXISTS subscribers (
-            node_provider_id VARCHAR(255) PRIMARY KEY,
+            node_provider_id TEXT PRIMARY KEY,
             notify_on_status_change BOOLEAN,
             notify_email BOOLEAN,
             notify_slack BOOLEAN,
             notify_telegram BOOLEAN,
-            node_provider_name VARCHAR(255),
+            node_provider_name TEXT,
         )
         """
     schema_table_subscribers = {
@@ -56,8 +56,8 @@ class NodeProviderDB():
     create_table_email_lookup = """
         CREATE TABLE IF NOT EXISTS email_lookup (
             id SERIAL PRIMARY KEY,
-            node_provider_id VARCHAR(255),
-            email_address VARCHAR(255)
+            node_provider_id TEXT,
+            email_address TEXT
         )
     """
     schema_table_email_lookup = {
@@ -70,8 +70,8 @@ class NodeProviderDB():
     create_table_slack_channel_lookup = """
         CREATE TABLE IF NOT EXISTS slack_channel_lookup (
             id SERIAL PRIMARY KEY,
-            node_provider_id VARCHAR(255),
-            slack_channel_id VARCHAR(255)
+            node_provider_id TEXT,
+            slack_channel_id TEXT
         )
     """
     schema_table_slack_channel_lookup = {
@@ -84,8 +84,8 @@ class NodeProviderDB():
     create_table_telegram_chat_lookup = """
         CREATE TABLE IF NOT EXISTS telegram_chat_lookup (
             id SERIAL PRIMARY KEY,
-            node_provider_id VARCHAR(255),
-            telegram_chat_id VARCHAR(255)
+            node_provider_id TEXT,
+            telegram_chat_id TEXT
         )
     """
     schema_table_telegram_chat_lookup = {
@@ -97,8 +97,8 @@ class NodeProviderDB():
     # table: node_label_lookup
     create_table_node_label_lookup = """
         CREATE TABLE IF NOT EXISTS node_label_lookup (
-            node_id VARCHAR(255) PRIMARY KEY,
-            node_label VARCHAR(255)
+            node_id TEXT PRIMARY KEY,
+            node_label TEXT
         )
     """
     schema_table_node_label_lookup = {
