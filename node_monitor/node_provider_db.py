@@ -32,17 +32,27 @@ class NodeProviderDB():
     # We've chosen to use VARCHAR so that any user or admin can't store
     # an arbitrarily large amount of data in the database.
 
+    # table: subscribers
     create_table_subscribers = """
         CREATE TABLE IF NOT EXISTS subscribers (
             node_provider_id VARCHAR(255) PRIMARY KEY,
-            node_provider_name VARCHAR(255),
             notify_on_status_change BOOLEAN,
             notify_email BOOLEAN,
             notify_slack BOOLEAN,
-            notify_telegram BOOLEAN
+            notify_telegram BOOLEAN,
+            node_provider_name VARCHAR(255),
         )
         """
+    schema_table_subscribers = {
+        'node_provider_id': 'text',
+        'notify_on_status_change': 'boolean',
+        'notify_email': 'boolean',
+        'notify_slack': 'boolean',
+        'notify_telegram': 'boolean',
+        'node_provider_name': 'text',
+    }
 
+    # table: email_lookup
     create_table_email_lookup = """
         CREATE TABLE IF NOT EXISTS email_lookup (
             id SERIAL PRIMARY KEY,
@@ -50,7 +60,13 @@ class NodeProviderDB():
             email_address VARCHAR(255)
         )
     """
+    schema_table_email_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'email_address': 'text'
+    }
 
+    # table: slack_channel_lookup
     create_table_slack_channel_lookup = """
         CREATE TABLE IF NOT EXISTS slack_channel_lookup (
             id SERIAL PRIMARY KEY,
@@ -58,7 +74,13 @@ class NodeProviderDB():
             slack_channel_id VARCHAR(255)
         )
     """
+    schema_table_slack_channel_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'slack_channel_id': 'text'
+    }
 
+    # table: telegram_chat_lookup
     create_table_telegram_chat_lookup = """
         CREATE TABLE IF NOT EXISTS telegram_chat_lookup (
             id SERIAL PRIMARY KEY,
@@ -66,14 +88,26 @@ class NodeProviderDB():
             telegram_chat_id VARCHAR(255)
         )
     """
+    schema_table_telegram_chat_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'telegram_chat_id': 'text'
+    }
 
+    # table: node_label_lookup
     create_table_node_label_lookup = """
         CREATE TABLE IF NOT EXISTS node_label_lookup (
             node_id VARCHAR(255) PRIMARY KEY,
             node_label VARCHAR(255)
         )
     """
+    schema_table_node_label_lookup = {
+        'node_id': 'text',
+        'node_label': 'text'
+    }
 
+
+    ## Methods
     def __init__(self, host: str, db: str, port: str,
                  username: str,password: str) -> None:
         self.pool = psycopg2.pool.SimpleConnectionPool(
