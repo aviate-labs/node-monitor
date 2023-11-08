@@ -151,21 +151,23 @@ class NodeProviderDB():
         return result
 
 
-    def _validate_schema(self) -> bool:
+    def _validate_schema(self, table_name: str, 
+                         desired_schema: Dict[str, str]) -> bool:
         """Validate the database schema."""
-        # TODO: This function is still incomplete
-        # TODO: could we use pg_dump or generate_ddl to test this instead?
+        # Note: we could use pg_dump or generate_ddl to test this instead,
+        # but this is significantly easier.
         # Get the column names, data types
-        table_name = "subscribers"
         query = f"""
             SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_name = '{table_name}'
         """
         result = self._execute(query, ())
+        schema = {row['column_name']: row['data_type'] for row in result}
         from devtools import debug
-        debug(result)
-        return False
+        debug(schema)
+        debug(desired_schema)
+        return schema == desired_schema
 
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
