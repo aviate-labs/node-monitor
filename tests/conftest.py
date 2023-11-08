@@ -88,6 +88,7 @@ cached = {
     "node_provider_control":  ic_api.get_node_providers_from_file("data/t_np0.json"),
     "node_provider_deleted":  ic_api.get_node_providers_from_file("data/t_np1.json"),
     "node_provider_added":    ic_api.get_node_providers_from_file("data/t_np2.json"),
+    "node_provider_crud":     ic_api.get_node_providers_from_file("data/t_np3.json"),
 }
 
 # Do we want this implemented?

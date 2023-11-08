@@ -2,6 +2,7 @@ import pytest
 from devtools import debug
 
 from node_monitor.node_provider_db import NodeProviderDB
+from tests.conftest import cached
 import node_monitor.load_config as c
 
 
@@ -226,28 +227,27 @@ def test_node_label_lookup_crud():
 
 @pytest.mark.db
 def test_node_provider_lookup_crud():
-    # Insert new records / overwrite existing record
-    node_provider_db._insert_node_provider('test-dummy-principal-1', 'Node Provider A')
-    node_provider_db._insert_node_provider('test-dummy-principal-2', 'Node Provider B')
+    # Insert new records
+    node_provider_db.insert_multiple_node_providers(cached["node_provider_crud"].node_providers)
 
     # Get and check node provider lookup records
     node_providers = node_provider_db.get_node_providers()
     assert ('test-dummy-principal-1', 'Node Provider A') in node_providers
     assert ('test-dummy-principal-2', 'Node Provider B') in node_providers
 
-    # Overwrite a node label
+    # Overwrite an existing node provider principal
     node_provider_db._insert_node_provider('test-dummy-principal-1', 'Node Provider C')
 
-    # Get the new node labels, make sure the value was overwritten
+    # Get the new node provider records, make sure the value was overwritten
     node_providers = node_provider_db.get_node_providers()
     assert ('test-dummy-principal-1', 'Node Provider C') in node_providers
 
-    # Get the node labels as dict, make sure they were inserted correctly
+    # Get the node providers as dict, make sure they were inserted correctly
     node_providers = node_provider_db.get_node_providers_as_dict()
     assert node_providers['test-dummy-principal-1'] == 'Node Provider C'
     assert node_providers['test-dummy-principal-2'] == 'Node Provider B'
 
-    # Delete node labels
+    # Delete node providers
     node_provider_db._delete_node_provider('test-dummy-principal-1')
     node_provider_db._delete_node_provider('test-dummy-principal-2')
 
@@ -256,7 +256,3 @@ def test_node_provider_lookup_crud():
     assert ('test-dummy-principal-1', 'Node Provider C') not in node_providers
     assert ('test-dummy-principal-2', 'Node Provider B') not in node_providers
 
-    # # Get and check node provider lookup records as dict
-    # lookup_dict = node_provider_db.get_node_providers_as_dict()
-    # assert 1 not in lookup_dict
-    # assert 2 not in lookup_dict
