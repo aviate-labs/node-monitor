@@ -63,7 +63,9 @@ class NodeMonitor:
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
         self.jobs = [
             schedule.every().day.at("15:00", "UTC").do(
-                self.broadcast_status_report)
+                self.broadcast_status_report),
+            schedule.every().day.at("15:00", "UTC").do(
+                self.update_node_provider_lookup_if_new)
         ]
 
 
