@@ -169,8 +169,6 @@ class NodeProviderDB():
         return schema
 
 
-
-
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
         """Returns the table of all subscribers as a dictionary."""
         result = self._execute("SELECT * FROM subscribers", ())
