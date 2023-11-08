@@ -149,26 +149,6 @@ class NodeProviderDB():
         conn.commit()
         self.pool.putconn(conn)
         return result
-
-
-    def _validate_schema(self, table_name: str, 
-                         desired_schema: Dict[str, str]) -> bool:
-        """Validate the database schema.
-        DEPRECATED"""
-        # Note: we could use pg_dump or generate_ddl to test this instead,
-        # but this is significantly easier.
-        # Get the column names, data types
-        query = f"""
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = '{table_name}'
-        """
-        result = self._execute(query, ())
-        schema = {row['column_name']: row['data_type'] for row in result}
-        from devtools import debug
-        debug(schema)
-        debug(desired_schema)
-        return schema == desired_schema
     
 
     def _get_schema(self, table_name: str) -> List[Dict[str, str]]:
