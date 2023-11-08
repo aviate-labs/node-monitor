@@ -129,8 +129,9 @@ class NodeProviderDB():
             WHERE table_name = '{table_name}'
         """
         result = self._execute(query, ())
-        raise NotImplementedError
-        return None
+        from devtools import debug
+        debug(result)
+        return False
 
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
