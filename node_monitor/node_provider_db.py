@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Optional, Tuple
 import psycopg2, psycopg2.extensions
+import node_monitor.ic_api as ic_api
 from toolz import groupby # type: ignore
 
 
@@ -483,8 +484,15 @@ class NodeProviderDB:
         self.disconnect()
         return rows
 
-    def get_node_providers_as_dict(self) -> Dict[int, Dict[str, str]]:
+    def get_node_providers_as_dict(self) -> Dict[str, str]:
         """Returns the table of all records in node_provider_lookup as a dictionary."""
         node_providers = self.get_node_providers()
         node_providers_dict = {row[0]: row[1] for row in node_providers}
         return node_providers_dict
+    
+    def insert_multiple_node_providers(
+            self, 
+            node_providers_list: List[ic_api.NodeProvider]) -> None:
+        for np in node_providers_list:
+            self._insert_node_provider(np.principal_id, np.display_name)
+

@@ -174,9 +174,29 @@ class NodeMonitor:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
     
-    def update_node_provider_lookup(
-            self, override_data: ic_api.NodeProviders | None = None) -> None:
-        raise NotImplementedError
+    def update_node_provider_lookup_if_new(
+            self, 
+            override_api_data: ic_api.NodeProviders | None = None) -> None:
+        """Fetches the current node providers from the ic-api and compares
+        them to what is currently in the node_provider_lookup table in the 
+        database. If there is a new node provider in the API, they will be
+        added to our database.
+
+        Args:
+            override_data: If provided, this arg will be used instead of 
+                live fetching Node Providers from the ic-api. Useful for testing.
+        """
+        data = override_api_data if override_api_data else ic_api.get_node_providers()
+        node_providers_in_database = self.node_provider_db.get_node_providers_as_dict()
+
+        new_node_providers = []
+        
+        for np in data.node_providers:
+            if np.principal_id not in node_providers_in_database.keys():
+                new_node_providers.append(np)
+        
+        if new_node_providers:
+            self.node_provider_db.insert_multiple_node_providers(new_node_providers)
 
 
     def step(self) -> None:

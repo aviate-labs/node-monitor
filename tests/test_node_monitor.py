@@ -48,7 +48,7 @@ mock_node_provider_db.get_channels_as_dict.return_value = \
       } 
     }
 mock_node_provider_db.get_node_providers_as_dict.return_value = \
-    {'zy4m7-z5mhs-zfkpl-zlsjl-blrbx-mvvmq-5z4zu-mf7eq-hhv7o-ezfro-3ae': '', 
+    {'64xe5-tx2s3-4gjmj-pnozr-fejw2-77y5y-rhcjk-glnmx-62brf-qin5q-pqe': '', 
      '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': '1G', 
      'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': '43rd Big Idea Films', 
      'eipr5-izbom-neyqh-s3ec2-52eww-cyfpg-qfomg-3dpwj-4pffh-34xcu-7qe': '87m Neuron, LLC'}
@@ -222,9 +222,11 @@ def test_no_new_node_provider():
     nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
-    nm.update_node_provider_lookup(cached['node_provider_control'])
+    nm.update_node_provider_lookup_if_new(cached['node_provider_control'])
 
-    assert mock_node_provider_db._insert_node_provider == 0
+    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 0
+    mock_node_provider_db.reset_mock()
+
 
 def test_one_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
@@ -233,9 +235,11 @@ def test_one_new_node_provider():
     nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
-    nm.update_node_provider_lookup(cached['node_provider_added'])
+    nm.update_node_provider_lookup_if_new(cached['node_provider_added'])
 
-    assert mock_node_provider_db._insert_node_provider == 1
+    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 1
+    mock_node_provider_db.reset_mock()
+
 
 def test_one_node_provider_deleted():
     mock_email_bot = Mock(spec=EmailBot)
@@ -244,6 +248,8 @@ def test_one_node_provider_deleted():
     nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
-    nm.update_node_provider_lookup(cached['node_provider_deleted'])
+    nm.update_node_provider_lookup_if_new(cached['node_provider_deleted'])
 
-    assert mock_node_provider_db._insert_node_provider == 0
+    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 0
+    mock_node_provider_db.reset_mock()
+
