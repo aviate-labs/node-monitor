@@ -173,6 +173,10 @@ class NodeMonitor:
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
+    
+    def update_node_provider_lookup(
+            self, override_data: ic_api.NodeProviders | None = None) -> None:
+        raise NotImplementedError
 
 
     def step(self) -> None:

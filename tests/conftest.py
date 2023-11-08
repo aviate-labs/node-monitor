@@ -85,6 +85,9 @@ cached = {
     "two_nodes_down":         ic_api.get_nodes_from_file("data/t2.json"),
     "one_node_change_subnet": ic_api.get_nodes_from_file("data/t3.json"),
     "one_node_removed":       ic_api.get_nodes_from_file("data/t4.json"),
+    "node_provider_control":  ic_api.get_node_providers_from_file("data/t_np0.json"),
+    "node_provider_deleted":  ic_api.get_node_providers_from_file("data/t_np1.json"),
+    "node_provider_added":    ic_api.get_node_providers_from_file("data/t_np2.json"),
 }
 
 # Do we want this implemented?

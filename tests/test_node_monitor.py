@@ -47,6 +47,11 @@ mock_node_provider_db.get_channels_as_dict.return_value = \
       'telegram_channel_id': '-1001925583150' # Deprecated: column not used
       } 
     }
+mock_node_provider_db.get_node_providers_as_dict.return_value = \
+    {'zy4m7-z5mhs-zfkpl-zlsjl-blrbx-mvvmq-5z4zu-mf7eq-hhv7o-ezfro-3ae': '', 
+     '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': '1G', 
+     'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': '43rd Big Idea Films', 
+     'eipr5-izbom-neyqh-s3ec2-52eww-cyfpg-qfomg-3dpwj-4pffh-34xcu-7qe': '87m Neuron, LLC'}
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default
@@ -209,3 +214,36 @@ def test_one_new_node_online():
     mock_email_bot.reset_mock()
     mock_slack_bot.reset_mock()
     mock_telegram_bot.reset_mock()
+
+def test_no_new_node_provider():
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = Mock(spec=SlackBot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
+    
+    nm.update_node_provider_lookup(cached['node_provider_control'])
+
+    assert mock_node_provider_db._insert_node_provider == 0
+
+def test_one_new_node_provider():
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = Mock(spec=SlackBot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
+    
+    nm.update_node_provider_lookup(cached['node_provider_added'])
+
+    assert mock_node_provider_db._insert_node_provider == 1
+
+def test_one_node_provider_deleted():
+    mock_email_bot = Mock(spec=EmailBot)
+    mock_slack_bot = Mock(spec=SlackBot)
+    mock_telegram_bot = Mock(spec=TelegramBot)
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+                     mock_slack_bot, mock_telegram_bot)
+    
+    nm.update_node_provider_lookup(cached['node_provider_deleted'])
+
+    assert mock_node_provider_db._insert_node_provider == 0
