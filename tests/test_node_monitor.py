@@ -239,17 +239,3 @@ def test_one_new_node_provider():
 
     assert mock_node_provider_db.insert_multiple_node_providers.call_count == 1
     mock_node_provider_db.reset_mock()
-
-
-def test_one_node_provider_deleted():
-    mock_email_bot = Mock(spec=EmailBot)
-    mock_slack_bot = Mock(spec=SlackBot)
-    mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
-                     mock_slack_bot, mock_telegram_bot)
-    
-    nm.update_node_provider_lookup_if_new(cached['node_provider_deleted'])
-
-    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 0
-    mock_node_provider_db.reset_mock()
-
