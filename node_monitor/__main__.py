@@ -26,7 +26,8 @@ email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 slack_bot = SlackBot(c.TOKEN_SLACK)
 telegram_bot = TelegramBot(c.TOKEN_TELEGRAM)
 node_provider_db = NodeProviderDB(
-    c.DB_HOST, c.DB_NAME, c.DB_USERNAME, c.DB_PASSWORD, c.DB_PORT)
+    c.DB_HOST, c.DB_NAME, c.DB_PORT,
+    c.DB_USERNAME, c.DB_PASSWORD)
 nm = NodeMonitor(node_provider_db, email_bot, slack_bot, telegram_bot)
 
 
