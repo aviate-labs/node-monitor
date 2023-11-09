@@ -224,7 +224,7 @@ def test_no_new_node_provider():
     
     nm.update_node_provider_lookup_if_new(cached['node_provider_control'])
 
-    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 0
+    assert mock_node_provider_db.insert_multiple_subscribers.call_count == 0
     mock_node_provider_db.reset_mock()
 
 
@@ -237,5 +237,5 @@ def test_one_new_node_provider():
     
     nm.update_node_provider_lookup_if_new(cached['node_provider_added'])
 
-    assert mock_node_provider_db.insert_multiple_node_providers.call_count == 1
+    assert mock_node_provider_db.insert_multiple_subscribers.call_count == 1
     mock_node_provider_db.reset_mock()
