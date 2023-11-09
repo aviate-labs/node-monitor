@@ -150,7 +150,7 @@ class NodeProviderDB():
         return result
     
 
-    def _get_schema(self, table_name: str) -> List[Dict[str, str]]:
+    def _get_schema(self, table_name: str) -> Dict[str, str]:
         """Returns the schema for a table.
         Ex. [{'id': 'integer', 'node_provider_id': 'text'}]
         This method is useful for testing.
