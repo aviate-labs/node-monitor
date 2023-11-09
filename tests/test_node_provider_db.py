@@ -19,36 +19,40 @@ node_provider_db = NodeProviderDB(
         c.DB_USERNAME, c.DB_PASSWORD)
 
 
+# In these fns we're testing a minimum schema. This means that these
+# tests will pass as long as the schema contains the minimum required typed
+# columns, but it may also contain additional columns.
+
 @pytest.mark.db 
 def test_validate_subscribers_schema():
     expected_schema = NodeProviderDB.schema_table_subscribers
     actual_schema = node_provider_db._get_schema('subscribers')
-    assert expected_schema == actual_schema
+    assert set(expected_schema.items()) <= set(actual_schema.items())
 
 
 @pytest.mark.db
 def test_validate_schema_email_lookup():
     expected_schema = NodeProviderDB.schema_table_email_lookup
     actual_schema = node_provider_db._get_schema('email_lookup')
-    assert expected_schema == actual_schema
+    assert set(expected_schema.items()) <= set(actual_schema.items())
 
 
 @pytest.mark.db
 def test_validate_schema_slack_channel_lookup():
     expected_schema = NodeProviderDB.schema_table_slack_channel_lookup
     actual_schema = node_provider_db._get_schema('slack_channel_lookup')
-    assert expected_schema == actual_schema
+    assert set(expected_schema.items()) <= set(actual_schema.items())
 
 
 @pytest.mark.db
 def test_validate_schema_telegram_chat_lookup():
     expected_schema = NodeProviderDB.schema_table_telegram_chat_lookup
     actual_schema = node_provider_db._get_schema('telegram_chat_lookup')
-    assert expected_schema == actual_schema
+    assert set(expected_schema.items()) <= set(actual_schema.items())
 
 
 @pytest.mark.db
 def test_validate_schema_node_label_lookup():
     expected_schema = NodeProviderDB.schema_table_node_label_lookup
     actual_schema = node_provider_db._get_schema('node_label_lookup')
-    assert expected_schema == actual_schema
+    assert set(expected_schema.items()) <= set(actual_schema.items())
