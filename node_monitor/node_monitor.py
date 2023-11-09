@@ -176,7 +176,7 @@ class NodeMonitor:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
     
-    
+
     def update_node_provider_lookup_if_new(
             self, 
             override_api_data: ic_api.NodeProviders | None = None) -> None:
@@ -195,10 +195,19 @@ class NodeMonitor:
         ic_api_principals = set(node_provider.principal_id for node_provider in data.node_providers)
         database_principals = set(node_providers_in_database.keys())
 
-        new_node_providers = ic_api_principals - database_principals
+        new_principals = ic_api_principals - database_principals
+        new_node_providers = []
 
+        if new_principals:
+            for np in new_principals:
+                new_node_provider = next(
+                    provider for provider in data.node_providers 
+                    if provider.principal_id == np)
+                new_node_providers.append(new_node_provider)
+        
         if new_node_providers:
             self.node_provider_db.insert_multiple_subscribers(new_node_providers)
+
 
 
     def step(self) -> None:
