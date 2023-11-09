@@ -484,7 +484,7 @@ class NodeProviderDB:
         self.disconnect()
         return rows
 
-    def get_node_providers_as_dict(self) -> Dict[str, str]:
+    def get_node_providers_as_dict(self) -> Dict[Principal, str]:
         """Returns the table of all records in node_provider_lookup as a dictionary."""
         node_providers = self.get_node_providers()
         node_providers_dict = {row[0]: row[1] for row in node_providers}
