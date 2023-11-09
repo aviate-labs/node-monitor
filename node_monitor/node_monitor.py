@@ -123,7 +123,7 @@ class NodeMonitor:
                     err1 = self.slack_bot.send_messages(channels, message)
                     if err1 is not None:
                         logging.error(f"SlackBot.send_message() failed with error: {err1}")
-            if preferences['notify_telegram_chat'] == True:
+            if preferences['notify_telegram'] == True:
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending alert telegram messages to {chats}...")
@@ -167,7 +167,7 @@ class NodeMonitor:
                     err1 = self.slack_bot.send_messages(channels, message)
                     if err1 is not None:
                         logging.error(f"SlackBot.send_message() failed with error: {err1}")
-            if preferences['notify_telegram_chat'] == True: 
+            if preferences['notify_telegram'] == True: 
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending status report telegram messages to {chats}...")
