@@ -7,7 +7,7 @@ test:
 	pytest tests/
 
 testall:
-	pytest -s --send_emails --db --send_slack tests/
+	pytest -s --send_emails --db --send_slack --send_telegram tests/
 
 # This runs it with the development WSGI Server
 dev:
