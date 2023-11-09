@@ -1,14 +1,21 @@
 # Node Monitor
 
-Node monitoring software for notifications of changes to Internet Computer Nodes.
-Queries the API with a specified interval and reports changes to email and other various communication channels.
+Node monitoring is an open-source notification service for [Internet Computer Nodes](https://internetcomputer.org/node-providers).
+It queries the Internet Computer API with a specified interval and reports status changes to email and communication channels like [Slack and Telegram](https://github.com/aviate-labs/node-monitor#free-hosted-version).
 
+You can run Node Monitor yourself or use the free __[hosted version](https://www.aviatelabs.co/node-monitor).__
 ## Setup
 
 Place a `.env` file in this directory.  
 Use `.env.example` as a template.  
 You will also need a running Postgres database to store user information.
 
+### 🚀 Hosted version 
+
+Don't want the hassle of hosting the service yourself? We've got you covered! 
+Introducing our free hosted version - instant monitoring, zero setup. Sign up here: [aviatelabs.co/node-monitor](https://www.aviatelabs.co/node-monitor)
+
+The service uses the same functionality as the open-source service, with Slack and Telegram already integrated. Features will be added to provide management and incident-handling support to Node Providers.  
 
 ## Running
 
