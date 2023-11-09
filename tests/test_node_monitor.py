@@ -235,7 +235,7 @@ def test_one_new_node_provider():
     nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
-    nm.update_node_provider_lookup_if_new(cached['node_provider_added'])
+    nm.update_node_provider_lookup_if_new(cached['new_node_providers'])
 
     assert mock_node_provider_db.insert_multiple_subscribers.call_count == 1
     mock_node_provider_db.reset_mock()

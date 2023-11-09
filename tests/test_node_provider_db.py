@@ -46,7 +46,7 @@ def test_validate_column_names():
 @pytest.mark.db
 def test_subscribers_crud():
     # Create new subscribers from test file
-    node_provider_db.insert_multiple_subscribers(cached["node_provider_crud"].node_providers)
+    node_provider_db.insert_multiple_subscribers(cached["new_node_providers"].node_providers)
     
     # Note: 6th argument of _insert_subscriber is deprecated
     subs = node_provider_db.get_subscribers()
@@ -235,7 +235,7 @@ def test_node_label_lookup_crud():
 @pytest.mark.db
 def test_node_provider_lookup_crud():
     # Insert new records
-    node_provider_db.insert_multiple_node_providers(cached["node_provider_crud"].node_providers)
+    node_provider_db.insert_multiple_node_providers(cached["new_node_providers"].node_providers)
 
     # Get and check node provider lookup records
     node_providers = node_provider_db.get_node_providers()

@@ -1,16 +1,12 @@
 {
   "node_providers":[
     {
-      "display_name":"",
-      "principal_id":"64xe5-tx2s3-4gjmj-pnozr-fejw2-77y5y-rhcjk-glnmx-62brf-qin5q-pqe"
+      "display_name":"Node Provider A",
+      "principal_id":"test-dummy-principal-1"
     },
     {
-      "display_name":"1G",
-      "principal_id":"7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe"
-    },
-    {
-      "display_name":"43rd Big Idea Films",
-      "principal_id":"sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe"
+      "display_name":"Node Provider B",
+      "principal_id":"test-dummy-principal-2"
     }
   ]
 }
