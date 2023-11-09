@@ -39,10 +39,10 @@ mock_node_provider_db.get_emails_as_dict.return_value = \
      ['test_recipient@gmail.com']}
 mock_node_provider_db.get_slack_channels_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
-        ['test_slack_channel']}
+        ['#node-monitor']}
 mock_node_provider_db.get_telegram_chats_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
-        ['test_telegram_chat']}
+        ['5734534558']}
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default

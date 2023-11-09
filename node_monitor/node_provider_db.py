@@ -25,7 +25,7 @@ Principal = str
 ##
 
 
-class NodeProviderDB():
+class NodeProviderDB:
     """A class to interact with the node_provider database."""
 
     # Postgres has no efficiency gain for using a VARCHAR instead of TEXT
@@ -169,14 +169,16 @@ class NodeProviderDB():
 
 
     def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
-        """Returns the table of all subscribers as a dictionary."""
+        """Returns the table of all subscribers as a dictionary.
+        One to one relationship."""
         result = self._execute("SELECT * FROM subscribers", ())
         as_dict = {row['node_provider_id']: row for row in result}
         return as_dict
     
 
     def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
-        """Returns the table of all emails as a dictionary"""
+        """Returns the table of all emails as a dictionary
+        One to many relationship."""
         result = self._execute("SELECT * FROM email_lookup", ())
         grouped = groupby(lambda d: d['node_provider_id'], result)
         lookupd = {k: [row['email_address'] for row in v] 
@@ -185,7 +187,8 @@ class NodeProviderDB():
     
 
     def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
-        """Returns the table of all slack channels as a dictionary."""
+        """Returns the table of all slack channels as a dictionary.
+        One to many relationship."""
         result = self._execute("SELECT * FROM slack_channel_lookup", ())
         grouped = groupby(lambda d: d['node_provider_id'], result)
         lookupd = {k: [row['slack_channel_id'] for row in v] 
@@ -194,7 +197,8 @@ class NodeProviderDB():
     
 
     def get_telegram_chats_as_dict(self) -> Dict[Principal, List[str]]:
-        """Returns the table of all telegram chats as a dictionary."""
+        """Returns the table of all telegram chats as a dictionary.
+        One to many relationship."""
         result = self._execute("SELECT * FROM telegram_chat_lookup", ())
         grouped = groupby(lambda d: d['node_provider_id'], result)
         lookupd = {k: [row['telegram_chat_id'] for row in v] 
@@ -203,6 +207,8 @@ class NodeProviderDB():
     
 
     def get_node_labels_as_dict(self) -> Dict[Principal, str]:
+        """Returns the table of all node labels as a dictionary.
+        One to one relationship."""
         rows = self._execute("SELECT * FROM node_label_lookup", ())
         lookupd = {row['node_id']: row['node_label'] for row in rows}
         return lookupd
