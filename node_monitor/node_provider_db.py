@@ -259,8 +259,13 @@ class NodeProviderDB:
         subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
         return subscribers_dict
 
-
-
+    def insert_multiple_subscribers(
+            self, 
+            node_providers_list: List[ic_api.NodeProvider]) -> None:
+        for np in node_providers_list:
+            self._insert_subscriber(
+                np.principal_id, False, False, 
+                False, False, False, np.display_name)
 
 
     ##############################################

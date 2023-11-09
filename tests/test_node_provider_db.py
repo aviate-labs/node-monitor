@@ -2,6 +2,7 @@ import pytest
 from devtools import debug
 
 from node_monitor.node_provider_db import NodeProviderDB
+import node_monitor.ic_api as ic_api
 from tests.conftest import cached
 import node_monitor.load_config as c
 
@@ -44,16 +45,22 @@ def test_validate_column_names():
 
 @pytest.mark.db
 def test_subscribers_crud():
-    # Create new subscribers / overwrite subscriber 1
+    # Create new subscribers from test file
+    node_provider_db.insert_multiple_subscribers(cached["node_provider_crud"].node_providers)
+    
     # Note: 6th argument of _insert_subscriber is deprecated
+    subs = node_provider_db.get_subscribers()
+    assert ('test-dummy-principal-1', False, False, False, False, False, 'Node Provider A') in subs
+    assert ('test-dummy-principal-2', False, False, False, False, False, 'Node Provider B') in subs
+
+    # Overwrite the newly added subscribers
     node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, False, False, False, 'test-dummy-node-provider-name-1')
     node_provider_db._insert_subscriber('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2')
-    node_provider_db._insert_subscriber('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1')
 
     # Get and check subscribers
     # Note: 6th argument of asssert statement is deprecated
     subs = node_provider_db.get_subscribers()
-    assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') in subs
+    assert ('test-dummy-principal-1', True, True, False, False, False, 'test-dummy-node-provider-name-1') in subs
     assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') in subs
 
     # Get and check subscribers as dict
@@ -61,7 +68,7 @@ def test_subscribers_crud():
     subs = node_provider_db.get_subscribers_as_dict()
     assert subs['test-dummy-principal-1'] == \
         {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': True, 'notify_email': True,
-         'notify_slack': True, 'notify_telegram_chat': True, 'notify_telegram_channel': True, 'node_provider_name': 'test-dummy-node-provider-name-1'}
+         'notify_slack': False, 'notify_telegram_chat': False, 'notify_telegram_channel': False, 'node_provider_name': 'test-dummy-node-provider-name-1'}
     assert subs['test-dummy-principal-2'] == \
         {'node_provider_id': 'test-dummy-principal-2', 'notify_on_status_change': True, 'notify_email': True,
          'notify_slack': False, 'notify_telegram_chat': False, 'notify_telegram_channel': False, 'node_provider_name': 'test-dummy-node-provider-name-2'}
@@ -73,7 +80,7 @@ def test_subscribers_crud():
     # Get and check subscribers
     # Note: 6th argument of asssert statement is deprecated
     subs = node_provider_db.get_subscribers()
-    assert ('test-dummy-principal-1', True, True, True, True, True, 'test-dummy-node-provider-name-1') not in subs
+    assert ('test-dummy-principal-1', True, True, False, False, False, 'test-dummy-node-provider-name-1') not in subs
     assert ('test-dummy-principal-2', True, True, False, False, False, 'test-dummy-node-provider-name-2') not in subs
 
     # Get and check subscribers as dict
