@@ -9,12 +9,17 @@ import node_monitor.load_config as c
 ##############################################
 ## SETUP & TEST SETUP
 
-# We're breaking the PEP8 line length limit here on purpose, it makes the
-# database operations and assert statements more readable.
 
+# We have to create this global var this as None, then assign its value in a
+# marked test, because the NodeProviderDB.__init__() instantiates a 
+# connection pool and will fail if we try and instantiate it with fake
+# credentials.
+node_provider_db = None
 
-
-node_provider_db = NodeProviderDB(
+@pytest.mark.db
+def test_init_node_provider_db():
+    global node_provider_db
+    node_provider_db = NodeProviderDB(
         c.DB_HOST, c.DB_NAME, c.DB_PORT,
         c.DB_USERNAME, c.DB_PASSWORD)
 
