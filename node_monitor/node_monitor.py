@@ -106,7 +106,8 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
-        channels = self.node_provider_db.get_channels_as_dict()
+        slack_channels = self.node_provider_db.get_slack_channels_as_dict()
+        telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
         for node_provider_id, nodes in self.actionables.items():
             preferences = subscribers[node_provider_id]
             subject, message = messages.nodes_compromised_message(nodes, node_labels)
@@ -117,16 +118,16 @@ class NodeMonitor:
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True: 
                 if self.slack_bot is not None:
-                    channel_name = channels[node_provider_id]['slack_channel_name']
-                    logging.info(f"Sending alert slack message to {channel_name}...")
-                    err1 = self.slack_bot.send_message(channel_name, message)
+                    channels = slack_channels[node_provider_id]
+                    logging.info(f"Sending alert slack messages to {channels}...")
+                    err1 = self.slack_bot.send_messages(channels, message)
                     if err1 is not None:
                         logging.error(f"SlackBot.send_message() failed with error: {err1}")
-            if preferences['notify_telegram_chat'] == True:
+            if preferences['notify_telegram'] == True:
                 if self.telegram_bot is not None:
-                    chat_id = channels[node_provider_id]['telegram_chat_id']
-                    logging.info(f"Sending alert telegram message to {chat_id}...")
-                    err2 = self.telegram_bot.send_message(chat_id, message)
+                    chats = telegram_chats[node_provider_id]
+                    logging.info(f"Sending alert telegram messages to {chats}...")
+                    err2 = self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
@@ -141,7 +142,8 @@ class NodeMonitor:
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
-        channels = self.node_provider_db.get_channels_as_dict()
+        slack_channels = self.node_provider_db.get_slack_channels_as_dict()
+        telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
         latest_snapshot_nodes = self.snapshots[-1].nodes
         all_nodes_by_provider: Dict[Principal, List[ic_api.Node]] = \
             groupby(lambda node: node.node_provider_id, latest_snapshot_nodes)
@@ -160,16 +162,16 @@ class NodeMonitor:
                 self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
-                    channel_name = channels[node_provider_id]['slack_channel_name']
-                    logging.info(f"Sending status report slack message to {channel_name}...")
-                    err1 = self.slack_bot.send_message(channel_name, message)
+                    channels = slack_channels[node_provider_id]
+                    logging.info(f"Sending status report slack message to {channels}...")
+                    err1 = self.slack_bot.send_messages(channels, message)
                     if err1 is not None:
                         logging.error(f"SlackBot.send_message() failed with error: {err1}")
-            if preferences['notify_telegram_chat'] == True: 
+            if preferences['notify_telegram'] == True: 
                 if self.telegram_bot is not None:
-                    chat_id = channels[node_provider_id]['telegram_chat_id']
-                    logging.info(f"Sending status report telegram message to {chat_id}...")
-                    err2 = self.telegram_bot.send_message(chat_id, message)
+                    chats = telegram_chats[node_provider_id]
+                    logging.info(f"Sending status report telegram messages to {chats}...")
+                    err2 = self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
