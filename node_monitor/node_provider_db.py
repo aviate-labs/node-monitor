@@ -28,9 +28,8 @@ Principal = str
 class NodeProviderDB():
     """A class to interact with the node_provider database."""
 
-    # Postgres has no efficiency gain for using a VARCHAR instead of TEXT:
-    # We've chosen to use VARCHAR so that any user or admin can't store
-    # an arbitrarily large amount of data in the database.
+    # Postgres has no efficiency gain for using a VARCHAR instead of TEXT
+    # Here we use TEXT because it was inherited from the previous schema.
 
     # table: subscribers
     create_table_subscribers = """
