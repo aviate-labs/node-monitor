@@ -192,18 +192,14 @@ class NodeMonitor:
         data = override_api_data if override_api_data else ic_api.get_node_providers()
         node_providers_in_database = self.node_provider_db.get_node_providers_as_dict()
 
-        ic_api_principals = set(node_provider.principal_id for node_provider in data.node_providers)
+        ic_api_principals = set(node_provider.principal_id 
+                                for node_provider in data.node_providers)
         database_principals = set(node_providers_in_database.keys())
 
         new_principals = ic_api_principals - database_principals
-        new_node_providers = []
-
-        if new_principals:
-            for np in new_principals:
-                new_node_provider = next(
-                    provider for provider in data.node_providers 
-                    if provider.principal_id == np)
-                new_node_providers.append(new_node_provider)
+        new_node_providers = [node_provider 
+                              for node_provider in data.node_providers 
+                              if node_provider.principal_id in new_principals]
         
         if new_node_providers:
             self.node_provider_db.insert_multiple_subscribers(new_node_providers)
