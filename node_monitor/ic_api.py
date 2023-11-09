@@ -82,4 +82,4 @@ if __name__ == "__main__":
     debug(get_nodes())
     debug(get_nodes_from_file("data/t0.json"))
     debug(get_node_providers())
-    debug(get_node_providers_from_file("data/t_np0.json"))
+    debug(get_node_providers_from_file("data/np_t0.json"))
