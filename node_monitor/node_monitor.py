@@ -100,7 +100,7 @@ class NodeMonitor:
                             if k in subscriber_ids}
     
 
-    def broadcast_alerts(self) -> None:
+    async def broadcast_alerts(self) -> None:
         """Broadcast relevant alerts to the appropriate channels. Retrieves
         subscribers, node_labels, and email_recipients from the database."""
         subscribers = self.node_provider_db.get_subscribers_as_dict()
@@ -127,13 +127,13 @@ class NodeMonitor:
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending alert telegram messages to {chats}...")
-                    err2 = self.telegram_bot.send_messages(chats, message)
+                    err2 = await self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
 
 
-    def broadcast_status_report(self) -> None:
+    async def broadcast_status_report(self) -> None:
         """Broadcasts a Node Status Report to all Node Providers.
         Retrieves subscribers, node_labels, and email_recipients from the
         database. Filters out Node Providers that are not subscribed to
@@ -171,27 +171,27 @@ class NodeMonitor:
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending status report telegram messages to {chats}...")
-                    err2 = self.telegram_bot.send_messages(chats, message)
+                    err2 = await self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
 
 
-    def step(self) -> None:
+    async def step(self) -> None:
         """Iterate NodeMonitor one step."""
         try:
             # These all need to be in the same try/catch block, because if
             # _resync fails, we don't want to analyze or broadcast_alerts.
             self._resync()
             self._analyze()
-            self.broadcast_alerts()
+            await self.broadcast_alerts()
         except Exception as e:
             logging.error(f"NodeMonitor.step() failed with error: {e}")
 
 
-    def mainloop(self) -> None:
+    async def mainloop(self) -> None:
         """Iterate NodeMonitor in a loop. This is the main entrypoint."""
         while True:
-            self.step()
+            await self.step()
             schedule.run_pending()
             time.sleep(sync_interval)

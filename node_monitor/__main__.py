@@ -34,8 +34,8 @@ nm = NodeMonitor(node_provider_db, email_bot, slack_bot, telegram_bot)
 ## Run NodeMonitor in a separate thread
 ## daemon threads stop when the main thread stops
 ## can we call nm.mainloop as the target without creating a new fn?
-def start_node_monitor() -> None:
-    nm.mainloop()
+async def start_node_monitor() -> None:
+    await nm.mainloop()
 logging.info("Starting NodeMonitor...")
 thread = threading.Thread(target=start_node_monitor, daemon=True)
 thread.start()
