@@ -151,7 +151,7 @@ class NodeProviderDB:
         return result
     
 
-    def execute_insert(self, sql: str, params: Tuple[Any, ...]) -> None:
+    def execute_write(self, sql: str, params: Tuple[Any, ...]) -> None:
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)

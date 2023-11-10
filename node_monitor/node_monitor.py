@@ -5,17 +5,17 @@ from toolz import groupby # type: ignore
 import schedule
 import logging
 
-import node_monitor.ic_api as ic_api
-from node_monitor.ic_api import NodeProvider
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
+from node_monitor.node_monitor_helpers.sql_constants import INSERT_SUBSCRIBER
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 from node_monitor.node_monitor_helpers.get_new_node_providers import \
     get_new_node_providers
 import node_monitor.node_monitor_helpers.messages as messages
+import node_monitor.ic_api as ic_api
 
 Seconds = int
 Principal = str
@@ -194,7 +194,8 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Node Providers from the ic-api. Useful for testing.
         """
-        node_providers_api = override_api_data if override_api_data else ic_api.get_node_providers()
+        node_providers_api = \
+            override_api_data if override_api_data else ic_api.get_node_providers()
         node_providers_api_dict = {
             node_provider.principal_id: node_provider.display_name
             for node_provider in node_providers_api.node_providers
@@ -203,26 +204,11 @@ class NodeMonitor:
         node_providers_new = get_new_node_providers(
             node_providers_api_dict, node_providers_db)
         
-        query = """
-            INSERT INTO subscribers (
-                node_provider_id,
-                notify_on_status_change,
-                notify_email,
-                notify_slack,
-                node_provider_name,
-                notify_telegram
-            ) VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (node_provider_id) DO UPDATE SET
-                notify_on_status_change = EXCLUDED.notify_on_status_change,
-                notify_email = EXCLUDED.notify_email,
-                notify_slack = EXCLUDED.notify_slack,
-                node_provider_name = EXCLUDED.node_provider_name,
-                notify_telegram = EXCLUDED.notify_telegram
-        """
         if node_providers_new:
             for node_provider in node_providers_new:
-                params = (node_provider.principal_id, False, False, False, node_provider.display_name, False)
-                self.node_provider_db.execute_insert(query, params)
+                params = (node_provider.principal_id, False, False, 
+                          False, node_provider.display_name, False)
+                self.node_provider_db.execute_write(INSERT_SUBSCRIBER, params)
 
 
 
