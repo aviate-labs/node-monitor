@@ -1,4 +1,5 @@
 import telegram
+import textwrap
 from typing import List
 
 
@@ -11,10 +12,15 @@ class TelegramBot:
             chat_id: str, 
             message: str) -> None | telegram.error.TelegramError:
         try:
-            await self.telegram_bot.send_message(chat_id=chat_id, text=message)
+            max_message_length = 4096
+            message_parts = textwrap.wrap(message, width=max_message_length)
+            for part in message_parts:
+                await self.telegram_bot.send_message(chat_id=chat_id, text=part)
+                
         except telegram.error.TelegramError as e:
             print(f"Got an error: {e}")
             return e
+
         return None
     
     async def send_messages(
