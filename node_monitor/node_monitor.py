@@ -100,7 +100,23 @@ class NodeMonitor:
                             if k in subscriber_ids}
 
 
-    def broadcast(self) -> None:
+    def broadcast(self, recipient_subscriber: Principal, message: str) -> None:
+        """Broadcasts a generic message to a subscriber through their
+        selected communication channel(s)."""
+        subscribers = self.node_provider_db.get_subscribers_as_dict()
+        preferences = subscribers[recipient_subscriber]
+        # - - - - - - - - - - - - - - - - -
+        if preferences['notify_email'] == True:
+            raise NotImplementedError
+        if preferences['notify_slack'] == True:
+            if self.slack_bot is not None:
+                pass
+            raise NotImplementedError
+        if preferences['notify_telegram'] == True:
+            if self.telegram_bot is not None:
+                pass
+            raise NotImplementedError
+        # - - - - - - - - - - - - - - - - -
         raise NotImplementedError
     
 
