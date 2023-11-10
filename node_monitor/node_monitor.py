@@ -13,6 +13,8 @@ from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
+from node_monitor.node_monitor_helpers.get_new_node_providers import \
+    get_new_node_providers
 import node_monitor.node_monitor_helpers.messages as messages
 
 Seconds = int
@@ -198,16 +200,8 @@ class NodeMonitor:
             for node_provider in node_providers_api.node_providers
         }
         node_providers_db = self.node_provider_db.get_subscribers_as_dict()
-
-        principals_api = set(node_providers_api_dict.keys())
-        principals_db = set(node_providers_db.keys())
-
-        principals_new = principals_api - principals_db
-        node_providers_new = [
-            NodeProvider(
-                display_name=node_providers_api_dict[principal_id],
-                principal_id=principal_id
-            ) for principal_id in principals_new]
+        node_providers_new = get_new_node_providers(
+            node_providers_api_dict, node_providers_db)
         
         query = """
             INSERT INTO subscribers (

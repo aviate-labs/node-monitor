@@ -39,8 +39,8 @@ class Nodes(BaseModel):
     nodes: List[Node]
 
 class NodeProvider(BaseModel):
+    principal_id: Principal
     display_name: str
-    principal_id: str
 
 class NodeProviders(BaseModel):
     node_providers: List[NodeProvider]
