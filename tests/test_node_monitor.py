@@ -3,8 +3,6 @@ from devtools import debug
 from unittest.mock import patch, Mock
 
 from node_monitor.node_monitor import NodeMonitor
-import node_monitor.ic_api as ic_api
-import node_monitor.load_config as c
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
@@ -224,6 +222,8 @@ def test_one_new_node_online():
     mock_slack_bot.reset_mock()
     mock_telegram_bot.reset_mock()
 
+
+
 def test_no_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
@@ -236,7 +236,6 @@ def test_no_new_node_provider():
 
 
 
-
 def test_one_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
@@ -246,9 +245,4 @@ def test_one_new_node_provider():
     
     nm.update_node_provider_lookup_if_new(cached['new_node_providers'])
     assert mock_node_provider_db.execute_write.call_count == 2
-
-
-
-
-
-
+    
