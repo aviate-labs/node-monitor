@@ -6,6 +6,7 @@ import schedule
 import logging
 
 import node_monitor.ic_api as ic_api
+from node_monitor.ic_api import NodeProvider
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
@@ -192,16 +193,21 @@ class NodeMonitor:
                 live fetching Node Providers from the ic-api. Useful for testing.
         """
         node_providers_api = override_api_data if override_api_data else ic_api.get_node_providers()
+        node_providers_api_dict = {
+            node_provider.principal_id: node_provider.display_name
+            for node_provider in node_providers_api.node_providers
+        }
         node_providers_db = self.node_provider_db.get_subscribers_as_dict()
 
-        principals_api = set(node_provider.principal_id 
-                                for node_provider in node_providers_api.node_providers)
+        principals_api = set(node_providers_api_dict.keys())
         principals_db = set(node_providers_db.keys())
 
         principals_new = principals_api - principals_db
-        node_providers_new = [node_provider 
-                              for node_provider in node_providers_api.node_providers 
-                              if node_provider.principal_id in principals_new]
+        node_providers_new = [
+            NodeProvider(
+                display_name=node_providers_api_dict[principal_id],
+                principal_id=principal_id
+            ) for principal_id in principals_new]
         
         query = """
             INSERT INTO subscribers (
