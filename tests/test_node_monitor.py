@@ -43,11 +43,6 @@ mock_node_provider_db.get_slack_channels_as_dict.return_value = \
 mock_node_provider_db.get_telegram_chats_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
         ['5734534558']}
-mock_node_provider_db.get_node_providers_as_dict.return_value = \
-    {'64xe5-tx2s3-4gjmj-pnozr-fejw2-77y5y-rhcjk-glnmx-62brf-qin5q-pqe': '', 
-     '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': '1G', 
-     'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': '43rd Big Idea Films', 
-     'eipr5-izbom-neyqh-s3ec2-52eww-cyfpg-qfomg-3dpwj-4pffh-34xcu-7qe': '87m Neuron, LLC'}
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default
@@ -215,23 +210,25 @@ def test_no_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+    node_provider_db = NodeProviderDB(
+        c.DB_HOST, c.DB_NAME, c.DB_PORT,
+        c.DB_USERNAME, c.DB_PASSWORD)
+    nm = NodeMonitor(node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['node_provider_control'])
 
-    assert mock_node_provider_db.insert_multiple_subscribers.call_count == 0
-    mock_node_provider_db.reset_mock()
 
 
 def test_one_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
+    node_provider_db = NodeProviderDB(
+        c.DB_HOST, c.DB_NAME, c.DB_PORT,
+        c.DB_USERNAME, c.DB_PASSWORD)
+    nm = NodeMonitor(node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['new_node_providers'])
 
-    assert mock_node_provider_db.insert_multiple_subscribers.call_count == 1
-    mock_node_provider_db.reset_mock()

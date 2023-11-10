@@ -192,7 +192,7 @@ class NodeMonitor:
                 live fetching Node Providers from the ic-api. Useful for testing.
         """
         data = override_api_data if override_api_data else ic_api.get_node_providers()
-        node_providers_in_database = self.node_provider_db.get_node_providers_as_dict()
+        node_providers_in_database = self.node_provider_db.get_subscribers_as_dict()
 
         ic_api_principals = set(node_provider.principal_id 
                                 for node_provider in data.node_providers)
@@ -203,8 +203,30 @@ class NodeMonitor:
                               for node_provider in data.node_providers 
                               if node_provider.principal_id in new_principals]
         
-        if new_node_providers:
-            self.node_provider_db.insert_multiple_subscribers(new_node_providers)
+        query = """
+            INSERT INTO subscribers (
+                node_provider_id,
+                notify_on_status_change,
+                notify_email,
+                notify_slack,
+                node_provider_name,
+                notify_telegram
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (node_provider_id) DO UPDATE SET
+                notify_on_status_change = EXCLUDED.notify_on_status_change,
+                notify_email = EXCLUDED.notify_email,
+                notify_slack = EXCLUDED.notify_slack,
+                node_provider_name = EXCLUDED.node_provider_name,
+                notify_telegram = EXCLUDED.notify_telegram
+        """
+        if (new_node_providers):
+            for node_provider in new_node_providers:
+                params = (node_provider.principal_id, False, False, False, node_provider.display_name, False)
+                print("Executing query:", query)
+                print("With parameters:", params)
+                self.node_provider_db.execute_insert(query, params)
+                
+
 
 
 

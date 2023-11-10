@@ -151,6 +151,14 @@ class NodeProviderDB:
         return result
     
 
+    def execute_insert(self, sql: str, params: Tuple[Any, ...]) -> None:
+        conn = self.pool.getconn()
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+        conn.commit()
+        self.pool.putconn(conn)
+
+
     def _get_schema(self, table_name: str) -> Dict[str, str]:
         """Returns the schema for a table.
         Ex. [{'id': 'integer', 'node_provider_id': 'text'}]
