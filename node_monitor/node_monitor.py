@@ -98,6 +98,10 @@ class NodeMonitor:
         self.actionables = {k: v for k, v
                             in self.compromised_nodes_by_provider.items()
                             if k in subscriber_ids}
+
+
+    def broadcast(self) -> None:
+        raise NotImplementedError
     
 
     def broadcast_alerts(self) -> None:
