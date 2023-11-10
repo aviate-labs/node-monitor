@@ -78,8 +78,8 @@ class NodeMonitor:
                 live fetching Nodes from the ic-api. Useful for testing.
         """
         logging.info("Resyncing node states from ic-api...")
-        data = override_data if override_data else ic_api.get_nodes()
-        self.snapshots.append(data)
+        nodes_api = override_data if override_data else ic_api.get_nodes()
+        self.snapshots.append(nodes_api)
         self.last_update = time.time()
     
 
@@ -191,17 +191,17 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Node Providers from the ic-api. Useful for testing.
         """
-        data = override_api_data if override_api_data else ic_api.get_node_providers()
-        node_providers_in_database = self.node_provider_db.get_subscribers_as_dict()
+        node_providers_api = override_api_data if override_api_data else ic_api.get_node_providers()
+        node_providers_db = self.node_provider_db.get_subscribers_as_dict()
 
-        ic_api_principals = set(node_provider.principal_id 
-                                for node_provider in data.node_providers)
-        database_principals = set(node_providers_in_database.keys())
+        principals_api = set(node_provider.principal_id 
+                                for node_provider in node_providers_api.node_providers)
+        principals_db = set(node_providers_db.keys())
 
-        new_principals = ic_api_principals - database_principals
-        new_node_providers = [node_provider 
-                              for node_provider in data.node_providers 
-                              if node_provider.principal_id in new_principals]
+        principals_new = principals_api - principals_db
+        node_providers_new = [node_provider 
+                              for node_provider in node_providers_api.node_providers 
+                              if node_provider.principal_id in principals_new]
         
         query = """
             INSERT INTO subscribers (
@@ -219,8 +219,8 @@ class NodeMonitor:
                 node_provider_name = EXCLUDED.node_provider_name,
                 notify_telegram = EXCLUDED.notify_telegram
         """
-        if (new_node_providers):
-            for node_provider in new_node_providers:
+        if node_providers_new:
+            for node_provider in node_providers_new:
                 params = (node_provider.principal_id, False, False, False, node_provider.display_name, False)
                 print("Executing query:", query)
                 print("With parameters:", params)
