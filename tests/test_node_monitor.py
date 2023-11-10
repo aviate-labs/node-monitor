@@ -23,14 +23,32 @@ from tests.conftest import cached
 
 mock_node_provider_db = Mock(spec=NodeProviderDB)
 mock_node_provider_db.get_subscribers_as_dict.return_value = \
-    {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
-     {'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae',
-      'notify_on_status_change': True,
-      'notify_email': True,
-      'notify_slack': True,
-      'notify_telegram': True,
-      }
+{
+'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae': {
+        'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae',
+        'notify_on_status_change': True,
+        'notify_email': True,
+        'notify_slack': True,
+        'node_provider_name': 'Allusion',
+        'notify_telegram': True,
+    },
+    '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': {
+        'node_provider_id': '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe',
+        'notify_on_status_change': True,
+        'notify_email': True,
+        'notify_slack': True,
+        'node_provider_name': '1G',
+        'notify_telegram': True,
+    },
+    'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': {
+        'node_provider_id': 'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe',
+        'notify_on_status_change': True,
+        'notify_email': True,
+        'notify_slack': True,
+        'node_provider_name': '43rd Big Idea Films',
+        'notify_telegram': True,
     }
+}
 mock_node_provider_db.get_node_labels_as_dict.return_value = \
     {'77fe5-a4oq4-o5pk6-glxt7-ejfpv-tdkrr-24mgs-yuvvz-2tqx6-mowdr-eae': 'dummy-node-label-1',
      'clb2i-sz6tk-tlcpr-hgnfv-iybzf-ytorn-dmzkz-m2iw2-lpkqb-l455g-pae': 'dummy-node-label-2'}
@@ -210,13 +228,12 @@ def test_no_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    node_provider_db = NodeProviderDB(
-        c.DB_HOST, c.DB_NAME, c.DB_PORT,
-        c.DB_USERNAME, c.DB_PASSWORD)
-    nm = NodeMonitor(node_provider_db, mock_email_bot, 
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['node_provider_control'])
+    assert mock_node_provider_db.execute_insert.call_count == 0
+
 
 
 
@@ -224,11 +241,14 @@ def test_one_new_node_provider():
     mock_email_bot = Mock(spec=EmailBot)
     mock_slack_bot = Mock(spec=SlackBot)
     mock_telegram_bot = Mock(spec=TelegramBot)
-    node_provider_db = NodeProviderDB(
-        c.DB_HOST, c.DB_NAME, c.DB_PORT,
-        c.DB_USERNAME, c.DB_PASSWORD)
-    nm = NodeMonitor(node_provider_db, mock_email_bot, 
+    nm = NodeMonitor(mock_node_provider_db, mock_email_bot, 
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['new_node_providers'])
+    assert mock_node_provider_db.execute_insert.call_count == 2
+
+
+
+
+
 
