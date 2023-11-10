@@ -228,11 +228,7 @@ class NodeMonitor:
         if node_providers_new:
             for node_provider in node_providers_new:
                 params = (node_provider.principal_id, False, False, False, node_provider.display_name, False)
-                print("Executing query:", query)
-                print("With parameters:", params)
                 self.node_provider_db.execute_insert(query, params)
-                
-
 
 
 
