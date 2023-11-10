@@ -1,503 +1,219 @@
 from typing import List, Dict, Any, Optional, Tuple
-import psycopg2, psycopg2.extensions
+import psycopg2, psycopg2.extensions, psycopg2.pool
+from psycopg2.extras import DictCursor, RealDictCursor
 import node_monitor.ic_api as ic_api
 from toolz import groupby # type: ignore
 
-
 Principal = str
 
+## This class is a rewrite of our previous NodeProviderDB class.
+## The previous class represented a slightly different database schema.
+## It was verbose, and was hard to build upon or change.
+## It is available for reference in this commit:
+## daf8ee36b5b1309692d3d8583701023ca68b6c54
+##
+## References:
+## This API was inspired by:
+## https://cljdoc.org/d/seancorfield/next.jdbc/
+##
+## Information about psycopg2 connection pooling and cursors:
+## https://www.psycopg.org/docs/pool.html
+## https://www.psycopg.org/docs/cursor.html
+##
+## Please note that we did include a NodeProviderDB.close() class here, 
+## but we will probably never need to call it:
+## https://stackoverflow.com/questions/47018695/psycopg2-close-connection-pool
+##
+
+
 class NodeProviderDB:
-    """
-    This class is used to interact with the database that stores node-provider
-    configurations.
+    """A class to interact with the node_provider database."""
 
-    This database contains 4 tables:
-    1. subscribers:
-        Main table for keeping track of which node providers are subscribed to
-        notifications, and their notification preferences.
-    2. email_lookup:
-        Table for keeping track of which email addresses are associated with
-        which node providers.
-    3. channel_lookup:
-        Table for keeping track of which slack channels and telegram chats
-        are associated with which node providers.
-    4. node_label_lookup:
-        Table for keeping track of which custom node labels are associated with 
-        which node_id (individual node machine principals).
-    """
+    # Postgres has no efficiency gain for using a VARCHAR instead of TEXT
+    # Here we use TEXT because it was inherited from the previous schema.
 
-    # TABLE subscribers
-    # Subscribers are identified by their unique node_provider_id, so we use 
-    # that as the primary key. 'node_provider_id' is the name of the
-    # principal of the node provider, consistent with the ic-api.
+    # table: subscribers
     create_table_subscribers = """
         CREATE TABLE IF NOT EXISTS subscribers (
-            node_provider_id TEXT PRIMARY KEY ,
+            node_provider_id TEXT PRIMARY KEY,
             notify_on_status_change BOOLEAN,
             notify_email BOOLEAN,
             notify_slack BOOLEAN,
-            notify_telegram_chat BOOLEAN,
-            notify_telegram_channel BOOLEAN, --Deprecated: column not used
-            node_provider_name TEXT
-        );
-    """
-    table_subscribers_cols = [
-        'node_provider_id', 'notify_on_status_change', 'notify_email', 
-        'notify_slack', 'notify_telegram_chat', 
-        'notify_telegram_channel', # Deprecated: column not used
-        'node_provider_name']
+            notify_telegram BOOLEAN,
+            node_provider_name TEXT,
+        )
+        """
+    schema_table_subscribers = {
+        'node_provider_id': 'text',
+        'notify_on_status_change': 'boolean',
+        'notify_email': 'boolean',
+        'notify_slack': 'boolean',
+        'notify_telegram': 'boolean',
+        'node_provider_name': 'text',
+    }
 
-
-    # TABLE email_lookup
-    # A node provider can have multiple unique email addresses.
+    # table: email_lookup
     create_table_email_lookup = """
         CREATE TABLE IF NOT EXISTS email_lookup (
             id SERIAL PRIMARY KEY,
             node_provider_id TEXT,
             email_address TEXT
-        );
+        )
     """
-    table_email_lookup_cols = ['id', 'node_provider_id', 'email_address']
+    schema_table_email_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'email_address': 'text'
+    }
 
-
-    # TABLE channel_lookup
-    create_table_channel_lookup = """
-        CREATE TABLE IF NOT EXISTS channel_lookup (
+    # table: slack_channel_lookup
+    create_table_slack_channel_lookup = """
+        CREATE TABLE IF NOT EXISTS slack_channel_lookup (
             id SERIAL PRIMARY KEY,
             node_provider_id TEXT,
-            slack_channel_name TEXT,
-            telegram_chat_id TEXT,
-            telegram_channel_id TEXT --Deprecated: column not used
-        );
+            slack_channel_id TEXT
+        )
     """
-    table_channel_lookup_cols = ['id', 'node_provider_id', 'slack_channel_name',
-                                 'telegram_chat_id', 
-                                 'telegram_channel_id' # Deprecated: column not used
-                                ]
+    schema_table_slack_channel_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'slack_channel_id': 'text'
+    }
 
+    # table: telegram_chat_lookup
+    create_table_telegram_chat_lookup = """
+        CREATE TABLE IF NOT EXISTS telegram_chat_lookup (
+            id SERIAL PRIMARY KEY,
+            node_provider_id TEXT,
+            telegram_chat_id TEXT
+        )
+    """
+    schema_table_telegram_chat_lookup = {
+        'id': 'integer',
+        'node_provider_id': 'text',
+        'telegram_chat_id': 'text'
+    }
 
-    # TABLE node_label_lookup
-    # 'node-id' is the name of the principal of the node, 
-    # consistent with the ic-api.
+    # table: node_label_lookup
     create_table_node_label_lookup = """
         CREATE TABLE IF NOT EXISTS node_label_lookup (
             node_id TEXT PRIMARY KEY,
             node_label TEXT
-        );
-    """
-    table_node_label_lookup_cols = ['node_id', 'node_label']
-
-    # TABLE node_provider_lookup
-    # This table will keep up to date with the node providers registered
-    # on the ic api.
-    create_table_node_provider_lookup = """
-        CREATE TABLE IF NOT EXISTS node_provider_lookup (
-            node_provider_id TEXT PRIMARY KEY,
-            node_provider_name TEXT
-        );
-    """
-    table_node_provider_lookup_cols = ['node_provider_id', 'node_provider_name']
-
-
-
-    ##############################################
-    ## Init and Connect
-
-    def __init__(self, host: str, db: str, username: str, 
-            password: str, port: str) -> None:
-        """Initializes the database object. Automatically creates the tables
-        if they don't already exist."""
-        self.host = host
-        self.db = db
-        self.username = username
-        self.password = password
-        self.port = port
-        self.conn: Optional[psycopg2.extensions.connection] = None
-        self._create_tables()
-
-
-    def connect(self) -> None:
-        """Connects to the database."""
-        self.conn = psycopg2.connect(
-            host=self.host,
-            database=self.db,
-            user=self.username,
-            password=self.password,
-            port=self.port)
-
-
-    def disconnect(self) -> None:
-        """Commits and closes the connection to the database."""
-        assert self.conn is not None   # needed for mypy --strict
-        self.conn.commit()
-        self.conn.close()
-        self.conn = None
-    
-
-    def _create_tables(self) -> None:
-        """Automatically creates the tables if they don't already exist."""
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(self.create_table_subscribers)
-            cur.execute(self.create_table_email_lookup)
-            cur.execute(self.create_table_channel_lookup)
-            cur.execute(self.create_table_node_label_lookup)
-            cur.execute(self.create_table_node_provider_lookup)
-        self.disconnect()
-    
-
-    def _validate_col_names(self, table_name: str, cols: List[str]) -> None:
-        """Validates that the actual column names in the table match the 
-        expected column names defined in the program. Useful for testing."""
-        # TODO: Move this to a separate test file
-        query = f"SELECT * FROM {table_name}"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            assert cur.description is not None
-            column_names = [desc[0] for desc in cur.description]
-        self.disconnect()
-        assert column_names == cols, "Column names do not match expected names."
-
-
-
-    def get_public_schema_tables(self) -> List[str]:
-        """Returns a list of all tables in the public schema. 
-        Useful for testing."""
-        select_query = """
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = 'public'
-        """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(select_query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return [row[0] for row in rows]
-    
-
-
-
-    ##############################################
-    ## CRUD :: TABLE subscribers
-
-    def _insert_subscriber(
-            self, node_provider_id: Principal, notify_on_status_change: bool, 
-            notify_email: bool, notify_slack: bool, notify_telegram_chat: bool,
-            notify_telegram_channel: bool, # Deprecated: column not used
-            node_provider_name: str) -> None:
-        """Inserts a subscriber into the subscribers table. Overwrites if
-        subscriber already exists."""
-        query = """
-            INSERT INTO subscribers (
-                node_provider_id,
-                notify_on_status_change,
-                notify_email,
-                notify_slack,
-                notify_telegram_chat,
-                notify_telegram_channel, --Deprecated: colunn not used
-                node_provider_name
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (node_provider_id) DO UPDATE SET
-                notify_on_status_change = EXCLUDED.notify_on_status_change,
-                notify_email = EXCLUDED.notify_email,
-                notify_slack = EXCLUDED.notify_slack,
-                notify_telegram_chat = EXCLUDED.notify_telegram_chat,
-                notify_telegram_channel = EXCLUDED.notify_telegram_channel, --Deprecated: column not used
-                node_provider_name = EXCLUDED.node_provider_name
-        """
-        values = (
-            node_provider_id,
-            notify_on_status_change,
-            notify_email,
-            notify_slack,
-            notify_telegram_chat,
-            notify_telegram_channel, # Deprecated: column not used
-            node_provider_name
         )
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, values)
-        self.disconnect()
+    """
+    schema_table_node_label_lookup = {
+        'node_id': 'text',
+        'node_label': 'text'
+    }
 
+
+    ## Methods
+    def __init__(self, host: str, db: str, port: str,
+                 username: str,password: str) -> None:
+        self.pool = psycopg2.pool.SimpleConnectionPool(
+            1, 3, host=host, database=db, port=port,
+            user=username, password=password)
     
-    def _delete_subscriber(self, node_provider_id: Principal) -> None:
-        """Deletes a subscriber from the subscribers table."""
-        query = """
-            DELETE FROM subscribers
-            WHERE node_provider_id = %s
+    
+    def _execute(self, sql: str,
+                 params: Tuple[Any, ...]) -> List[Dict[str, Any]]:
+        """Execute a SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed.
+        All transactions are committed.
+        Returns a list of dicts instead of the default list of tuples.
+        Ex. [{'column_name': value, ...}, ...]
         """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, (node_provider_id,))
-        self.disconnect()
-
-
-    def get_subscribers(self) -> List[Tuple[Any, ...]]: 
-        """Returns the table of all subscribers."""
-        query = "SELECT * FROM subscribers"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return rows
+        # Note: this method can also be used for read-only queries, because
+        # conn.commit() adds insignificant overhead for read-only queries.
+        # Note: we convert 'result' from type List[RealDictCursor] to List[dict]
+        conn = self.pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql, params)
+            result = cur.fetchall()
+        conn.commit()
+        self.pool.putconn(conn)
+        return [dict(r) for r in result]
     
 
-    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, bool]]:
-        """Returns the table of all subscribers as a dictionary."""
-        cols = NodeProviderDB.table_subscribers_cols
-        self._validate_col_names("subscribers", cols)
-        subs = self.get_subscribers()
-        subscribers_dict = {row[0]: dict(zip(cols, row)) for row in subs}
-        return subscribers_dict
-
-    def insert_multiple_subscribers(
-            self, 
-            node_providers_list: List[ic_api.NodeProvider]) -> None:
-        for np in node_providers_list:
-            self._insert_subscriber(
-                np.principal_id, False, False, 
-                False, False, False, np.display_name)
-
-
-    ##############################################
-    ## CRUD :: TABLE email_lookup
-
-    def _insert_email(
-        self, node_provider_id: Principal, email_address: str) -> None:
-        """Inserts an email address into the email_lookup table."""
-        query = """
-            INSERT INTO email_lookup (node_provider_id, email_address)
-            VALUES (%s, %s)
+    def _execute1(self, sql: str, params: Tuple[Any, ...]) -> List[Tuple[Any, ...]]:
+        """Execute a SQL statement with a connection from the pool.
+        An empty tuple should be passed if no parameters are needed.
+        All transactions are committed.
+        Returns a list of tuples, as is standard.
+        Prefer _execute() instead.
         """
-        values = (
-            node_provider_id,
-            email_address)
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, values)
-        self.disconnect()
+        conn = self.pool.getconn()
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+            result: List[Tuple[Any, ...]] = cur.fetchall()
+        conn.commit()
+        self.pool.putconn(conn)
+        return result
     
 
-    def _delete_email(self, email_address: str) -> None:
-        """Deletes an email address from the email_lookup table."""
-        query = """
-            DELETE FROM email_lookup
-            WHERE email_address = %s
+    def _get_schema(self, table_name: str) -> Dict[str, str]:
+        """Returns the schema for a table.
+        Ex. [{'id': 'integer', 'node_provider_id': 'text'}]
+        This method is useful for testing.
         """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, (email_address,))
-        self.disconnect()
-    
+        # Note: we could use pg_dump or generate_ddl to test this instead,
+        # but this is significantly easier.
+        # Get the column names, data types
+        query = f"""
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = '{table_name}'
+        """
+        result = self._execute(query, ())
+        schema = {row['column_name']: row['data_type'] for row in result}
+        return schema
 
-    def get_emails(self) -> List[Tuple[Any, ...]]:
-        """Returns the table of all emails."""
-        query = "SELECT * FROM email_lookup"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return rows
+
+    def get_subscribers_as_dict(self) -> Dict[Principal, Dict[str, Any]]:
+        """Returns the table of all subscribers as a dictionary.
+        One to one relationship."""
+        result = self._execute("SELECT * FROM subscribers", ())
+        as_dict = {row['node_provider_id']: row for row in result}
+        return as_dict
     
 
     def get_emails_as_dict(self) -> Dict[Principal, List[str]]:
-        """Returns the table of all emails as a dictionary"""
-        # Group by principal -> convert tuples to lists -> remove duplicates
-        grouped = groupby(lambda row: row[1], self.get_emails())
-        filtered: Dict[Principal, List[str]] = {k: [row[2] for row in v] 
-                                                for k, v in grouped.items()}
-        deduped = {k: list(set(v)) for k, v in filtered.items()}
-        return deduped
+        """Returns the table of all emails as a dictionary
+        One to many relationship."""
+        result = self._execute("SELECT * FROM email_lookup", ())
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['email_address'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
+    
 
+    def get_slack_channels_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all slack channels as a dictionary.
+        One to many relationship."""
+        result = self._execute("SELECT * FROM slack_channel_lookup", ())
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['slack_channel_id'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
+    
 
-
-    ##############################################
-    ## CRUD :: TABLE channel_lookup
-    
-    def _insert_channel(
-        self, node_provider_id: Principal, slack_channel_name: str,
-        telegram_chat_id: str, 
-        telegram_channel_id: str # Deprecated: column not used
-    ) -> None:
-        """Inserts or updates a record in the channel_lookup table."""
-        query = """
-            INSERT INTO channel_lookup (
-                node_provider_id,
-                slack_channel_name,
-                telegram_chat_id,
-                telegram_channel_id --Deprecated: column not used
-            ) VALUES (%s, %s, %s, %s)
-        """
-        values = (
-            node_provider_id,
-            slack_channel_name,
-            telegram_chat_id,
-            telegram_channel_id # Deprecated: column not used
-        )
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, values)
-        self.disconnect()
-
-    
-    def _delete_channel_lookup(self, node_provider_id: Principal) -> None:
-        """Delete record from the channel_lookup table by node_provider_id."""
-        query = """
-            DELETE FROM channel_lookup
-            WHERE node_provider_id = %s
-        """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, (node_provider_id,))
-        self.disconnect()
-
-    
-    def get_channels(self) -> List[Tuple[Any, ...]]: 
-        """Returns the table of all channels."""
-        query = "SELECT * FROM channel_lookup"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return rows
-    
-    
-    def get_channels_as_dict(self) -> Dict[Principal, Dict[str, str]]:
-        """Returns the table of all channels as a dictionary. If there are
-        multiple entries for a node provider ID, only the last entry is kept.
-        """
-        columns = NodeProviderDB.table_channel_lookup_cols
-        self._validate_col_names("channel_lookup", columns)
-        channels_dict = {}
-        for row in self.get_channels():
-            node_provider_id = row[1]
-            channels_dict[node_provider_id] = dict(zip(columns[1:], row[1:]))
-        return channels_dict
-
-
-    ##############################################
-    ## CRUD :: TABLE node_label_lookup
-    
-    def _insert_node_label(self, node_id: Principal, node_label: str) -> None:            
-        """Inserts or updates a node label into the node_label_lookup table."""
-        query = """
-            INSERT INTO node_label_lookup (node_id, node_label)
-            VALUES (%s, %s)  
-            ON CONFLICT (node_id) DO UPDATE SET
-                node_label = EXCLUDED.node_label
-        """
-        values = (node_id, node_label)
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, values)
-        self.disconnect()
-    
-    
-    def _delete_node_label(self, node_id: Principal) -> None:
-        """Deletes a node label from the node_label_lookup table."""
-        query = """
-            DELETE FROM node_label_lookup
-            WHERE node_id = %s
-        """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, (node_id,))
-        self.disconnect()
-        
-    
-    def get_node_labels(self) -> List[Tuple[Any, ...]]:
-        """Returns the table of all node labels."""
-        query = "SELECT * FROM node_label_lookup"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return rows
+    def get_telegram_chats_as_dict(self) -> Dict[Principal, List[str]]:
+        """Returns the table of all telegram chats as a dictionary.
+        One to many relationship."""
+        result = self._execute("SELECT * FROM telegram_chat_lookup", ())
+        grouped = groupby(lambda d: d['node_provider_id'], result)
+        lookupd = {k: [row['telegram_chat_id'] for row in v] 
+                   for k, v in grouped.items()}
+        return lookupd
     
 
     def get_node_labels_as_dict(self) -> Dict[Principal, str]:
-        """Returns the table of all node labels as a dictionary."""
-        labels = self.get_node_labels()
-        node_labels = {row[0]: row[1] for row in labels}
-        return node_labels
+        """Returns the table of all node labels as a dictionary.
+        One to one relationship."""
+        rows = self._execute("SELECT * FROM node_label_lookup", ())
+        lookupd = {row['node_id']: row['node_label'] for row in rows}
+        return lookupd
 
 
-    ##############################################
-    ## CRUD :: TABLE node_provider_lookup
-
-    def _insert_node_provider(
-        self, node_provider_id: Principal, node_provider_name: str) -> None:
-        """Inserts a record into the node_provider_lookup table. Overwrites if
-        record already exists."""
-        query = """
-            INSERT INTO node_provider_lookup (
-                node_provider_id,
-                node_provider_name
-            ) VALUES (%s, %s)
-            ON CONFLICT (node_provider_id) DO UPDATE SET
-                node_provider_name = EXCLUDED.node_provider_name
-        """
-        values = (node_provider_id, node_provider_name)
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, values)
-        self.disconnect()
-
-    def _delete_node_provider(self, node_provider_id: Principal) -> None:
-        """Deletes a record from the node_provider_lookup table based
-        on node provider principal."""
-        query = """
-            DELETE FROM node_provider_lookup
-            WHERE node_provider_id = %s
-        """
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query, (node_provider_id,))
-        self.disconnect()
-
-    def get_node_providers(self) -> List[Tuple[Any, ...]]: 
-        """Returns the table of all records in node_provider_lookup."""
-        query = "SELECT * FROM node_provider_lookup"
-        self.connect()
-        assert self.conn is not None
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-        self.disconnect()
-        return rows
-
-    def get_node_providers_as_dict(self) -> Dict[Principal, str]:
-        """Returns the table of all records in node_provider_lookup as a dictionary."""
-        node_providers = self.get_node_providers()
-        node_providers_dict = {row[0]: row[1] for row in node_providers}
-        return node_providers_dict
-    
-    def insert_multiple_node_providers(
-            self, 
-            node_providers_list: List[ic_api.NodeProvider]) -> None:
-        for np in node_providers_list:
-            self._insert_node_provider(np.principal_id, np.display_name)
-
+    def close(self) -> None:
+        self.pool.closeall()

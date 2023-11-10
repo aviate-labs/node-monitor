@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added logging.
 - Fixed bug where `UNASSIGNED` nodes were being alerted on as being compromised.
+- Refactored `NodeProviderDB`:
+  - Implemented connection pooling.
+  - Changed database schema.
+  - Made class more friendly to database schema changes.
 
 
 ## [1.0.0-alpha.1] - 2023-10-20

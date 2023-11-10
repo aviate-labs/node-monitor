@@ -82,7 +82,7 @@ def nodes_compromised_message(nodes: List[ic_api.Node],
         f"\n"
         f"Node Monitor by Aviate Labs\n"
         f"Report Generated: {datetime_iso8601()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Help us serve you better! Provide your feedback here: {c.FEEDBACK_FORM_URL}")
     return (subject, message)
 
 
@@ -131,5 +131,5 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
         f"Report generated: {datetime_iso8601()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Help us serve you better! Provide your feedback here: {c.FEEDBACK_FORM_URL}")
     return (subject, message)
