@@ -1,6 +1,6 @@
 import time
 from collections import deque
-from typing import Deque, List, Dict, Optional
+from typing import Deque, List, Dict, Optional, Callable
 from toolz import groupby # type: ignore
 import schedule
 import logging
@@ -100,24 +100,32 @@ class NodeMonitor:
                             if k in subscriber_ids}
 
 
-    def broadcast(self, recipient_subscriber: Principal, message: str) -> None:
-        """Broadcasts a generic message to a subscriber through their
-        selected communication channel(s)."""
+    def make_broadcaster(self) -> Callable:
+        """A closure that creates a broadcast function with a local cache
+        queried from the database at this instance in time. Allows the returned
+        function to be run in a loop without querying the database each time.
+        """
         subscribers = self.node_provider_db.get_subscribers_as_dict()
-        preferences = subscribers[recipient_subscriber]
-        # - - - - - - - - - - - - - - - - -
-        if preferences['notify_email'] == True:
-            raise NotImplementedError
-        if preferences['notify_slack'] == True:
-            if self.slack_bot is not None:
+        email_recipients = self.node_provider_db.get_emails_as_dict()
+        slack_channels = self.node_provider_db.get_slack_channels_as_dict()
+        telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
+
+        def broadcast(recipient_subscriber: str,
+                      subject: str, message: str) -> None:
+            """Broadcasts a generic message to a subscriber through their
+            selected communication channel(s)."""
+            preferences = subscribers[recipient_subscriber]
+            if preferences['notify_email'] == True:
                 pass
-            raise NotImplementedError
-        if preferences['notify_telegram'] == True:
-            if self.telegram_bot is not None:
-                pass
-            raise NotImplementedError
-        # - - - - - - - - - - - - - - - - -
-        raise NotImplementedError
+            if preferences['notify_slack'] == True:
+                if self.slack_bot is not None:
+                    pass
+            if preferences['notify_telegram'] == True:
+                if self.telegram_bot is not None:
+                    pass
+            return None
+        
+        return broadcast
     
 
     def broadcast_alerts(self) -> None:
