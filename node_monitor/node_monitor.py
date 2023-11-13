@@ -100,15 +100,16 @@ class NodeMonitor:
                             if k in subscriber_ids}
 
 
-    def _make_broadcaster(self) -> Callable:
-        """A closure that creates a broadcast function with a local cache
-        queried from the database at this instance in time. Allows the returned
-        function to be run in a loop without querying the database each time.
+    def _make_broadcaster(self) -> Callable[[str, str, str], None]:
+        """A closure that returns a broadcast function with a local cache.
+        Allows the returned function to be run in a loop without
+        querying the database.
         """
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
         slack_channels = self.node_provider_db.get_slack_channels_as_dict()
         telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
+
         def broadcast(node_provider_id: str,
                       subject: str, message: str) -> None:
             """Broadcasts a generic message to a subscriber through their
