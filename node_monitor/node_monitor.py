@@ -100,7 +100,7 @@ class NodeMonitor:
                             if k in subscriber_ids}
 
 
-    def make_broadcaster(self) -> Callable:
+    def _make_broadcaster(self) -> Callable:
         """A closure that creates a broadcast function with a local cache
         queried from the database at this instance in time. Allows the returned
         function to be run in a loop without querying the database each time.
@@ -109,20 +109,22 @@ class NodeMonitor:
         email_recipients = self.node_provider_db.get_emails_as_dict()
         slack_channels = self.node_provider_db.get_slack_channels_as_dict()
         telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
-
-        def broadcast(recipient_subscriber: str,
+        def broadcast(node_provider_id: str,
                       subject: str, message: str) -> None:
             """Broadcasts a generic message to a subscriber through their
             selected communication channel(s)."""
-            preferences = subscribers[recipient_subscriber]
+            preferences = subscribers[node_provider_id]
             if preferences['notify_email'] == True:
-                pass
+                recipients = email_recipients[node_provider_id]
+                self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
-                    pass
+                    channels = slack_channels[node_provider_id]
+                    err1 = self.slack_bot.send_messages(channels, message)
             if preferences['notify_telegram'] == True:
                 if self.telegram_bot is not None:
-                    pass
+                    chats = telegram_chats[node_provider_id]
+                    err2 = self.telegram_bot.send_messages(chats, message)
             return None
         
         return broadcast
