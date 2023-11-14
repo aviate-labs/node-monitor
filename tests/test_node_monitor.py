@@ -21,29 +21,12 @@ from tests.conftest import cached
 
 mock_node_provider_db = Mock(spec=NodeProviderDB)
 mock_node_provider_db.get_subscribers_as_dict.return_value = \
-{
-'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae': {
+{'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae': {
         'node_provider_id': 'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae',
         'notify_on_status_change': True,
         'notify_email': True,
         'notify_slack': True,
         'node_provider_name': 'Allusion',
-        'notify_telegram': True,
-    },
-    '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': {
-        'node_provider_id': '7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe',
-        'notify_on_status_change': True,
-        'notify_email': True,
-        'notify_slack': True,
-        'node_provider_name': '1G',
-        'notify_telegram': True,
-    },
-    'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': {
-        'node_provider_id': 'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe',
-        'notify_on_status_change': True,
-        'notify_email': True,
-        'notify_slack': True,
-        'node_provider_name': '43rd Big Idea Films',
         'notify_telegram': True,
     }
 }
@@ -59,6 +42,9 @@ mock_node_provider_db.get_slack_channels_as_dict.return_value = \
 mock_node_provider_db.get_telegram_chats_as_dict.return_value = \
     {'rbn2y-6vfsb-gv35j-4cyvy-pzbdu-e5aum-jzjg6-5b4n5-vuguf-ycubq-zae':
         ['5734534558']}
+mock_node_provider_db.get_node_providers_as_dict.return_value = \
+    {'7k7b7-4pzhf-aivy6-y654t-uqyup-2auiz-ew2cm-4qkl4-nsl4v-bul5k-5qe': '1G',
+    'sqhxa-h6ili-qkwup-ohzwn-yofnm-vvnp5-kxdhg-saabw-rvua3-xp325-zqe': '43rd Big Idea Films'}
 
 # Note that reset_mock() doesn’t clear the return value, side_effect or any 
 # child attributes you have set using normal assignment by default
@@ -232,7 +218,7 @@ def test_no_new_node_provider():
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['node_provider_control'])
-    assert mock_node_provider_db.insert_node_provider.call_count == 0
+    assert mock_node_provider_db.insert_node_providers.call_count == 0
 
 
 
@@ -244,5 +230,5 @@ def test_one_new_node_provider():
                      mock_slack_bot, mock_telegram_bot)
     
     nm.update_node_provider_lookup_if_new(cached['new_node_providers'])
-    assert mock_node_provider_db.insert_node_provider.call_count == 2
+    assert mock_node_provider_db.insert_node_providers.call_count == 1
     

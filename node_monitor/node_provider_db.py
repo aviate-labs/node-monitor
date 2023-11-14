@@ -243,7 +243,7 @@ class NodeProviderDB:
         return lookupd
     
     
-    def insert_node_provider(self, node_provider: ic_api.NodeProvider) -> None:
+    def insert_node_providers(self, node_providers: Dict[Principal, str]) -> None:
         """Inserts a NodeProvider object into node_provider_lookup"""
         query = """
             INSERT INTO node_provider_lookup (
@@ -251,8 +251,9 @@ class NodeProviderDB:
                 node_provider_name
             ) VALUES (%s, %s)
         """
-        params = (node_provider.principal_id, node_provider.display_name)
-        self._execute_write(query, params)
+        for node_provider_principal in node_providers.keys():
+            params = (node_provider_principal, node_providers[node_provider_principal])
+            self._execute_write(query, params)
 
 
     def delete_node_provider(self, node_provider_id: Principal) -> None:

@@ -184,7 +184,7 @@ class NodeMonitor:
 
     def update_node_provider_lookup_if_new(
             self, 
-            override_api_data: ic_api.NodeProviders | None = None) -> None:
+            override_data: ic_api.NodeProviders | None = None) -> None:
         """Fetches the current node providers from the ic-api and compares
         them to what is currently in the node_provider_lookup table in the 
         database. If there is a new node provider in the API, they will be
@@ -194,19 +194,20 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Node Providers from the ic-api. Useful for testing.
         """
-        node_providers_api = \
-            override_api_data if override_api_data else ic_api.get_node_providers()
-        node_providers_api_dict = {
-            node_provider.principal_id: node_provider.display_name
-            for node_provider in node_providers_api.node_providers
-        }
-        node_providers_db = self.node_provider_db.get_subscribers_as_dict()
-        node_providers_new = get_new_node_providers(
-            node_providers_api_dict, node_providers_db)
+        data = override_data if override_data else ic_api.get_node_providers()
+
+        node_providers_api = {d.principal_id: d.display_name for d in data.node_providers}
+        node_providers_db = self.node_provider_db.get_node_providers_as_dict()
+        
+        principals_api = set(node_providers_api.keys())
+        principals_db = set(node_providers_db.keys())
+        principals_diff = principals_api - principals_db
+        
+        node_providers_new = {
+            principal: node_providers_api[principal] for principal in principals_diff}
         
         if node_providers_new:
-            for node_provider in node_providers_new:
-                self.node_provider_db.insert_node_provider(node_provider)
+            self.node_provider_db.insert_node_providers(node_providers_new)
 
 
 

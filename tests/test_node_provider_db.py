@@ -77,9 +77,9 @@ def test_validate_schema_node_provider_lookup():
 def test_insert_and_delete_node_provider():
 
     # Insert new node providers
-    new_node_providers = cached["new_node_providers"]  
-    for node_provider in new_node_providers.node_providers:
-        node_provider_db.insert_node_provider(node_provider)
+    data = cached["new_node_providers"]
+    node_providers = {d.principal_id: d.display_name for d in data.node_providers}  
+    node_provider_db.insert_node_providers(node_providers)
 
     # Check new node providers were added properly
     node_providers = node_provider_db.get_node_providers_as_dict()
