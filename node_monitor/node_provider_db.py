@@ -163,7 +163,7 @@ class NodeProviderDB:
         return result
     
 
-    def execute_write(self, sql: str, params: Tuple[Any, ...]) -> None:
+    def _execute_write(self, sql: str, params: Tuple[Any, ...]) -> None:
         conn = self.pool.getconn()
         with conn.cursor() as cur:
             cur.execute(sql, params)
@@ -241,6 +241,27 @@ class NodeProviderDB:
         rows = self._execute("SELECT * FROM node_provider_lookup", ())
         lookupd = {row['node_provider_id']: row['node_provider_name'] for row in rows}
         return lookupd
+    
+    
+    def insert_node_provider(self, node_provider: ic_api.NodeProvider) -> None:
+        """Inserts a NodeProvider object into node_provider_lookup"""
+        query = """
+            INSERT INTO node_provider_lookup (
+                node_provider_id,
+                node_provider_name
+            ) VALUES (%s, %s)
+        """
+        params = (node_provider.principal_id, node_provider.display_name)
+        self._execute_write(query, params)
+
+
+    def delete_node_provider(self, node_provider_id: Principal) -> None:
+        """Deletes a record in node_proivder_lookup by node_provider_id"""
+        query = """
+            DELETE FROM node_provider_lookup
+            WHERE node_provider_id = %s
+        """
+        self._execute_write(query, (node_provider_id,))
 
 
     def close(self) -> None:

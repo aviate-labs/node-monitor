@@ -2,6 +2,7 @@ import pytest
 from devtools import debug
 
 from node_monitor.node_provider_db import NodeProviderDB
+from node_monitor.ic_api import NodeProvider
 from node_monitor.node_monitor_helpers.sql_constants import \
     DELETE_SUBSCRIBER, INSERT_SUBSCRIBER
 from tests.conftest import cached
@@ -73,36 +74,21 @@ def test_validate_schema_node_provider_lookup():
     
 
 @pytest.mark.db
-def test_insert_subscriber_crud():
+def test_insert_and_delete_node_provider():
 
     # Insert new node providers
     new_node_providers = cached["new_node_providers"]  
     for node_provider in new_node_providers.node_providers:
-        params = (node_provider.principal_id, False, False, 
-                    False, node_provider.display_name, False)
-        node_provider_db.execute_write(INSERT_SUBSCRIBER, params)
+        node_provider_db.insert_node_provider(node_provider)
 
     # Check new node providers were added properly
-    subs = node_provider_db.get_subscribers_as_dict()
-    assert subs['test-dummy-principal-1'] == \
-        {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': False, 'notify_email': False,
-         'notify_slack': False, 'node_provider_name': 'Node Provider A', 'notify_telegram': False,}
-    assert subs['test-dummy-principal-2'] == \
-        {'node_provider_id': 'test-dummy-principal-2', 'notify_on_status_change': False, 'notify_email': False,
-         'notify_slack': False, 'node_provider_name': 'Node Provider B', 'notify_telegram': False,}
-    
-    # Check overwriting existing records occurs properly 
-    params = ('test-dummy-principal-1', False, False, 
-              False, 'Node Provider C', False)
-    node_provider_db.execute_write(INSERT_SUBSCRIBER, params)
-    subs = node_provider_db.get_subscribers_as_dict()
-    assert subs['test-dummy-principal-1'] == \
-        {'node_provider_id': 'test-dummy-principal-1', 'notify_on_status_change': False, 'notify_email': False,
-         'notify_slack': False, 'node_provider_name': 'Node Provider C', 'notify_telegram': False,}
+    node_providers = node_provider_db.get_node_providers_as_dict()
+    assert node_providers['test-dummy-principal-1'] == "Node Provider A"
+    assert node_providers['test-dummy-principal-2'] == "Node Provider B"
     
     # Delete subscribers
-    node_provider_db.execute_write(DELETE_SUBSCRIBER, ('test-dummy-principal-1',))
-    node_provider_db.execute_write(DELETE_SUBSCRIBER, ('test-dummy-principal-2',))
+    node_provider_db.delete_node_provider('test-dummy-principal-1')
+    node_provider_db.delete_node_provider('test-dummy-principal-2')
     subs = node_provider_db.get_subscribers_as_dict()
     assert 'test-dummy-principal-1' not in subs
     assert 'test-dummy-principal-2' not in subs
