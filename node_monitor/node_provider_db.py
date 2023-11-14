@@ -1,7 +1,6 @@
 from typing import List, Dict, Any, Optional, Tuple
 import psycopg2, psycopg2.extensions, psycopg2.pool
 from psycopg2.extras import DictCursor, RealDictCursor
-import node_monitor.ic_api as ic_api
 from toolz import groupby # type: ignore
 
 Principal = str

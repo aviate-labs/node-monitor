@@ -2,9 +2,6 @@ import pytest
 from devtools import debug
 
 from node_monitor.node_provider_db import NodeProviderDB
-from node_monitor.ic_api import NodeProvider
-from node_monitor.node_monitor_helpers.sql_constants import \
-    DELETE_SUBSCRIBER, INSERT_SUBSCRIBER
 from tests.conftest import cached
 import node_monitor.load_config as c
 

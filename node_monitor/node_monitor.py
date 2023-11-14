@@ -9,11 +9,8 @@ from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
 from node_monitor.node_provider_db import NodeProviderDB
-from node_monitor.node_monitor_helpers.sql_constants import INSERT_SUBSCRIBER
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
-from node_monitor.node_monitor_helpers.get_new_node_providers import \
-    get_new_node_providers
 import node_monitor.node_monitor_helpers.messages as messages
 import node_monitor.ic_api as ic_api
 
@@ -202,7 +199,7 @@ class NodeMonitor:
         principals_api = set(node_providers_api.keys())
         principals_db = set(node_providers_db.keys())
         principals_diff = principals_api - principals_db
-        
+
         node_providers_new = {
             principal: node_providers_api[principal] for principal in principals_diff}
         
