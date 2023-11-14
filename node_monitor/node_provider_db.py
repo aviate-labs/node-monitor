@@ -106,6 +106,18 @@ class NodeProviderDB:
         'node_label': 'text'
     }
 
+    # table: node_provider_lookup
+    create_table_node_provider_lookup = """
+        CREATE TABLE IF NOT EXISTS node_provider_lookup (
+            node_provider_id TEXT PRIMARY KEY,
+            node_provider_name TEXT
+        );
+    """
+    schema_table_node_provider_lookup = {
+        'node_provider_id': 'text',
+        'node_provider_name': 'text'
+    }
+
 
     ## Methods
     def __init__(self, host: str, db: str, port: str,
@@ -220,6 +232,14 @@ class NodeProviderDB:
         One to one relationship."""
         rows = self._execute("SELECT * FROM node_label_lookup", ())
         lookupd = {row['node_id']: row['node_label'] for row in rows}
+        return lookupd
+    
+
+    def get_node_providers_as_dict(self) -> Dict[Principal, str]:
+        """Returns the table of all node providers as a dictionary.
+        One to one relationship."""
+        rows = self._execute("SELECT * FROM node_provider_lookup", ())
+        lookupd = {row['node_provider_id']: row['node_provider_name'] for row in rows}
         return lookupd
 
 

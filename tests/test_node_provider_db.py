@@ -64,6 +64,12 @@ def test_validate_schema_node_label_lookup():
     expected_schema = NodeProviderDB.schema_table_node_label_lookup
     actual_schema = node_provider_db._get_schema('node_label_lookup')
     assert set(expected_schema.items()) <= set(actual_schema.items())
+
+@pytest.mark.db
+def test_validate_schema_node_provider_lookup():
+    expected_schema = NodeProviderDB.schema_table_node_provider_lookup
+    actual_schema = node_provider_db._get_schema('node_provider_lookup')
+    assert set(expected_schema.items()) <= set(actual_schema.items())
     
 
 @pytest.mark.db
