@@ -5,7 +5,7 @@ from typing import List
 
 class TelegramBot:
     def __init__(self, telegram_token: str) -> None:
-        self.telegram_bot = telegram.Bot(token=telegram_token)
+        self.telegram_bot = telegram.Bot(telegram_token)
     
     async def send_message(
             self,
