@@ -1,4 +1,5 @@
 import time
+import asyncio
 from collections import deque
 from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
@@ -177,21 +178,21 @@ class NodeMonitor:
             # - - - - - - - - - - - - - - - - -
 
 
-    async def step(self) -> None:
+    def step(self) -> None:
         """Iterate NodeMonitor one step."""
         try:
             # These all need to be in the same try/catch block, because if
             # _resync fails, we don't want to analyze or broadcast_alerts.
             self._resync()
             self._analyze()
-            await self.broadcast_alerts()
+            asyncio.run(self.broadcast_alerts())
         except Exception as e:
             logging.error(f"NodeMonitor.step() failed with error: {e}")
 
 
-    async def mainloop(self) -> None:
+    def mainloop(self) -> None:
         """Iterate NodeMonitor in a loop. This is the main entrypoint."""
         while True:
-            await self.step()
+            self.step()
             schedule.run_pending()
             time.sleep(sync_interval)
