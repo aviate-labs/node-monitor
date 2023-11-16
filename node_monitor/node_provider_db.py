@@ -128,28 +128,43 @@ class NodeProviderDB:
     
     def _execute(self, sql: str,
                  params: Tuple[Any, ...]) -> List[Dict[str, Any]]:
-        """Execute a SQL statement with a connection from the pool.
-        An empty tuple should be passed if no parameters are needed.
-        All transactions are committed.
-        Returns a list of dicts instead of the default list of tuples.
-        Ex. [{'column_name': value, ...}, ...]
+        """Execute a SQL statement with a connection from the pool. All
+        transactions are committed.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL statement to execute.
+        params : Tuple[Any, ...]
+            The parameters to pass to the SQL statement. An empty tuple should
+            be passed if no parameters are needed.
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            A list of dicts representing the rows returned by the SQL statement.
+            If the SQL statement does not return any results, an empty list is
+            returned. This allows us to call `SELECT`, `INSERT`, `UPDATE`, and
+            `DELETE` statements with the same function.
+            Ex. [{'column_name': value, ...}, ...].
         """
-        # Note: this method can also be used for read-only queries, because
-        # conn.commit() adds insignificant overhead for read-only queries.
-        # Note: we convert 'result' from type List[RealDictCursor] to List[dict]
+        # Notes:
+        # 1. conn.commit() is necessary for queries that write to the database,
+        #    and adds insignificant overhead for read-only queries. This allows 
+        #    us to use the same method for both read and write queries.
+        # 2. We convert `result` from type List[RealDictCursor] to List[dict].
+        # 3. Only `SELECT` statements return results, so we must check if the 
+        #    query returned results before we call cur.fetchall(), otherwise
+        #    we get an error. We do this by checking if cur.description is None.
         conn = self.pool.getconn()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
-            
-            # Check query is a SELECT statement by seeing if it returned results
             if cur.description is not None:
                 result = [dict(r) for r in cur.fetchall()]
             else:
                 result = []
-                
         conn.commit()
         self.pool.putconn(conn)
-        
         return result
     
 
