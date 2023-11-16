@@ -140,10 +140,17 @@ class NodeProviderDB:
         conn = self.pool.getconn()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
-            result = cur.fetchall()
+            
+            # Check query is a SELECT statement by seeing if it returned results
+            if cur.description is not None:
+                result = [dict(r) for r in cur.fetchall()]
+            else:
+                result = []
+                
         conn.commit()
         self.pool.putconn(conn)
-        return [dict(r) for r in result]
+        
+        return result
     
 
     def _execute1(self, sql: str, params: Tuple[Any, ...]) -> List[Tuple[Any, ...]]:
@@ -160,14 +167,6 @@ class NodeProviderDB:
         conn.commit()
         self.pool.putconn(conn)
         return result
-    
-
-    def _execute_write(self, sql: str, params: Tuple[Any, ...]) -> None:
-        conn = self.pool.getconn()
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-        conn.commit()
-        self.pool.putconn(conn)
 
 
     def _get_schema(self, table_name: str) -> Dict[str, str]:
@@ -252,7 +251,7 @@ class NodeProviderDB:
         """
         for node_provider_principal in node_providers.keys():
             params = (node_provider_principal, node_providers[node_provider_principal])
-            self._execute_write(query, params)
+            self._execute(query, params)
 
 
     def delete_node_provider(self, node_provider_id: Principal) -> None:
@@ -261,7 +260,7 @@ class NodeProviderDB:
             DELETE FROM node_provider_lookup
             WHERE node_provider_id = %s
         """
-        self._execute_write(query, (node_provider_id,))
+        self._execute(query, (node_provider_id,))
 
 
     def close(self) -> None:
