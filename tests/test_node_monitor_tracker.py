@@ -2,16 +2,19 @@ import pytest
 from unittest.mock import patch, Mock
 from node_monitor_tracker.node_monitor_tracker import NodeMonitorTracker
 from node_monitor.bot_email import EmailBot
+import node_monitor.load_config as c
 
 @patch("requests.get")
 def test_check_server_status(mock_get):
-    mock_node_monitor_tracker = Mock(spec=NodeMonitorTracker)
+    mock_email_bot = Mock(spec=EmailBot)
+    node_monitor_tracker = NodeMonitorTracker(
+        mock_email_bot, c.EMAIL_ADMINS_LIST, c.NODE_MONITOR_URL )
 
     mock_response = Mock()
     mock_response.json.return_value = {"status": "offline"}
     mock_get.return_value = mock_response
 
-    mock_node_monitor_tracker.check_server_status()
+    node_monitor_tracker.check_node_monitor_status()
 
-    assert mock_get.assert_called_once_with("insert dummy URL here")
-    assert mock_node_monitor_tracker.send_notification.call_count == 1
+    mock_get.assert_called_once_with(c.NODE_MONITOR_URL)
+    assert mock_email_bot.send_emails.call_count == 1
