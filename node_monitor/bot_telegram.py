@@ -1,4 +1,3 @@
-
 import requests
 import textwrap
 from typing import List

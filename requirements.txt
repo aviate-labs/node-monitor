@@ -14,4 +14,3 @@ types-psycopg2
 eventlet
 schedule
 pytz
-python-telegram-bot
