@@ -15,4 +15,3 @@ eventlet
 schedule
 pytz
 python-telegram-bot
-pytest-asyncio

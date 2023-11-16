@@ -74,8 +74,7 @@ class TestNodeMonitor:
 
 
 
-@pytest.mark.asyncio
-async def test_control():
+def test_control():
     """Test the control case. No nodes down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
@@ -94,7 +93,7 @@ async def test_control():
     assert len(nm.actionables) == 0
 
     # test broadcast_alerts()
-    await nm.broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_messages.call_count == 0
     assert mock_telegram_bot.send_messages.call_count == 0
@@ -104,7 +103,7 @@ async def test_control():
     mock_telegram_bot.reset_mock()
 
     # test broadcast_status_report()
-    await nm.broadcast_status_report()
+    nm.broadcast_status_report()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_messages.call_count == 1
     assert mock_telegram_bot.send_messages.call_count == 1
@@ -115,8 +114,7 @@ async def test_control():
 
 
 
-@pytest.mark.asyncio
-async def test_one_node_bounce():
+def test_one_node_bounce():
     """Test the case where one node bounces.
     Should not result in a false positive.
     """
@@ -137,7 +135,7 @@ async def test_one_node_bounce():
     assert len(nm.actionables) == 0
 
     # test broadcast_alerts()
-    await nm.broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_messages.call_count == 0
     assert mock_telegram_bot.send_messages.call_count == 0
@@ -147,8 +145,7 @@ async def test_one_node_bounce():
     mock_telegram_bot.reset_mock()
 
 
-@pytest.mark.asyncio
-async def test_two_nodes_down():
+def test_two_nodes_down():
     """Test the case where two nodes truly go down."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
@@ -167,7 +164,7 @@ async def test_two_nodes_down():
     assert len(nm.actionables) == 1
 
     # test broadcast_alerts()
-    await nm.broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 1
     assert mock_slack_bot.send_messages.call_count == 1
     assert mock_telegram_bot.send_messages.call_count == 1
@@ -177,8 +174,7 @@ async def test_two_nodes_down():
     mock_telegram_bot.reset_mock()
 
 
-@pytest.mark.asyncio
-async def test_one_new_node_online():
+def test_one_new_node_online():
     """Test the case where one new node comes online."""
     # init
     mock_email_bot = Mock(spec=EmailBot)
@@ -197,7 +193,7 @@ async def test_one_new_node_online():
     assert len(nm.actionables) == 0
 
     # test broadcast_alerts()
-    await nm.broadcast_alerts()
+    nm.broadcast_alerts()
     assert mock_email_bot.send_emails.call_count == 0
     assert mock_slack_bot.send_message.call_count == 0
     assert mock_telegram_bot.send_message.call_count == 0

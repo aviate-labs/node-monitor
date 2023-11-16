@@ -1,5 +1,4 @@
 import time
-import asyncio
 from collections import deque
 from typing import Deque, List, Dict, Optional
 from toolz import groupby # type: ignore
@@ -101,7 +100,7 @@ class NodeMonitor:
                             if k in subscriber_ids}
     
 
-    async def broadcast_alerts(self) -> None:
+    def broadcast_alerts(self) -> None:
         """Broadcast relevant alerts to the appropriate channels. Retrieves
         subscribers, node_labels, and email_recipients from the database."""
         subscribers = self.node_provider_db.get_subscribers_as_dict()
@@ -128,13 +127,13 @@ class NodeMonitor:
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending alert telegram messages to {chats}...")
-                    err2 = await self.telegram_bot.send_messages(chats, message)
+                    err2 = self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
 
 
-    async def broadcast_status_report(self) -> None:
+    def broadcast_status_report(self) -> None:
         """Broadcasts a Node Status Report to all Node Providers.
         Retrieves subscribers, node_labels, and email_recipients from the
         database. Filters out Node Providers that are not subscribed to
@@ -172,7 +171,7 @@ class NodeMonitor:
                 if self.telegram_bot is not None:
                     chats = telegram_chats[node_provider_id]
                     logging.info(f"Sending status report telegram messages to {chats}...")
-                    err2 = await self.telegram_bot.send_messages(chats, message)
+                    err2 = self.telegram_bot.send_messages(chats, message)
                     if err2 is not None:
                         logging.error(f"TelegramBot.send_message() failed with error: {err2}")
             # - - - - - - - - - - - - - - - - -
@@ -185,7 +184,7 @@ class NodeMonitor:
             # _resync fails, we don't want to analyze or broadcast_alerts.
             self._resync()
             self._analyze()
-            asyncio.run(self.broadcast_alerts())
+            self.broadcast_alerts()
         except Exception as e:
             logging.error(f"NodeMonitor.step() failed with error: {e}")
 
