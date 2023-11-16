@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from devtools import debug
+import toolz
 
 ## A custom script that imports some classes from node_monitor
 ## and sends out a custom email message
@@ -23,14 +25,27 @@ node_provider_db = NodeProviderDB(
 nm = NodeMonitor(node_provider_db, email_bot, None, None)
 
 
-# Initialize broadcaster
+# Initialize broadcaster (this is for email, slack, telegram)
+# We don't need to use it (we can just send emails with email_bot)
+subscribers = nm.node_provider_db.get_subscribers_as_dict()
+email_lookup = nm.node_provider_db.get_emails_as_dict()
+subscriber_principals = list(subscribers.keys())
+broadcaster = nm._make_broadcaster()
+unique_emails = list(toolz.unique(toolz.concat(list(email_lookup.values()))))
+# debug(unique_emails)
 
 
+## Set up the email parameters
+recipients = ['george@aviatelabs.co']
+subject = "Custom Email Subject"
+message = email
 
-## Send the emails
 
 def main():
-    print("I don't do anything, yet...")
+    print("Sending emails...")
+    # Uncomment this following line to actually send the emails
+    # email_bot.send_emails(recipients, subject, message)
+    print("Done!")
 
 
 if __name__ == "__main__":
