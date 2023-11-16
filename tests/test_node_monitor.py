@@ -74,7 +74,6 @@ class TestNodeMonitor:
 
 
 
-
 def test_control():
     """Test the control case. No nodes down."""
     # init
@@ -115,7 +114,6 @@ def test_control():
 
 
 
-
 def test_one_node_bounce():
     """Test the case where one node bounces.
     Should not result in a false positive.
@@ -147,7 +145,6 @@ def test_one_node_bounce():
     mock_telegram_bot.reset_mock()
 
 
-
 def test_two_nodes_down():
     """Test the case where two nodes truly go down."""
     # init
@@ -175,7 +172,6 @@ def test_two_nodes_down():
     mock_email_bot.reset_mock()
     mock_slack_bot.reset_mock()
     mock_telegram_bot.reset_mock()
-
 
 
 def test_one_new_node_online():
