@@ -105,6 +105,18 @@ class NodeProviderDB:
         'node_label': 'text'
     }
 
+    # table: node_provider_lookup
+    create_table_node_provider_lookup = """
+        CREATE TABLE IF NOT EXISTS node_provider_lookup (
+            node_provider_id TEXT PRIMARY KEY,
+            node_provider_name TEXT
+        );
+    """
+    schema_table_node_provider_lookup = {
+        'node_provider_id': 'text',
+        'node_provider_name': 'text'
+    }
+
 
     ## Methods
     def __init__(self, host: str, db: str, port: str,
@@ -116,22 +128,44 @@ class NodeProviderDB:
     
     def _execute(self, sql: str,
                  params: Tuple[Any, ...]) -> List[Dict[str, Any]]:
-        """Execute a SQL statement with a connection from the pool.
-        An empty tuple should be passed if no parameters are needed.
-        All transactions are committed.
-        Returns a list of dicts instead of the default list of tuples.
-        Ex. [{'column_name': value, ...}, ...]
+        """Execute a SQL statement with a connection from the pool. All
+        transactions are committed.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL statement to execute.
+        params : Tuple[Any, ...]
+            The parameters to pass to the SQL statement. An empty tuple should
+            be passed if no parameters are needed.
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            A list of dicts representing the rows returned by the SQL statement.
+            If the SQL statement does not return any results, an empty list is
+            returned. This allows us to call `SELECT`, `INSERT`, `UPDATE`, and
+            `DELETE` statements with the same function.
+            Ex. [{'column_name': value, ...}, ...].
         """
-        # Note: this method can also be used for read-only queries, because
-        # conn.commit() adds insignificant overhead for read-only queries.
-        # Note: we convert 'result' from type List[RealDictCursor] to List[dict]
+        # Notes:
+        # 1. conn.commit() is necessary for queries that write to the database,
+        #    and adds insignificant overhead for read-only queries. This allows 
+        #    us to use the same method for both read and write queries.
+        # 2. We convert `result` from type List[RealDictCursor] to List[dict].
+        # 3. Only `SELECT` statements return results, so we must check if the 
+        #    query returned results before we call cur.fetchall(), otherwise
+        #    we get an error. We do this by checking if cur.description is None.
         conn = self.pool.getconn()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
-            result = cur.fetchall()
+            if cur.description is not None:
+                result = [dict(r) for r in cur.fetchall()]
+            else:
+                result = []
         conn.commit()
         self.pool.putconn(conn)
-        return [dict(r) for r in result]
+        return result
     
 
     def _execute1(self, sql: str, params: Tuple[Any, ...]) -> List[Tuple[Any, ...]]:
@@ -148,7 +182,7 @@ class NodeProviderDB:
         conn.commit()
         self.pool.putconn(conn)
         return result
-    
+
 
     def _get_schema(self, table_name: str) -> Dict[str, str]:
         """Returns the schema for a table.
@@ -212,6 +246,36 @@ class NodeProviderDB:
         rows = self._execute("SELECT * FROM node_label_lookup", ())
         lookupd = {row['node_id']: row['node_label'] for row in rows}
         return lookupd
+    
+
+    def get_node_providers_as_dict(self) -> Dict[Principal, str]:
+        """Returns the table of all node providers as a dictionary.
+        One to one relationship."""
+        rows = self._execute("SELECT * FROM node_provider_lookup", ())
+        lookupd = {row['node_provider_id']: row['node_provider_name'] for row in rows}
+        return lookupd
+    
+    
+    def insert_node_providers(self, node_providers: Dict[Principal, str]) -> None:
+        """Inserts a NodeProvider object into node_provider_lookup"""
+        query = """
+            INSERT INTO node_provider_lookup (
+                node_provider_id,
+                node_provider_name
+            ) VALUES (%s, %s)
+        """
+        for node_provider_principal in node_providers.keys():
+            params = (node_provider_principal, node_providers[node_provider_principal])
+            self._execute(query, params)
+
+
+    def delete_node_provider(self, node_provider_id: Principal) -> None:
+        """Deletes a record in node_proivder_lookup by node_provider_id"""
+        query = """
+            DELETE FROM node_provider_lookup
+            WHERE node_provider_id = %s
+        """
+        self._execute(query, (node_provider_id,))
 
 
     def close(self) -> None:
