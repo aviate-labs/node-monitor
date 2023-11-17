@@ -28,6 +28,7 @@ class NodeMonitorTracker:
                 print('Server is online.')
 
         except Exception as e:
+            self.send_notification()
             print(f"An error occurred: {e}")
 
 
