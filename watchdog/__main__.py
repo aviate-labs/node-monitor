@@ -4,6 +4,7 @@ import node_monitor.load_config as c
 from node_monitor.bot_email import EmailBot
 from watchdog.watchdog import Watchdog
 
+CHECK_INTERVAL = 15 * 60
 
 if __name__ == "__main__":
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
@@ -11,5 +12,5 @@ if __name__ == "__main__":
     schedule.every(15).minutes.do(watchdog.check_node_monitor_status)
     while True:
         schedule.run_pending()
-        time.sleep(15)
+        time.sleep(CHECK_INTERVAL)
         
