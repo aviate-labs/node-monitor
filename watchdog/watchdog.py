@@ -2,7 +2,7 @@ import requests
 from typing import List
 from node_monitor.bot_email import EmailBot
 
-class NodeMonitorTracker:
+class Watchdog:
     def __init__(
             self, 
             email_bot: EmailBot, 
