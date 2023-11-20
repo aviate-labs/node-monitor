@@ -5,8 +5,7 @@ import node_monitor.load_config as c
 from typing import List
 from node_monitor.bot_email import EmailBot
 
-# CHECK_INTERVAL = 15*60
-CHECK_INTERVAL = 5
+CHECK_INTERVAL = 15*60
 
 class Watchdog:
     def __init__(
@@ -18,8 +17,7 @@ class Watchdog:
         self.recipients = recipients
         self.node_monitor_url = node_monitor_url
         self.jobs = [
-            # schedule.every(15).minutes.do(self.check_node_monitor_status)
-            schedule.every(5).seconds.do(self.check_node_monitor_status)
+            schedule.every(15).minutes.do(self.check_node_monitor_status)
         ]
         
     def send_notification(self) -> None:
