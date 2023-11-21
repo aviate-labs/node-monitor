@@ -1,3 +1,28 @@
+"""Watchdog Script
+
+This script monitors the status of a Node Monitor service and 
+sends email notifications if the service goes offline or is unreachable.
+
+Usage:
+
+1. Set the check interval in seconds (CHECK_INTERVAL_SECONDS) 
+   based on the desired frequency of monitoring. 
+   The default is 900 seconds (15 minutes).
+
+2. Define an instance of the EmailBot class with the required email credentials,
+
+
+Note:
+- The `start()` method runs indefinitely, so make sure to interrupt 
+  the script manually (^C) when needed.
+
+- It is recommended to customize the email notification content 
+  in the `send_notification()` method based on your specific requirements.
+
+- This script assumes the existence of the 'EmailBot' and 'load_config' modules, 
+  which should be available in the specified import paths.
+"""
+
 import requests
 import time
 from typing import List
