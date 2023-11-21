@@ -42,5 +42,7 @@ class Watchdog:
 email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 watchdog = Watchdog(email_bot, c.EMAIL_ADMINS_LIST, c.NODE_MONITOR_URL)
 
+assert watchdog.is_node_monitor_online() == True
+
 if __name__ == "__main__":
     watchdog.start()
