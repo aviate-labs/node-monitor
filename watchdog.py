@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 ## Watchdog Script
+##
 ## This script monitors the status of a Node Monitor service and
 ## sends email notifications if the service goes offline or is unreachable.
+## You can run this in GNU Screen or another multiplexer/background process manager.
 ##
 ##
 ## Usage:
@@ -50,6 +52,7 @@ class Watchdog:
             return False
 
     def mainloop(self) -> None:
+        print("Watchdog is running...")
         while True:
             if not self.is_node_monitor_online():
                 self.send_notification()
