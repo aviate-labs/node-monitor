@@ -13,6 +13,9 @@
 ##   3. Instantiate class Watchdog
 ##   4. Call the mainloop() method to begin monitoring
 ##   2. Define an instance of the EmailBot class with the required email credentials
+##
+##
+
 
 import requests
 import time
