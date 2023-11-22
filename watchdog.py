@@ -30,7 +30,7 @@ from typing import List
 import node_monitor.load_config as c
 from node_monitor.bot_email import EmailBot
 
-CHECK_INTERVAL_SECONDS = 900
+CHECK_INTERVAL_SECONDS = 15 * 60 # 15 minutes
 
 class Watchdog:
     def __init__(
