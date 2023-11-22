@@ -743,6 +743,18 @@
       "region": "Europe,BE,Brussels Capital", 
       "status": "UP", 
       "subnet_id": "w4asl-4nmyj-qnr7c-6cqq4-tkwmt-o26di-iupkq-vx4kt-asbrx-jzuxh-4ae"
+    },
+    {
+      "dc_id": "pl1",
+      "dc_name": "Portland",
+      "node_id": "2zulq-xy5xs-lcuqd-hap3b-scpd2-oqa3p-oxdmj-jrwlk-vsrhj-uvcvl-kqe",
+      "node_operator_id": "lz4fy-gca6y-aodk3-ncdrw-ouoqb-kgvjj-h4nul-eybyu-puwev-hkogp-fqe",
+      "node_provider_id": "eipr5-izbom-neyqh-s3ec2-52eww-cyfpg-qfomg-3dpwj-4pffh-34xcu-7qe",
+      "node_provider_name": "87m Neuron, LLC",
+      "owner": "Flexential",
+      "region": "North America,US,Oregon",
+      "status": "UNASSIGNED",
+      "subnet_id": null
     }
   ]
 }

@@ -118,16 +118,19 @@ class NodeMonitor:
             selected communication channel(s)."""
             preferences = subscribers[node_provider_id]
             if preferences['notify_email'] == True:
-                recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, message)
+                recipients = email_recipients.get(node_provider_id, None)
+                if recipients is not None:
+                    self.email_bot.send_emails(recipients, subject, message)
             if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
-                    channels = slack_channels[node_provider_id]
-                    err1 = self.slack_bot.send_messages(channels, message)
+                    channels = slack_channels.get(node_provider_id, None)
+                    if recipients is not None:
+                        err1 = self.slack_bot.send_messages(channels, message)
             if preferences['notify_telegram'] == True:
                 if self.telegram_bot is not None:
-                    chats = telegram_chats[node_provider_id]
-                    err2 = self.telegram_bot.send_messages(chats, message)
+                    chats = telegram_chats.get(node_provider_id, None)
+                    if recipients is not None:
+                        err2 = self.telegram_bot.send_messages(chats, message)
             return None
         
         return broadcaster
