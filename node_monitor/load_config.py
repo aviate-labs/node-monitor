@@ -18,6 +18,9 @@ DB_PASSWORD         = os.environ.get('DB_PASSWORD',         '')
 DB_NAME             = os.environ.get('DB_NAME',             '')
 DB_PORT             = os.environ.get('DB_PORT',             '')
 FEEDBACK_FORM_URL   = os.environ.get('FEEDBACK_FORM_URL',   '')
+NODE_MONITOR_URL    = os.environ.get('NODE_MONITOR_URL',    '')
+EMAIL_ADMINS_LIST   = os.environ.get('EMAIL_ADMINS_LIST',   '').split(',')
+
 
 
 ## Pre-flight check
