@@ -15,7 +15,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=<path_to_this_repo>
-ExecStart=python3 -m historybuilder
+ExecStart=python3 -m historybuilder_py
 Restart=always
 RestartSec=5
 Type=simple

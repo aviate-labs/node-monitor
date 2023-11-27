@@ -8,7 +8,7 @@ import logging
 DEVELOPMENT = False   # uses in-memory database
 SAFEGUARD = True      # disables dangerous methods
 
-class NodeMonitorDB:
+class HistoryBuilderDB:
     """Database class for node monitor.
     Queries the API every (30?) seconds.
     Stores data in 2 tables:
@@ -55,7 +55,7 @@ class NodeMonitorDB:
         logging.info(f"Added new entry to refs table: {md5}")
 
     def timestamps_add(self, epoch_seconds: int, raw_json: str) -> None:
-        uuid = NodeMonitorDB.str_to_uuid(raw_json)
+        uuid = HistoryBuilderDB.str_to_uuid(raw_json)
         if not self._refs_uuid_already_exists(uuid):
             self._refs_add(uuid, raw_json)
         self.c.execute("INSERT INTO timestamps (epoch_seconds, uuid) VALUES (?, ?)",
@@ -84,26 +84,7 @@ class NodeMonitorDB:
         
 
 
-
-def main():
-    db = NodeMonitorDB()
-    db.DANGEROUSLY_delete_everything()
-    while True:
-        try: 
-            python_json: dict = requests.get(db.endpoint).json()
-            raw_json = json.dumps(python_json)
-        except Exception as e:
-            raise e
-        print(f"{db.get_seconds_since_epoch()}:\n"
-              f"\t{db.str_to_uuid(raw_json)}\n"
-              f"\t{raw_json[:40]}\n\n"
-        )
-        db.timestamps_add(db.get_seconds_since_epoch(), raw_json)
-        time.sleep(30)
-
-
-if __name__ == "__main__":
-    main()
-
-
-
+# Example:
+# python_json: dict = requests.get(db.endpoint).json()
+# raw_json = json.dumps(python_json)
+# db.timestamps_add(db.get_seconds_since_epoch(), raw_json)
