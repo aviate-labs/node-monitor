@@ -2,6 +2,7 @@ import pytest
 from devtools import debug
 
 from node_monitor.node_provider_db import NodeProviderDB
+from tests.conftest import cached
 import node_monitor.load_config as c
 
 
@@ -61,3 +62,32 @@ def test_validate_schema_node_label_lookup():
     expected_schema = NodeProviderDB.schema_table_node_label_lookup
     actual_schema = node_provider_db._get_schema('node_label_lookup')
     assert set(expected_schema.items()) <= set(actual_schema.items())
+
+@pytest.mark.db
+def test_validate_schema_node_provider_lookup():
+    expected_schema = NodeProviderDB.schema_table_node_provider_lookup
+    actual_schema = node_provider_db._get_schema('node_provider_lookup')
+    assert set(expected_schema.items()) <= set(actual_schema.items())
+    
+
+@pytest.mark.db
+def test_insert_and_delete_node_provider():
+
+    # Insert new node providers
+    data = cached["new_node_providers"]
+    node_providers = {d.principal_id: d.display_name for d in data.node_providers}  
+    node_provider_db.insert_node_providers(node_providers)
+
+    # Check new node providers were added properly
+    node_providers = node_provider_db.get_node_providers_as_dict()
+    assert node_providers['test-dummy-principal-1'] == "Node Provider A"
+    assert node_providers['test-dummy-principal-2'] == "Node Provider B"
+    
+    # Delete subscribers
+    node_provider_db.delete_node_provider('test-dummy-principal-1')
+    node_provider_db.delete_node_provider('test-dummy-principal-2')
+    subs = node_provider_db.get_subscribers_as_dict()
+    assert 'test-dummy-principal-1' not in subs
+    assert 'test-dummy-principal-2' not in subs
+
+    

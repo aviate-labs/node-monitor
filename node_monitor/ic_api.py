@@ -9,6 +9,7 @@ from pydantic import BaseModel
 ## Prelim
 assert pydantic.__version__.startswith("2.")
 nodes_endpoint = "https://ic-api.internetcomputer.org/api/v3/nodes"
+node_provider_endpoint = "https://ic-api.internetcomputer.org/api/v3/node-providers"
 
 
 
@@ -37,6 +38,12 @@ class Node(BaseModel):
 class Nodes(BaseModel):
     nodes: List[Node]
 
+class NodeProvider(BaseModel):
+    principal_id: Principal
+    display_name: str
+
+class NodeProviders(BaseModel):
+    node_providers: List[NodeProvider]
 
 
 ##############################################
@@ -54,6 +61,16 @@ def get_nodes_from_file(file_path: str) -> Nodes:
         j = json.load(f)
     return Nodes(**j)
 
+def get_node_providers() -> NodeProviders:
+    """slurps node providers from the dfinity api"""
+    response = requests.get(node_provider_endpoint)
+    return NodeProviders(**response.json())
+
+def get_node_providers_from_file(file_path: str) -> NodeProviders:
+    """slurps node providers from a json file previously retrieved with curl"""
+    with open(file_path) as f:
+        j = json.load(f)
+    return NodeProviders(**j)
 
 
 
@@ -63,4 +80,6 @@ def get_nodes_from_file(file_path: str) -> Nodes:
 if __name__ == "__main__":
     from devtools import debug
     debug(get_nodes())
-    debug(get_nodes_from_file("tests/t0.json"))
+    debug(get_nodes_from_file("data/t0.json"))
+    debug(get_node_providers())
+    debug(get_node_providers_from_file("data/np_t0.json"))
