@@ -59,16 +59,21 @@ def test_send_emails_network():
     ## Init the authenticated email bot instance
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
 
-    ## Set paramaters (uses an anonymous email inbox for testing)
-    ## Send out nodes_down_message and nodes_status_message. We test both.
-    ## We append time to the subject to act as an identifier for the test.
+    ## Set recipient (we use an anonymous email inbox for testing)
     recipients = ['nodemonitortest@mailnesia.com']
-    subject1, message1 = messages.nodes_down_message([fakenode], fakelabel)
-    subject1 = str(f'{time.time()} - {subject1}')
-    email_bot.send_emails(recipients, subject1, message1)
 
-    subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
+    ## Create the messages. We use unittest.mock.patch to remove the private URL.
+    with patch.object(c, 'FEEDBACK_FORM_URL', 'https://url-has-been-redacted.ninja'):
+        subject1, message1 = messages.nodes_compromised_message([fakenode], fakelabel)
+        subject2, message2 = messages.nodes_status_message([fakenode], fakelabel)
+
+    ## Append the time to the subject to act as an identifier for the test,
+    ## making it easy to do a regex search to validate the email.
+    subject1 = str(f'{time.time()} - {subject1}')
     subject2 = str(f'{time.time()} - {subject2}')
+
+    ## Send both nodes_compromised_message and nodes_status_message as emails.
+    email_bot.send_emails(recipients, subject1, message1)
     email_bot.send_emails(recipients, subject2, message2)
 
     ## Automatically check the email inbox
@@ -82,6 +87,6 @@ def test_send_emails_network():
     url = 'https://mailnesia.com/mailbox/nodemonitortest'
     response = requests.get(url)
     assert response.status_code == 200, "Mailnesia website did not respond."
-    assert re.search(subject1, response.text), "The nodes_down_message email was not received."
+    assert re.search(subject1, response.text), "The nodes_compromised_message email was not received."
     assert re.search(subject2, response.text), "The nodes_status_message email was not received."
     print('Email received!')

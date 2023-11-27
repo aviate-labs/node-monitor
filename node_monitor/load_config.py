@@ -7,16 +7,20 @@ load_dotenv()
 ##############################################
 ## Secrets
 
-EMAIL_USERNAME  = os.environ.get('EMAIL_USERNAME',  '')
-EMAIL_PASSWORD  = os.environ.get('EMAIL_PASSWORD',  '')
-TOKEN_DISCORD   = os.environ.get('TOKEN_DISCORD',   '')  # Not implemented
-TOKEN_SLACK     = os.environ.get('TOKEN_SLACK',     '')
-TOKEN_TELEGRAM  = os.environ.get('TOKEN_TELEGRAM',  '')
-DB_HOST         = os.environ.get('DB_HOST',         '')
-DB_USERNAME     = os.environ.get('DB_USERNAME',     '')
-DB_PASSWORD     = os.environ.get('DB_PASSWORD',     '')
-DB_NAME         = os.environ.get('DB_NAME',         '')
-DB_PORT         = os.environ.get('DB_PORT',         '')
+EMAIL_USERNAME      = os.environ.get('EMAIL_USERNAME',      '')
+EMAIL_PASSWORD      = os.environ.get('EMAIL_PASSWORD',      '')
+TOKEN_DISCORD       = os.environ.get('TOKEN_DISCORD',       '')  # Not implemented
+TOKEN_SLACK         = os.environ.get('TOKEN_SLACK',         '')
+TOKEN_TELEGRAM      = os.environ.get('TOKEN_TELEGRAM',      '')
+DB_HOST             = os.environ.get('DB_HOST',             '')
+DB_USERNAME         = os.environ.get('DB_USERNAME',         '')
+DB_PASSWORD         = os.environ.get('DB_PASSWORD',         '')
+DB_NAME             = os.environ.get('DB_NAME',             '')
+DB_PORT             = os.environ.get('DB_PORT',             '')
+FEEDBACK_FORM_URL   = os.environ.get('FEEDBACK_FORM_URL',   '')
+NODE_MONITOR_URL    = os.environ.get('NODE_MONITOR_URL',    '')
+EMAIL_ADMINS_LIST   = os.environ.get('EMAIL_ADMINS_LIST',   '').split(',')
+
 
 
 ## Pre-flight check

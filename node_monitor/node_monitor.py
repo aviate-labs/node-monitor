@@ -1,10 +1,10 @@
 import time
 from collections import deque
-from typing import Deque, List, Dict, Optional
+from typing import Deque, List, Dict, Optional, Callable
 from toolz import groupby # type: ignore
 import schedule
+import logging
 
-import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
@@ -12,6 +12,7 @@ from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 import node_monitor.node_monitor_helpers.messages as messages
+import node_monitor.ic_api as ic_api
 
 Seconds = int
 Principal = str
@@ -62,7 +63,9 @@ class NodeMonitor:
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
         self.jobs = [
             schedule.every().day.at("15:00", "UTC").do(
-                self.broadcast_status_report)
+                self.broadcast_status_report),
+            schedule.every().day.at("15:00", "UTC").do(
+                self.update_node_provider_lookup_if_new)
         ]
 
 
@@ -74,8 +77,9 @@ class NodeMonitor:
             override_data: If provided, this arg will be used instead of 
                 live fetching Nodes from the ic-api. Useful for testing.
         """
-        data = override_data if override_data else ic_api.get_nodes()
-        self.snapshots.append(data)
+        logging.info("Resyncing node states from ic-api...")
+        nodes_api = override_data if override_data else ic_api.get_nodes()
+        self.snapshots.append(nodes_api)
         self.last_update = time.time()
     
 
@@ -96,66 +100,93 @@ class NodeMonitor:
         self.actionables = {k: v for k, v
                             in self.compromised_nodes_by_provider.items()
                             if k in subscriber_ids}
-    
 
-    def broadcast_alerts(self) -> None:
-        """Broadcast relevant alerts to the appropriate channels. Retrieves
-        subscribers, node_labels, and email_recipients from the database."""
+
+    def _make_broadcaster(self) -> Callable[[str, str, str], None]:
+        """A closure that returns a broadcast function with a local cache.
+        Allows the returned function to be run in a loop without
+        querying the database.
+        """
         subscribers = self.node_provider_db.get_subscribers_as_dict()
-        node_labels = self.node_provider_db.get_node_labels_as_dict()
         email_recipients = self.node_provider_db.get_emails_as_dict()
-        channels = self.node_provider_db.get_channels_as_dict()
-        for node_provider_id, nodes in self.actionables.items():
+        slack_channels = self.node_provider_db.get_slack_channels_as_dict()
+        telegram_chats = self.node_provider_db.get_telegram_chats_as_dict()
+
+        def broadcaster(node_provider_id: str,
+                      subject: str, message: str) -> None:
+            """Broadcasts a generic message to a subscriber through their
+            selected communication channel(s)."""
             preferences = subscribers[node_provider_id]
-            subject, message = messages.nodes_down_message(nodes, node_labels)
-            # - - - - - - - - - - - - - - - - -
             if preferences['notify_email'] == True:
                 recipients = email_recipients[node_provider_id]
                 self.email_bot.send_emails(recipients, subject, message)
-            if preferences['notify_slack'] == True: 
+            if preferences['notify_slack'] == True:
                 if self.slack_bot is not None:
-                    channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, message)
-            if preferences['notify_telegram_chat'] == True:
+                    channels = slack_channels[node_provider_id]
+                    err1 = self.slack_bot.send_messages(channels, message)
+            if preferences['notify_telegram'] == True:
                 if self.telegram_bot is not None:
-                    chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, message)
-            # - - - - - - - - - - - - - - - - -
+                    chats = telegram_chats[node_provider_id]
+                    err2 = self.telegram_bot.send_messages(chats, message)
+            return None
+        
+        return broadcaster
+    
+
+    def broadcast_alerts(self) -> None:
+        """Broadcast relevant alerts to the appropriate channels."""
+        broadcaster = self._make_broadcaster()
+        node_labels = self.node_provider_db.get_node_labels_as_dict()
+        for node_provider_id, nodes in self.actionables.items():
+            logging.info(f"Broadcasting alert message to {node_provider_id}...")
+            subject, message = messages.nodes_compromised_message(nodes, node_labels)
+            broadcaster(node_provider_id, subject, message)
 
 
     def broadcast_status_report(self) -> None:
-        """Broadcasts a Node Status Report to all Node Providers.
-        Retrieves subscribers, node_labels, and email_recipients from the
-        database. Filters out Node Providers that are not subscribed to
-        status reports.
-        """
+        """Broadcasts a Node Status Report to all Node Providers."""
+        broadcaster = self._make_broadcaster()
         subscribers = self.node_provider_db.get_subscribers_as_dict()
         node_labels = self.node_provider_db.get_node_labels_as_dict()
-        email_recipients = self.node_provider_db.get_emails_as_dict()
-        channels = self.node_provider_db.get_channels_as_dict()
         latest_snapshot_nodes = self.snapshots[-1].nodes
         all_nodes_by_provider: Dict[Principal, List[ic_api.Node]] = \
             groupby(lambda node: node.node_provider_id, latest_snapshot_nodes)
         reportable_nodes = {k: v for k, v
                             in all_nodes_by_provider.items()
                             if k in subscribers.keys()}
-        # - - - - - - - - - - - - - - - - -
         for node_provider_id, nodes in reportable_nodes.items():
-            preferences = subscribers[node_provider_id]
+            logging.info(f"Broadcasting status report {node_provider_id}...")
             subject, message = messages.nodes_status_message(nodes, node_labels)
-            # - - - - - - - - - - - - - - - - -
-            if preferences['notify_email'] == True:
-                recipients = email_recipients[node_provider_id]
-                self.email_bot.send_emails(recipients, subject, message)
-            if preferences['notify_slack'] == True:
-                if self.slack_bot is not None:
-                    channel_name = channels[node_provider_id]['slack_channel_name']
-                    self.slack_bot.send_message(channel_name, message)
-            if preferences['notify_telegram_chat'] == True: 
-                if self.telegram_bot is not None:
-                    chat_id = channels[node_provider_id]['telegram_chat_id']
-                    self.telegram_bot.send_message(chat_id, message)
-            # - - - - - - - - - - - - - - - - -
+            broadcaster(node_provider_id, subject, message)
+    
+
+    def update_node_provider_lookup_if_new(
+            self, 
+            override_data: ic_api.NodeProviders | None = None) -> None:
+        """Fetches the current node providers from the ic-api and compares
+        them to what is currently in the node_provider_lookup table in the 
+        database. If there is a new node provider in the API, they will be
+        added to our database.
+
+        Args:
+            override_data: If provided, this arg will be used instead of 
+                live fetching Node Providers from the ic-api. Useful for testing.
+        """
+        data = override_data if override_data else ic_api.get_node_providers()
+
+        node_providers_api = {d.principal_id: d.display_name for d in data.node_providers}
+        node_providers_db = self.node_provider_db.get_node_providers_as_dict()
+        
+        principals_api = set(node_providers_api.keys())
+        principals_db = set(node_providers_db.keys())
+        principals_diff = principals_api - principals_db
+
+        node_providers_new = {
+            principal: node_providers_api[principal] for principal in principals_diff}
+        
+        if node_providers_new:
+            self.node_provider_db.insert_node_providers(node_providers_new)
+
 
 
     def step(self) -> None:
@@ -167,7 +198,7 @@ class NodeMonitor:
             self._analyze()
             self.broadcast_alerts()
         except Exception as e:
-            print(f"NodeMonitor.step() failed with error: {e}")
+            logging.error(f"NodeMonitor.step() failed with error: {e}")
 
 
     def mainloop(self) -> None:

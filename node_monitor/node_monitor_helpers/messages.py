@@ -2,9 +2,16 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 
 import node_monitor.ic_api as ic_api
+import node_monitor.load_config as c
 
 # Forgive me Lord Guido, for I have broken PEP8.
 Principal = str
+
+def datetime_iso8601() -> str:
+    """Returns the current time in ISO 8601 format, excluding milliseconds.
+    Example: 2021-05-01T00:00:00.
+    """
+    return datetime.utcnow().isoformat(timespec='seconds')
 
 
 def detailnode(node: ic_api.Node, label: str) -> str:
@@ -52,29 +59,30 @@ def detailnodes(nodes: List[ic_api.Node],
 
 
 
-def nodes_down_message(nodes: List[ic_api.Node], 
+def nodes_compromised_message(nodes: List[ic_api.Node], 
                        labels: Dict[Principal, str]) -> Tuple[str, str]:
-    """Returns a message that describes the nodes that are down, in the
+    """Returns a message that describes the nodes that are compromised, in the
     format of an email or message for a comprable communication channel.
     """
-    nodes_down = [node for node in nodes if node.status == 'DOWN']
+    nodes_compromised = [node for node in nodes 
+                         if node.status == 'DOWN' or node.status == 'DEGRADED']
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def _make_subject() -> str:
-        datacenters = {node.dc_id.upper() for node in nodes_down}
-        match len(nodes_down):
+        datacenters = {node.dc_id.upper() for node in nodes_compromised}
+        match len(nodes_compromised):
             case 0: return "All Systems Healthy"
             case _: return "Action Required @ " + ', '.join(sorted(datacenters))
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    formatted_nodes_down = detailnodes(nodes, labels)
+    formatted_nodes_compromised = detailnodes(nodes, labels)
     subject = _make_subject()
     message = (
         f"🛑 Node(s) Compromised:\n"
         f"\n"
-        f"{formatted_nodes_down}\n"
+        f"{formatted_nodes_compromised}\n"
         f"\n"
         f"Node Monitor by Aviate Labs\n"
-        f"Report Generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Report Generated: {datetime_iso8601()} UTC\n"
+        f"Help us serve you better! Provide your feedback here: {c.FEEDBACK_FORM_URL}")
     return (subject, message)
 
 
@@ -96,7 +104,7 @@ def nodes_status_message(nodes: List[ic_api.Node],
             case 0: return ""
             case _: return (f"🛑 Node(s) Compromised:\n"
                             f"\n"
-                            f"{detailnodes(nodes_down, labels)}\n")
+                            f"{detailnodes(nodes_down, labels)}\n\n")
     def _make_subject() -> str:
         datacenters = {node.dc_id.upper() for node in nodes_down}
         match len(nodes_down):
@@ -109,10 +117,8 @@ def nodes_status_message(nodes: List[ic_api.Node],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     subject = _make_subject()
     message = (
-        f"{_make_diagnostic_message()}\n"
-        f"\n"
+        f"{_make_diagnostic_message()}"
         f"🔎 Node Status Breakdown:\n"
-        f"Total Nodes:      {  total_nodes                                       }\n"
         f"Nodes Up:         {  _render_frac(len(nodes_up  ), total_nodes)        }\n"
         f"Nodes Down:       {  _render_frac(len(nodes_down), total_nodes)        }\n"
         f"Nodes Unassigned: {  _render_frac(len(nodes_unassigned), total_nodes)  }\n"
@@ -124,6 +130,6 @@ def nodes_status_message(nodes: List[ic_api.Node],
         f"\n"
         f"Thanks for reviewing today's report. We'll be back tomorrow!\n"
         f"Node Monitor by Aviate Labs.\n"
-        f"Report generated: {datetime.utcnow().isoformat()} UTC\n"
-        f"Help us serve you better! Provide your feedback!\n")
+        f"Report generated: {datetime_iso8601()} UTC\n"
+        f"Help us serve you better! Provide your feedback here: {c.FEEDBACK_FORM_URL}")
     return (subject, message)

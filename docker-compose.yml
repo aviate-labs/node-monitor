@@ -13,3 +13,6 @@ services:
       - type: bind
         source: .env
         target: /app/.env
+      - type: bind
+        source: ./logs/
+        target: /app/logs/
