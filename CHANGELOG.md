@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented connection pooling.
   - Changed database schema.
   - Made class more friendly to database schema changes.
+- Fixed an issue where messages longer than 4096 characters could not be sent through Telegram.
+- Added a feature to automatically record all node provider info into the database.
+- Added a Watchdog script to notify developers as soon as Node Monitor is down.
 
 
 ## [1.0.0-alpha.1] - 2023-10-20

@@ -5,7 +5,6 @@ from toolz import groupby # type: ignore
 import schedule
 import logging
 
-import node_monitor.ic_api as ic_api
 from node_monitor.bot_email import EmailBot
 from node_monitor.bot_slack import SlackBot
 from node_monitor.bot_telegram import TelegramBot
@@ -13,6 +12,7 @@ from node_monitor.node_provider_db import NodeProviderDB
 from node_monitor.node_monitor_helpers.get_compromised_nodes import \
     get_compromised_nodes
 import node_monitor.node_monitor_helpers.messages as messages
+import node_monitor.ic_api as ic_api
 
 Seconds = int
 Principal = str
@@ -63,7 +63,9 @@ class NodeMonitor:
         self.actionables: Dict[Principal, List[ic_api.Node]] = {}
         self.jobs = [
             schedule.every().day.at("15:00", "UTC").do(
-                self.broadcast_status_report)
+                self.broadcast_status_report),
+            schedule.every().day.at("15:00", "UTC").do(
+                self.update_node_provider_lookup_if_new)
         ]
 
 
@@ -76,8 +78,8 @@ class NodeMonitor:
                 live fetching Nodes from the ic-api. Useful for testing.
         """
         logging.info("Resyncing node states from ic-api...")
-        data = override_data if override_data else ic_api.get_nodes()
-        self.snapshots.append(data)
+        nodes_api = override_data if override_data else ic_api.get_nodes()
+        self.snapshots.append(nodes_api)
         self.last_update = time.time()
     
 
@@ -156,6 +158,35 @@ class NodeMonitor:
             logging.info(f"Broadcasting status report {node_provider_id}...")
             subject, message = messages.nodes_status_message(nodes, node_labels)
             broadcaster(node_provider_id, subject, message)
+    
+
+    def update_node_provider_lookup_if_new(
+            self, 
+            override_data: ic_api.NodeProviders | None = None) -> None:
+        """Fetches the current node providers from the ic-api and compares
+        them to what is currently in the node_provider_lookup table in the 
+        database. If there is a new node provider in the API, they will be
+        added to our database.
+
+        Args:
+            override_data: If provided, this arg will be used instead of 
+                live fetching Node Providers from the ic-api. Useful for testing.
+        """
+        data = override_data if override_data else ic_api.get_node_providers()
+
+        node_providers_api = {d.principal_id: d.display_name for d in data.node_providers}
+        node_providers_db = self.node_provider_db.get_node_providers_as_dict()
+        
+        principals_api = set(node_providers_api.keys())
+        principals_db = set(node_providers_db.keys())
+        principals_diff = principals_api - principals_db
+
+        node_providers_new = {
+            principal: node_providers_api[principal] for principal in principals_diff}
+        
+        if node_providers_new:
+            self.node_provider_db.insert_node_providers(node_providers_new)
+
 
 
     def step(self) -> None:

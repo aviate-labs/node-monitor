@@ -1,4 +1,5 @@
 import requests
+import textwrap
 from typing import List
 
 
@@ -6,18 +7,23 @@ class TelegramBot:
     def __init__(self, telegram_token: str) -> None:
         self.telegram_token = telegram_token
 
+
     def send_message(
             self, chat_id: str, message: str
         ) -> None | requests.exceptions.HTTPError:
         """Send a message to a single Telegram chat."""
+        max_message_length = 4096
+        message_parts = textwrap.wrap(message, width=max_message_length)
+
         try:
-            request = requests.get(
-                f"https://api.telegram.org/bot{self.telegram_token}"
-                f"/sendMessage?chat_id={chat_id}&text={message}"
-            )
-            request.raise_for_status()
+            for part in message_parts:
+                payload = {"chat_id": chat_id, "text": part}
+                response = requests.post(
+                    f"https://api.telegram.org/bot{self.telegram_token}/sendMessage",
+                    data=payload
+                )
+                response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            # print(f"Got an error: {e}")
             return e
         return None
     
@@ -33,3 +39,4 @@ class TelegramBot:
             if this_err is not None:
                 err = this_err
         return err
+        
