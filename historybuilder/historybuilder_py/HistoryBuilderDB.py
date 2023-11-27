@@ -32,6 +32,7 @@ class HistoryBuilderDB:
     """
     endpoint = "https://ic-api.internetcomputer.org/api/v3/nodes"
 
+
     def __init__(self):
         if DEVELOPMENT:
             self.conn = sqlite3.connect(":memory:")
@@ -44,15 +45,18 @@ class HistoryBuilderDB:
         self.conn.commit()
         logging.info("DB Connection Opened")
 
+
     def _refs_uuid_already_exists(self, md5: str) -> bool:
         self.c.execute("SELECT * FROM refs WHERE uuid = ?", (md5,))
         return self.c.fetchone() is not None
+
 
     def _refs_add(self, md5: str, raw_json: str) -> None:
         self.c.execute("INSERT INTO refs (uuid, raw_json) VALUES (?, ?)",
                   (md5, raw_json))
         self.conn.commit()
         logging.info(f"Added new entry to refs table: {md5}")
+
 
     def timestamps_add(self, epoch_seconds: int, raw_json: str) -> None:
         uuid = HistoryBuilderDB.str_to_uuid(raw_json)
@@ -62,6 +66,7 @@ class HistoryBuilderDB:
                   (epoch_seconds, uuid))
         self.conn.commit()
         
+
     def DANGEROUSLY_delete_everything(self) -> None:
         if not SAFEGUARD:
             self.c.execute("DELETE FROM timestamps")
@@ -69,14 +74,25 @@ class HistoryBuilderDB:
             self.conn.commit()
             logging.info("Deleted all data from both tables")
 
+
+    def get_between(self,
+                    epoch_seconds_start: int, 
+                    epoch_seconds_end: int) -> list:
+        self.c.execute("SELECT * FROM timestamps WHERE epoch_seconds BETWEEN ? AND ?",
+                  (epoch_seconds_start, epoch_seconds_end))
+        return self.c.fetchall()
+
+
     def __del__(self):
         self.conn.close()
         logging.info("DB Connection Closed")
         
+
     @staticmethod
     def get_seconds_since_epoch() -> int:
         return int(time.time())
     
+
     @staticmethod
     def str_to_uuid(s: str) -> str:
         md5: str = hashlib.md5(s.encode()).hexdigest()
