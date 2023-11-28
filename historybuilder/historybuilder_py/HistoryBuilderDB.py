@@ -84,6 +84,7 @@ class HistoryBuilderDB:
                        f"WHERE epoch_seconds BETWEEN ? AND ? "),
                   (epoch_seconds_start, epoch_seconds_end))
         all = self.c.fetchall()
+        all = [json.loads(x[3]) for x in all]
         return all
 
 
