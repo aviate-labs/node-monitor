@@ -78,9 +78,13 @@ class HistoryBuilderDB:
     def get_between(self,
                     epoch_seconds_start: int, 
                     epoch_seconds_end: int) -> list:
-        self.c.execute("SELECT * FROM timestamps WHERE epoch_seconds BETWEEN ? AND ?",
+        self.c.execute((f"SELECT * "
+                       f"FROM timestamps "
+                       f"JOIN refs ON timestamps.uuid = refs.uuid "
+                       f"WHERE epoch_seconds BETWEEN ? AND ? "),
                   (epoch_seconds_start, epoch_seconds_end))
-        return self.c.fetchall()
+        all = self.c.fetchall()
+        return all
 
 
     def __del__(self):
