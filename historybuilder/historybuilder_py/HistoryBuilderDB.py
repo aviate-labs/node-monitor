@@ -105,10 +105,3 @@ class HistoryBuilderDB:
 # python_json: dict = requests.get(db.endpoint).json()
 # raw_json = json.dumps(python_json)
 # db.timestamps_add(db.get_seconds_since_epoch(), raw_json)
-
-if __name__ == "__main__":
-    from devtools import debug
-    db = HistoryBuilderDB()
-    rows = db.get_between(1701200280, 1701200438)
-    # rows = [(row[0], row[1]) for row in rows]
-    debug(rows)
