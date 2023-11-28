@@ -78,13 +78,14 @@ class HistoryBuilderDB:
     def get_between(self,
                     epoch_seconds_start: int, 
                     epoch_seconds_end: int) -> list:
-        self.c.execute(f"SELECT * FROM timestamps "
+        self.c.execute(f"SELECT epoch_seconds, refs.uuid, raw_json "
+                       f"FROM timestamps "
                        f"JOIN refs ON timestamps.uuid = refs.uuid "
                        f"WHERE epoch_seconds BETWEEN ? AND ? ",
                        (epoch_seconds_start, epoch_seconds_end))
-        all = self.c.fetchall()
-        all = [json.loads(x[3]) for x in all]
-        return all
+        rows = self.c.fetchall()
+        rows = [(row[0], row[1], json.loads(row[2])) for row in rows]
+        return rows
 
 
     def __del__(self):
@@ -112,5 +113,6 @@ class HistoryBuilderDB:
 if __name__ == "__main__":
     from devtools import debug
     db = HistoryBuilderDB()
-    b = db.get_between(1701200280, 1701200327)
-    debug(b)
+    rows = db.get_between(1701200280, 1701200438)
+    # rows = [(row[0], row[1]) for row in rows]
+    debug(rows)
