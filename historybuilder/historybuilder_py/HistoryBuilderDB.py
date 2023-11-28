@@ -5,7 +5,6 @@ import hashlib
 import time
 import logging
 
-DEVELOPMENT = False   # uses in-memory database
 SAFEGUARD = True      # disables dangerous methods
 
 class HistoryBuilderDB:
@@ -34,10 +33,7 @@ class HistoryBuilderDB:
 
 
     def __init__(self):
-        if DEVELOPMENT:
-            self.conn = sqlite3.connect(":memory:")
-        else:
-            self.conn = sqlite3.connect('master.db')
+        self.conn = sqlite3.connect('master.db')
         assert self.conn.total_changes == 0
         self.c = self.conn.cursor()
         self.c.execute('CREATE TABLE IF NOT EXISTS refs (uuid TEXT, raw_json TEXT)')
