@@ -19,4 +19,10 @@ if __name__ == "__main__":
     rows = db.get_between(1701200280, 1701200938)
     df = pd.DataFrame(rows, columns=['time', 'uuid', 'parsed_json'])
     df['status'] = df['parsed_json'].apply(get_status)
-    print(df[['time', 'uuid', 'status']])
+    df = df.drop('uuid', axis=1)
+    # Calculate uptime percentage
+    total_data_points = df.shape[0]
+    up_data_points = df[df['status'] == 'UP'].shape[0]
+    uptime_percentage = (up_data_points / total_data_points) * 100
+    print("Uptime Percentage: {:.2f}%".format(uptime_percentage))
+    print(df[['time', 'status']])
