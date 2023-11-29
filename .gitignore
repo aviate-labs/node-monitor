@@ -10,6 +10,7 @@
 # misc
 *.csv
 tmp_prod_db.json
+email_to_send.txt
 
 # python
 *.pyc
