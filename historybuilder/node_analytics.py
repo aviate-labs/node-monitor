@@ -16,12 +16,7 @@ def get_status(parsed_json: dict):
 
 if __name__ == "__main__":
     db = HistoryBuilderDB()
-    rows = db.get_between(1701200280, 1701200438)
-    
-    # Create a pandas DataFrame from the rows
+    rows = db.get_between(1701200280, 1701200938)
     df = pd.DataFrame(rows, columns=['time', 'uuid', 'parsed_json'])
-
-    # Apply the get_status function to the 'parsed_json' column
     df['status'] = df['parsed_json'].apply(get_status)
-
     print(df[['time', 'uuid', 'status']])
