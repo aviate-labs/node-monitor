@@ -32,8 +32,8 @@ class HistoryBuilderDB:
     endpoint = "https://ic-api.internetcomputer.org/api/v3/nodes"
 
 
-    def __init__(self):
-        self.conn = sqlite3.connect('master.db')
+    def __init__(self, filename="master.db"):
+        self.conn = sqlite3.connect(filename)
         assert self.conn.total_changes == 0
         self.c = self.conn.cursor()
         self.c.execute('CREATE TABLE IF NOT EXISTS refs (uuid TEXT, raw_json TEXT)')
