@@ -17,8 +17,15 @@ def get_status(parsed_json: dict):
 if __name__ == "__main__":
     db = HistoryBuilderDB(filename="historybuilder_2023-09-29_2023-11-10.db")
     start, end = db.get_start_end()
-    print(start, end)
-    rows = db.get_between(1696006820, 1696012820)
+    print(
+        f"Start: {start}, {HistoryBuilderDB.epoch_seconds_to_datetime(start)}\n"
+        f"End: {end}, {HistoryBuilderDB.epoch_seconds_to_datetime(end)}"
+    )
+    
+    t1 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-09-29")
+    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-05")
+    print(t1, t2)
+    rows = db.get_between(t1, t2)
 
     df = pd.DataFrame(rows, columns=['time', 'uuid', 'parsed_json'])
     df['status'] = df['parsed_json'].apply(get_status)
