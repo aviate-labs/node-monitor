@@ -16,10 +16,10 @@ def get_status(parsed_json: dict):
 
 if __name__ == "__main__":
     db = HistoryBuilderDB(filename="historybuilder_2023-09-29_2023-11-10.db")
-    # db = HistoryBuilderDB()
     start, end = db.get_start_end()
     print(start, end)
-    rows = db.get_between(1701200280, 1701200938)
+    rows = db.get_between(1696006820, 1696012820)
+
     df = pd.DataFrame(rows, columns=['time', 'uuid', 'parsed_json'])
     df['status'] = df['parsed_json'].apply(get_status)
     df = df.drop('uuid', axis=1)
