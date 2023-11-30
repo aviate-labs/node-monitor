@@ -82,6 +82,11 @@ class HistoryBuilderDB:
         rows = self.c.fetchall()
         rows = [(row[0], row[1], json.loads(row[2])) for row in rows]
         return rows
+    
+    
+    def get_start_end(self) -> tuple:
+        self.c.execute("SELECT MIN(epoch_seconds), MAX(epoch_seconds) FROM timestamps")
+        return self.c.fetchone()
 
 
     def __del__(self):
