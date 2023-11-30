@@ -9,11 +9,12 @@ class TelegramBot:
 
 
     def send_message(
-            self, chat_id: str, message: str
+            self, chat_id: str, subject: str, message: str
         ) -> None | requests.exceptions.HTTPError:
         """Send a message to a single Telegram chat."""
+        dispatch = f"{subject}\n\n{message}"
         max_message_length = 4096
-        message_parts = textwrap.wrap(message, width=max_message_length)
+        message_parts = textwrap.wrap(dispatch, width=max_message_length)
 
         try:
             for part in message_parts:
