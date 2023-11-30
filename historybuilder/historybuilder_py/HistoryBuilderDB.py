@@ -100,6 +100,17 @@ class HistoryBuilderDB:
     
 
     @staticmethod
+    def epoch_seconds_to_datetime(epoch_seconds: int) -> str:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch_seconds))
+    
+
+    @staticmethod
+    def datetime_to_epoch_seconds(datetime: str) -> int:
+        datetime = "2021-09-29"
+        return int(time.mktime(time.strptime(datetime, '%Y-%m-%d')))
+
+
+    @staticmethod
     def str_to_uuid(s: str) -> str:
         md5: str = hashlib.md5(s.encode()).hexdigest()
         return md5
