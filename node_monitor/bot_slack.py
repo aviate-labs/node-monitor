@@ -8,13 +8,14 @@ class SlackBot:
         self.client = slack_sdk.WebClient(token=slack_token)
 
     def send_message(
-            self, slack_channel_name: str,
+            self, slack_channel_name: str, subject: str,
             message: str) -> None | SlackApiError:
         """Send a message to a single Slack channel."""
+        dispatch = f"{subject}\n\n{message}"
         try:
             self.client.chat_postMessage(
                 channel=slack_channel_name,
-                text=message)
+                text=dispatch)
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
             # If ok is False, e.response["error"] contains a
