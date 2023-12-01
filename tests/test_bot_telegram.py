@@ -15,7 +15,7 @@ def test_send_message(mock_post):
     message = "Test message"
     payload = {
         "chat_id": chat_id,
-        "text": f"{subject}  {message}"
+        "text": f"{subject}\n\n{message}"
     }
     mock_response = mock_post.return_value
     mock_response.raise_for_status.return_value = None

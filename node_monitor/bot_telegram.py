@@ -14,7 +14,7 @@ class TelegramBot:
         """Send a message to a single Telegram chat."""
         dispatch = f"{subject}\n\n{message}"
         max_message_length = 4096
-        message_parts = textwrap.wrap(dispatch, width=max_message_length)
+        message_parts = [dispatch[i:i + max_message_length] for i in range(0, len(dispatch), max_message_length)]
 
         try:
             for part in message_parts:
