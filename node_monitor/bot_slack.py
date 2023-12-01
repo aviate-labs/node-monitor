@@ -28,13 +28,13 @@ class SlackBot:
     
 
     def send_messages(
-            self, slack_channel_names: List[str],
+            self, slack_channel_names: List[str], subject: str,
             message: str) -> None | SlackApiError:
         """Send a message to multiple Slack channels."""
         # Propagate the last error that occurs
         err = None
         for slack_channel_name in slack_channel_names:
-            this_err = self.send_message(slack_channel_name, message)
+            this_err = self.send_message(slack_channel_name, subject, message)
             if this_err is not None:
                 err = this_err
         return err

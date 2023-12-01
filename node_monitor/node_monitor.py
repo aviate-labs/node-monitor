@@ -125,12 +125,12 @@ class NodeMonitor:
                 if self.slack_bot:
                     channels = slack_channels.get(node_provider_id, [])
                     if channels:
-                        err1 = self.slack_bot.send_messages(channels, message)
+                        err1 = self.slack_bot.send_messages(channels, subject, message)
             if preferences['notify_telegram'] == True:
                 if self.telegram_bot:
                     chats = telegram_chats.get(node_provider_id, [])
                     if chats:
-                        err2 = self.telegram_bot.send_messages(chats, message)
+                        err2 = self.telegram_bot.send_messages(chats, subject, message)
             return None
         
         return broadcaster

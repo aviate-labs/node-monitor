@@ -30,13 +30,13 @@ class TelegramBot:
     
 
     def send_messages(
-            self, chat_ids: List[str], message: str
+            self, chat_ids: List[str], subject: str, message: str
             ) -> None | requests.exceptions.HTTPError:
         """Send a message to multiple Telegram chats."""
         # Propagate the last error that occurs
         err = None
         for chat_id in chat_ids:
-            this_err = self.send_message(chat_id, message)
+            this_err = self.send_message(chat_id, subject, message)
             if this_err is not None:
                 err = this_err
         return err
