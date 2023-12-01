@@ -7,7 +7,8 @@ import re
 from node_monitor.bot_email import EmailBot
 import node_monitor.load_config as c
 import node_monitor.node_monitor_helpers.messages as messages
-import node_monitor.ic_api as ic_api
+from tests.conftest import fake_data
+
 
 # This test sends emails by default
 # Usage to disable live email sending:
@@ -37,24 +38,12 @@ def test_send_emails_mock(mock_smtp):
 
 
 @pytest.mark.live_email
-def test_send_emails_network():
+def test_send_emails_network(fake_data):
     """Send real emails over a network to a test inbox and check that 
     they were received."""
 
-    ## Create a fake node model
-    fakenode = ic_api.Node(
-        dc_id = 'fake_dc_id',
-        dc_name = 'fake_dc_name',
-        node_id = 'fake_node_id',
-        node_operator_id = 'fake_node_operator_id',
-        node_provider_id = 'fake_node_provider_id',
-        node_provider_name = 'fake_node_provider_name',
-        owner = 'fake_owner',
-        region = 'fake_region',
-        status = 'DOWN',
-        subnet_id = 'fake_subnet_id',
-    )
-    fakelabel = {'fake_node_id': 'fake_label'}
+    ## Generate fake node and label
+    fakenode, fakelabel = fake_data
 
     ## Init the authenticated email bot instance
     email_bot = EmailBot(c.EMAIL_USERNAME, c.EMAIL_PASSWORD)
