@@ -6,16 +6,16 @@ class SlackBot:
 
     def __init__(self, slack_token: str) -> None:
         self.client = slack_sdk.WebClient(token=slack_token)
+        
 
     def send_message(
-            self, slack_channel_name: str, subject: str,
+            self, slack_channel_name: str,
             message: str) -> None | SlackApiError:
         """Send a message to a single Slack channel."""
-        dispatch = f"{subject}\n\n{message}"
         try:
             self.client.chat_postMessage(
                 channel=slack_channel_name,
-                text=dispatch)
+                text=message)
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
             # If ok is False, e.response["error"] contains a
@@ -28,13 +28,13 @@ class SlackBot:
     
 
     def send_messages(
-            self, slack_channel_names: List[str], subject: str,
+            self, slack_channel_names: List[str],
             message: str) -> None | SlackApiError:
         """Send a message to multiple Slack channels."""
         # Propagate the last error that occurs
         err = None
         for slack_channel_name in slack_channel_names:
-            this_err = self.send_message(slack_channel_name, subject, message)
+            this_err = self.send_message(slack_channel_name, message)
             if this_err is not None:
                 err = this_err
         return err

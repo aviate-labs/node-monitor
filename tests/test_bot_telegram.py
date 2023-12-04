@@ -13,6 +13,7 @@ def test_send_message(mock_post):
     chat_id = "1234567890"
     subject = "Test subject"
     message = "Test message"
+    dispatch = f"{subject}\n\n{message}"
     payload = {
         "chat_id": chat_id,
         "text": f"{subject}\n\n{message}"
@@ -20,7 +21,7 @@ def test_send_message(mock_post):
     mock_response = mock_post.return_value
     mock_response.raise_for_status.return_value = None
 
-    telegram_bot.send_message(chat_id, subject, message)
+    telegram_bot.send_message(chat_id, dispatch)
 
     mock_post.assert_called_once_with(
         f"https://api.telegram.org/bot{telegram_bot.telegram_token}/sendMessage",
@@ -38,7 +39,8 @@ def test_send_live_message(fake_data):
     chat_id = "-1001925583150"  
 
     subject, message = messages.nodes_compromised_message([fakenode], fakelabel)
+    dispatch = f"{subject}\n\n{message}"
 
-    err = telegram_bot.send_message(chat_id, subject, message)
+    err = telegram_bot.send_message(chat_id, dispatch)
     if err is not None:
         raise err

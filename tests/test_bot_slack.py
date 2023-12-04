@@ -14,9 +14,10 @@ def test_send_message(mock_web_client):
     expected_channel = "#node-monitor"
     expected_subject = "Subject message"
     expected_message = "Hello, Slack!"
+    dispatch = f"{expected_subject}\n\n{expected_message}"
 
     slack_bot = SlackBot(c.TOKEN_SLACK)
-    slack_bot.send_message(expected_channel, expected_subject, expected_message)
+    slack_bot.send_message(expected_channel, dispatch)
 
     mock_client.chat_postMessage.assert_called_once_with(
         channel=expected_channel,
@@ -31,10 +32,11 @@ def test_send_message_slack(fake_data):
     slack_channel_name = "node-monitor"
 
     subject, message = messages.nodes_compromised_message([fakenode], fakelabel)
+    dispatch = f"{subject}\n\n{message}"
 
     ## SlackBot.send_message() normally returns an error without raising 
     ## an exception to prevent NodeMonitor from crashing if the message 
     ## fails to send. We make sure to raise it here to purposely fail the test.
-    err = slack_bot.send_message(slack_channel_name, subject, message)
+    err = slack_bot.send_message(slack_channel_name, dispatch)
     if err is not None:
         raise err

@@ -9,12 +9,15 @@ class TelegramBot:
 
 
     def send_message(
-            self, chat_id: str, subject: str, message: str
+            self, chat_id: str, message: str
         ) -> None | requests.exceptions.HTTPError:
         """Send a message to a single Telegram chat."""
-        dispatch = f"{subject}\n\n{message}"
         max_message_length = 4096
-        message_parts = [dispatch[i:i + max_message_length] for i in range(0, len(dispatch), max_message_length)]
+
+        # TODO: use itertools.batched here when python version is updated to >=3.12.
+        message_parts = [
+            message[i:i + max_message_length] 
+            for i in range(0, len(message), max_message_length)]
 
         try:
             for part in message_parts:
@@ -30,13 +33,13 @@ class TelegramBot:
     
 
     def send_messages(
-            self, chat_ids: List[str], subject: str, message: str
+            self, chat_ids: List[str], message: str
             ) -> None | requests.exceptions.HTTPError:
         """Send a message to multiple Telegram chats."""
         # Propagate the last error that occurs
         err = None
         for chat_id in chat_ids:
-            this_err = self.send_message(chat_id, subject, message)
+            this_err = self.send_message(chat_id, message)
             if this_err is not None:
                 err = this_err
         return err
