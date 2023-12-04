@@ -45,15 +45,11 @@ if __name__ == "__main__":
         return df
 
     for window in windows:
-        print(window)
+        print(window, flush=True)
         t0, t1 = window
         df = list_2_dataframe(t0, t1)
-        print(df)
     
-    # print(df)
     print("Done!")
-
-    # rows = db.get_between(t1, t2)
 
     # Create dataframe
     # df = pd.DataFrame(rows, columns=['time', 'uuid', 'parsed_json'])
