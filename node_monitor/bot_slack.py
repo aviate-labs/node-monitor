@@ -6,6 +6,7 @@ class SlackBot:
 
     def __init__(self, slack_token: str) -> None:
         self.client = slack_sdk.WebClient(token=slack_token)
+        
 
     def send_message(
             self, slack_channel_name: str,

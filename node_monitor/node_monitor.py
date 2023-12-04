@@ -117,6 +117,7 @@ class NodeMonitor:
             """Broadcasts a generic message to a subscriber through their
             selected communication channel(s)."""
             preferences = subscribers[node_provider_id]
+            dispatch = f"{subject}\n\n{message}"
             if preferences['notify_email'] == True:
                 recipients = email_recipients.get(node_provider_id, [])
                 if recipients:
@@ -125,12 +126,12 @@ class NodeMonitor:
                 if self.slack_bot:
                     channels = slack_channels.get(node_provider_id, [])
                     if channels:
-                        err1 = self.slack_bot.send_messages(channels, message)
+                        err1 = self.slack_bot.send_messages(channels, dispatch)
             if preferences['notify_telegram'] == True:
                 if self.telegram_bot:
                     chats = telegram_chats.get(node_provider_id, [])
                     if chats:
-                        err2 = self.telegram_bot.send_messages(chats, message)
+                        err2 = self.telegram_bot.send_messages(chats, dispatch)
             return None
         
         return broadcaster

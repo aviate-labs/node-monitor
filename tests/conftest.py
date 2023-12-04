@@ -73,6 +73,23 @@ def pytest_collection_modifyitems(config, items):
                 item.add_marker(skip_live_telegram)
 
 
+@pytest.fixture
+def fake_data():
+    fakenode = ic_api.Node(
+        dc_id='fake_dc_id',
+        dc_name='fake_dc_name',
+        node_id='fake_node_id',
+        node_operator_id='fake_node_operator_id',
+        node_provider_id='fake_node_provider_id',
+        node_provider_name='fake_node_provider_name',
+        owner='fake_owner',
+        region='fake_region',
+        status='DOWN',
+        subnet_id='fake_subnet_id',
+    )
+    fakelabel = {'fake_node_id': 'fake_label'}
+    return fakenode, fakelabel
+
 
 ## Create mock data for testing
 ## Data was pulled from the ic-api using cURL and stored in json files.

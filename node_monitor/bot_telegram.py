@@ -13,7 +13,11 @@ class TelegramBot:
         ) -> None | requests.exceptions.HTTPError:
         """Send a message to a single Telegram chat."""
         max_message_length = 4096
-        message_parts = textwrap.wrap(message, width=max_message_length)
+
+        # TODO: use itertools.batched here when python version is updated to >=3.12.
+        message_parts = [
+            message[i:i + max_message_length] 
+            for i in range(0, len(message), max_message_length)]
 
         try:
             for part in message_parts:
