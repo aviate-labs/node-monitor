@@ -26,7 +26,7 @@ if __name__ == "__main__":
     )
 
     t1 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-09-29")
-    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-02")
+    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-09-30")
     # t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-11-04")
     print(t1, t2)
     # rows = db.get_between(1696006820, 1696009820)
@@ -52,6 +52,12 @@ if __name__ == "__main__":
     for window in windows:
         print(window, flush=True)
         t0, t1 = window
+        print(
+            f"Chewing on:\n"
+            f"    {t0} -> {t1}\n"
+            f"    {HistoryBuilderDB.epoch_seconds_to_datetime(t0)} -> {HistoryBuilderDB.epoch_seconds_to_datetime(t1)}\n\n",
+            flush=True
+        )
         pd.concat([df, list_2_dataframe(t0, t1)], ignore_index=True)
     print("Done!")
 
