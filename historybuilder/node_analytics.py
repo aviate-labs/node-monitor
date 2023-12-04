@@ -26,7 +26,8 @@ if __name__ == "__main__":
     )
 
     t1 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-09-29")
-    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-11-04")
+    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-02")
+    # t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-11-04")
     print(t1, t2)
     # rows = db.get_between(1696006820, 1696009820)
     intervals = range(t1, t2, 3600) # 3600 seconds / 60 = 60 minutes
@@ -43,12 +44,15 @@ if __name__ == "__main__":
         df = df.drop('parsed_json', axis=1)
         df['status_value'] = df['status'].apply(lambda x: 1 if x == 'UP' else 0)
         return df
+    
+    # Concatenate/merge each dataframe
+    df = pd.DataFrame()
+
 
     for window in windows:
         print(window, flush=True)
         t0, t1 = window
-        df = list_2_dataframe(t0, t1)
-    
+        pd.concat([df, list_2_dataframe(t0, t1)], ignore_index=True)
     print("Done!")
 
     # Create dataframe
