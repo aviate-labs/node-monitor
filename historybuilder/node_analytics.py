@@ -15,6 +15,15 @@ def get_status(parsed_json: dict):
         result = "NONEXISTENT"
     return result
 
+def status_enum(status: str) -> int:
+    assert status in ['UP', 'DOWN', 'UNASSIGNED', 'DEGRADED', 'NONEXISTENT']
+    if status == 'UP': return 1
+    if status == 'DOWN': return 0
+    if status == 'UNASSIGNED': return -1
+    if status == 'DEGRADED': return -2
+    if status == 'NONEXISTENT': return -3
+    raise ValueError(f"Unknown status: {status}")
+
 
 if __name__ == "__main__":
     # Gather the data
@@ -25,8 +34,8 @@ if __name__ == "__main__":
         f"End: {end}, {HistoryBuilderDB.epoch_seconds_to_datetime(end)}"
     )
 
-    t1 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-09-29")
-    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-04")
+    t1 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-26")
+    t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-10-27")
     # t2 = HistoryBuilderDB.datetime_to_epoch_seconds("2023-11-04")
     print(t1, t2)
     # rows = db.get_between(1696006820, 1696009820)
@@ -42,7 +51,7 @@ if __name__ == "__main__":
         df['datetime'] = df['time'].apply(HistoryBuilderDB.epoch_seconds_to_datetime)
         df = df.drop('uuid', axis=1)         # drop column uuid
         df = df.drop('parsed_json', axis=1)
-        df['status_value'] = df['status'].apply(lambda x: 1 if x == 'UP' else 0)
+        df['status_value'] = df['status'].apply(status_enum)
         return df
     
     # Concatenate/merge each dataframe
@@ -57,7 +66,9 @@ if __name__ == "__main__":
             f"    {HistoryBuilderDB.epoch_seconds_to_datetime(t0)} -> {HistoryBuilderDB.epoch_seconds_to_datetime(t1)}\n\n",
             flush=True
         )
-        df = pd.concat([df, list_2_dataframe(t0, t1)], ignore_index=True)
+        df_new = list_2_dataframe(t0, t1)
+        print(df_new, flush=True)
+        df = pd.concat([df, df_new], ignore_index=True)
     print("Done!")
 
     # Create dataframe
@@ -77,6 +88,6 @@ if __name__ == "__main__":
 
     # Plot
     fig = px.line(df, x='datetime', y='status_value', title='Node Uptime')
-    fig.update_layout(yaxis_range=[-0.1, 1.1])
+    fig.update_layout(yaxis_range=[-3.9, 1.1])
     fig.show()
     # print(df[['time', 'status']])
