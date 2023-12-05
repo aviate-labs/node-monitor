@@ -5,10 +5,9 @@ import hashlib
 import time
 import logging
 
-DEVELOPMENT = False   # uses in-memory database
 SAFEGUARD = True      # disables dangerous methods
 
-class NodeMonitorDB:
+class HistoryBuilderDB:
     """Database class for node monitor.
     Queries the API every (30?) seconds.
     Stores data in 2 tables:
@@ -32,11 +31,9 @@ class NodeMonitorDB:
     """
     endpoint = "https://ic-api.internetcomputer.org/api/v3/nodes"
 
-    def __init__(self):
-        if DEVELOPMENT:
-            self.conn = sqlite3.connect(":memory:")
-        else:
-            self.conn = sqlite3.connect('master.db')
+
+    def __init__(self, filename="master.db"):
+        self.conn = sqlite3.connect(filename)
         assert self.conn.total_changes == 0
         self.c = self.conn.cursor()
         self.c.execute('CREATE TABLE IF NOT EXISTS refs (uuid TEXT, raw_json TEXT)')
@@ -44,9 +41,11 @@ class NodeMonitorDB:
         self.conn.commit()
         logging.info("DB Connection Opened")
 
+
     def _refs_uuid_already_exists(self, md5: str) -> bool:
         self.c.execute("SELECT * FROM refs WHERE uuid = ?", (md5,))
         return self.c.fetchone() is not None
+
 
     def _refs_add(self, md5: str, raw_json: str) -> None:
         self.c.execute("INSERT INTO refs (uuid, raw_json) VALUES (?, ?)",
@@ -54,14 +53,16 @@ class NodeMonitorDB:
         self.conn.commit()
         logging.info(f"Added new entry to refs table: {md5}")
 
+
     def timestamps_add(self, epoch_seconds: int, raw_json: str) -> None:
-        uuid = NodeMonitorDB.str_to_uuid(raw_json)
+        uuid = HistoryBuilderDB.str_to_uuid(raw_json)
         if not self._refs_uuid_already_exists(uuid):
             self._refs_add(uuid, raw_json)
         self.c.execute("INSERT INTO timestamps (epoch_seconds, uuid) VALUES (?, ?)",
                   (epoch_seconds, uuid))
         self.conn.commit()
         
+
     def DANGEROUSLY_delete_everything(self) -> None:
         if not SAFEGUARD:
             self.c.execute("DELETE FROM timestamps")
@@ -69,14 +70,45 @@ class NodeMonitorDB:
             self.conn.commit()
             logging.info("Deleted all data from both tables")
 
+
+    def get_between(self,
+                    epoch_seconds_start: int, 
+                    epoch_seconds_end: int) -> list:
+        self.c.execute(f"SELECT epoch_seconds, refs.uuid, raw_json "
+                       f"FROM timestamps "
+                       f"JOIN refs ON timestamps.uuid = refs.uuid "
+                       f"WHERE epoch_seconds BETWEEN ? AND ? ",
+                       (epoch_seconds_start, epoch_seconds_end))
+        rows = self.c.fetchall()
+        rows = [(row[0], row[1], json.loads(row[2])) for row in rows]
+        return rows
+    
+    
+    def get_start_end(self) -> tuple:
+        self.c.execute("SELECT MIN(epoch_seconds), MAX(epoch_seconds) FROM timestamps")
+        return self.c.fetchone()
+
+
     def __del__(self):
         self.conn.close()
         logging.info("DB Connection Closed")
         
+
     @staticmethod
     def get_seconds_since_epoch() -> int:
         return int(time.time())
     
+
+    @staticmethod
+    def epoch_seconds_to_datetime(epoch_seconds: int) -> str:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch_seconds))
+    
+
+    @staticmethod
+    def datetime_to_epoch_seconds(datetime: str) -> int:
+        return int(time.mktime(time.strptime(datetime, '%Y-%m-%d')))
+
+
     @staticmethod
     def str_to_uuid(s: str) -> str:
         md5: str = hashlib.md5(s.encode()).hexdigest()
@@ -84,26 +116,7 @@ class NodeMonitorDB:
         
 
 
-
-def main():
-    db = NodeMonitorDB()
-    db.DANGEROUSLY_delete_everything()
-    while True:
-        try: 
-            python_json: dict = requests.get(db.endpoint).json()
-            raw_json = json.dumps(python_json)
-        except Exception as e:
-            raise e
-        print(f"{db.get_seconds_since_epoch()}:\n"
-              f"\t{db.str_to_uuid(raw_json)}\n"
-              f"\t{raw_json[:40]}\n\n"
-        )
-        db.timestamps_add(db.get_seconds_since_epoch(), raw_json)
-        time.sleep(30)
-
-
-if __name__ == "__main__":
-    main()
-
-
-
+# Example:
+# python_json: dict = requests.get(db.endpoint).json()
+# raw_json = json.dumps(python_json)
+# db.timestamps_add(db.get_seconds_since_epoch(), raw_json)
