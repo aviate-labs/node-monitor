@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-<!-- ## [1.0.0-alpha.2] - Unreleased -->
+
+## [1.0.0-alpha.2] - Unreleased
 
 - Added logging.
 - Fixed bug where `UNASSIGNED` nodes were being alerted on as being compromised.
@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an issue where messages longer than 4096 characters could not be sent through Telegram.
 - Added a feature to automatically record all node provider info into the database.
 - Added a Watchdog script to notify developers as soon as Node Monitor is down.
+- Fixed an issue causing Node Monitor to go offline when a subscriber's email is not found.
+- Added email subject line visibility in Slack and Telegram notifications.
+- Fixed an issue where Telegram messages were not formatted properly.
 
 
 ## [1.0.0-alpha.1] - 2023-10-20
