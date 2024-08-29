@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [1.0.0-alpha.2] - 2023-12-12
+## [1.0.0-alpha.2] - 2024-08-29
 
 - Added logging.
 - Fixed bug where `UNASSIGNED` nodes were being alerted on as being compromised.
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an issue causing Node Monitor to go offline when a subscriber's email is not found.
 - Added email subject line visibility in Slack and Telegram notifications.
 - Fixed an issue where Telegram messages were not formatted properly.
+- Fixed bug where `DEGRADED` nodes were not listed as compromised nodes in daily status report.
+- Refactored messages to be more concise.
 
 
 ## [1.0.0-alpha.1] - 2023-10-20
