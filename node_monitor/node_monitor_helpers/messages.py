@@ -93,31 +93,29 @@ def nodes_status_message(nodes: List[ic_api.Node],
     nodes_up           = [node for node in nodes if node.status == 'UP']
     nodes_down         = [node for node in nodes if node.status == 'DOWN']
     nodes_unassigned   = [node for node in nodes if node.status == 'UNASSIGNED']
-    nodes_disabled     = [node for node in nodes if node.status == 'DISABLED']
     nodes_degraded     = [node for node in nodes if node.status == 'DEGRADED']
     total_nodes        = len(nodes)
+    nodes_compromised = [node for node in nodes 
+                        if node.status == 'DOWN' or node.status == 'DEGRADED']
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def _make_diagnostic_message() -> str:
-        match len(nodes_down):
+        match len(nodes_compromised):
             case 0: return ""
             case _: return (f"Node(s) Compromised:\n"
                             f"\n"
-                            f"{detailnodes(nodes_down, labels)}\n\n")
+                            f"{detailnodes(nodes_compromised, labels)}\n\n")
     def _make_subject() -> str:
-        datacenters = {node.dc_id.upper() for node in nodes_down}
-        match len(nodes_down):
+        datacenters = {node.dc_id.upper() for node in nodes_compromised}
+        match len(nodes_compromised):
             case 0: return "🟢 All Systems Healthy"
             case _: return "🟡 Action Required @ " + ', '.join(sorted(datacenters))
-    def _render_frac(numerator: int, denominator: int) -> str:
-        match numerator:
-            case 0: return "None"
-            case _: return f"{numerator}/{denominator}"
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     subject = _make_subject()
     message = (
         f"\nNode Provider: {nodes[0].node_provider_name}\n"
         f"Nodes Total: {total_nodes}\n"
-        f"Node Health: {len(nodes_degraded) + len(nodes_down)} Unhealthy, {len(nodes_unassigned) + len(nodes_up)} Healthy\n"
+        f"Node Health: {len(nodes_degraded) + len(nodes_down)} Unhealthy, " 
+        f"{len(nodes_unassigned) + len(nodes_up)} Healthy\n"
         f"Node Assignment:  {len(nodes_unassigned)} Unassigned, {len(nodes_up)} Assigned\n"
         f"\n\n"
         f"{_make_diagnostic_message()}"
