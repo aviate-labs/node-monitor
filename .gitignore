@@ -18,3 +18,4 @@ tmp_prod_db.json
 
 # database
 master.db
+*.db
